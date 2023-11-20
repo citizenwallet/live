@@ -133,7 +133,7 @@ function HomePage(request) {
     return ErrorMessage("Invalid token address");
   }
 
-  if (!window.ethereum) {
+  if (!window.ethereum && !rpc) {
     return ErrorMessage("Please install MetaMask");
   }
 
