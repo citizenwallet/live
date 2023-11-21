@@ -159,10 +159,6 @@ function MonitorPage(request) {
     return ErrorMessage("Invalid token address");
   }
 
-  if (!window.ethereum && !rpc) {
-    return ErrorMessage("Please install MetaMask or provide a RPC URL");
-  }
-
   if (error) {
     return ErrorMessage(error.error, { message: error.message });
   }
