@@ -11,6 +11,7 @@ import Image from "next/image";
 import AudioPlayer from "react-audio-player";
 import ABI from "@/smartcontracts/ERC20.abi.json";
 import ErrorMessage from "@/components/ErrorMessage";
+import Loading from "@/components/Loading";
 import {
   displayAddress,
   getAvatarUrl,
@@ -118,6 +119,7 @@ function MonitorPage(request) {
 
     const transferEvent = tokenContract.filters.Transfer();
     tokenContract.on(transferEvent, (from, to, amount, event) => {
+      console.log(">>> event", JSON.stringify(event, null, "  "), event);
       const newTransaction = {
         from,
         to,
@@ -164,7 +166,7 @@ function MonitorPage(request) {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container">
       <AudioPlayer
         src={dingSound}
         ref={(element) => (window.audio = element)}
@@ -225,11 +227,12 @@ function MonitorPage(request) {
           )}
         </div>
       )}
-      {listen && (
+      {listen && transactions.length === 0 && <Loading />}
+      {listen && transactions.length > 0 && (
         <ul className="bg-white shadow rounded-lg">
-          {transactions.map((tx, index) => (
+          {transactions.map((tx, key) => (
             <li
-              key={index}
+              key={key}
               className="p-4 border-b border-gray-200 flex items-center"
             >
               <Image
