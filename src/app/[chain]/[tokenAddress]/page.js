@@ -29,7 +29,6 @@ function MonitorPage(request) {
       : getTokenAddress(chain, tokenAddress);
 
   console.log(">>> Using", chain, tokenAddress);
-
   const [provider, setProvider] = useState(null);
   const [tokenContract, setTokenContract] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -116,17 +115,22 @@ function MonitorPage(request) {
 
   useEffect(() => {
     if (!listen || !tokenContract || !tokenContract.filters) return;
-
+    let index = 0;
     const transferEvent = tokenContract.filters.Transfer();
     tokenContract.on(transferEvent, (from, to, amount, event) => {
-      console.log(">>> event", JSON.stringify(event, null, "  "), event);
       const newTransaction = {
         from,
         to,
         amount: formatUnits(amount, token.decimals),
         currency: token.symbol,
         date: new Date(),
+        hash: event.transactionHash,
+        isNew: true,
+        index: index++,
       };
+      setTimeout(() => {
+        newTransaction.isNew = false;
+      }, 3000);
       window.playSound();
       setTransactions((prev) => {
         const updatedTransactions = [newTransaction, ...prev];
@@ -189,7 +193,8 @@ function MonitorPage(request) {
               Total Amount Transferred
             </div>
             <div className="text-3xl font-bold">
-              {totalAmount.toFixed(2)} {token.symbol}
+              {totalAmount.toFixed(2)}{" "}
+              <span className="font-normal text-sm">{token.symbol}</span>
             </div>
           </div>
         </div>
@@ -211,7 +216,7 @@ function MonitorPage(request) {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  stroke-width="2"
+                  strokeWidth="2"
                   d="M13 10V3L4 14h7v7l9-11h-7z"
                 ></path>
               </svg>
@@ -232,8 +237,11 @@ function MonitorPage(request) {
         <ul className="bg-white shadow rounded-lg">
           {transactions.map((tx, key) => (
             <li
-              key={key}
-              className="p-4 border-b border-gray-200 flex items-center"
+              key={tx.index}
+              id={`transaction-${tx.index}`}
+              className={`p-4 border-b border-gray-200 flex items-center ${
+                tx.isNew ? "highlight-animation" : ""
+              }`}
             >
               <Image
                 src={getAvatarUrl(tx.from)}
@@ -242,22 +250,24 @@ function MonitorPage(request) {
                 height={40}
                 className="rounded-full mr-4"
               />
-              <div>
-                <div className="text-lg font-bold text-gray-600">
-                  {parseFloat(tx.amount).toFixed(2)} {token.symbol}
-                </div>
-                <div className="text-xs  text-gray-500">
-                  <label className="w-10 block float-left">From:</label>{" "}
-                  {displayAddress(tx.from)}
-                </div>
-                <div className="text-xs text-gray-500">
-                  <label className="w-10 block float-left">To:</label>{" "}
-                  {displayAddress(tx.to)}
-                </div>
-                <div className="text-xs text-gray-500">
-                  <label className="w-10 block float-left">Date:</label>{" "}
+              <div className="flex flex-col justify-between w-full">
+                <div className="font-bold text-xs text-gray-500">
                   {tx.date.toLocaleString()}
                 </div>
+                <div className="flex flex-row align-left">
+                  <div className="text-xs  text-gray-500 mr-2">
+                    <label className="block mr-1 float-left">From:</label>{" "}
+                    {displayAddress(tx.from)}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    <label className="block mr-1 float-left">To:</label>{" "}
+                    {displayAddress(tx.to)}
+                  </div>
+                </div>
+              </div>
+              <div className="text-lg font-bold text-gray-600 text-right">
+                {parseFloat(tx.amount).toFixed(2)}{" "}
+                <span className="text-sm font-normal">{token.symbol}</span>
               </div>
             </li>
           ))}
