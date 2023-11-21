@@ -2,7 +2,7 @@ import Link from "next/link";
 
 function HomePage(request) {
   return (
-    <div className="container mx-auto max-w-screen-sm m-4 p-3">
+    <div className="container">
       <h1>Monitor transactions on the blockchain</h1>
       <p>
         Just append <code>/:chain/:tokenAddress</code> to the URL
