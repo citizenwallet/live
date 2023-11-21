@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import chains from "../data/chains.json";
 
 const ChainIcon = () => {
   const [chainId, setChainId] = useState(null);
@@ -16,22 +17,14 @@ const ChainIcon = () => {
     getChainId();
   }, []);
 
-  const chainName = {
-    137: "polygon",
-    8453: "base",
-    42220: "celo",
-    10: "optimism",
-    1: "ethereum",
-  };
-
   const iconSrc = `https://icons.llamao.fi/icons/chains/rsz_${chainName[chainId]}.jpg`;
 
   return (
     <div>
-      {chainName[chainId] ? (
+      {chains[chainId] ? (
         <div className="flex">
           <img src={iconSrc} alt="Chain Icon" className="rounded-full mr-2" />
-          <span>{chainName[chainId]}</span>
+          <span>{chains[chainId].slug}</span>
         </div>
       ) : (
         <p>Chain {chainId} not supported</p>

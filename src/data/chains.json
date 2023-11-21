@@ -1,0 +1,18 @@
+{
+  "137": {
+    "slug": "polygon",
+    "rpc": "https://polygon‑rpc.com"
+  },
+  "8453": {
+    "slug": "base",
+    "rpc": "https://base.llamarpc.com"
+  },
+  "42220": {
+    "slug": "celo",
+    "rpc": "https://forno.celo.org"
+  },
+  "10": {
+    "slug": "optimism",
+    "rpc": "https://optimism.llamarpc.com"
+  }
+}
