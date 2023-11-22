@@ -1,20 +1,20 @@
 import chains from "../data/chains.json";
 import tokens from "../data/tokens.json";
 
-export function getChainInfo(chainId) {
-  if (!chainId) return {};
+export function getChainInfo(chainIdOrName) {
+  if (!chainIdOrName) return {};
 
-  if (typeof chainId === "string") {
-    if (chainId.substr(0, 2) === "0x") {
-      chainId = parseInt(chainId, 16);
+  let chainId = chainIdOrName;
+  if (typeof chainIdOrName === "string") {
+    if (chainIdOrName.substring(0, 2) === "0x") {
+      chainId = parseInt(chainIdOrName, 16);
     } else {
       let chain = {};
       Object.keys(chains).forEach((key) => {
-        if (chains[key].slug === chainId) {
-          chain = chains[key];
+        if (chains[key].slug === chainIdOrName) {
+          chainId = parseInt(key);
         }
       });
-      return chain;
     }
   }
   if (!chains[chainId]) return {};
