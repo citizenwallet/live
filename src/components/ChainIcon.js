@@ -15,7 +15,7 @@ const ChainIcon = ({ chainName, chainId }) => {
   return (
     <div>
       {chain ? (
-        <img src={iconSrc} alt="Chain Icon" className="rounded-full mr-2" />
+        <img src={iconSrc} alt="Chain Icon" className="rounded-full mr-1 h-6" />
       ) : (
         <p>Chain {chainId} not supported</p>
       )}
