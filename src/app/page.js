@@ -12,6 +12,9 @@ function HomePage(request) {
           <Link href="/celo/cEUR">/celo/cEUR</Link>
         </li>
         <li>
+          <Link href="/celo/cUSD">/celo/cUSD</Link>
+        </li>
+        <li>
           <Link href="/base/OAK">/base/oak</Link>
         </li>
         <li>

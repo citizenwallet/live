@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import Link from "next/link";
 import { Web3Provider, JsonRpcProvider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { formatUnits } from "@ethersproject/units";
@@ -11,24 +11,44 @@ import Image from "next/image";
 import AudioPlayer from "react-audio-player";
 import ABI from "@/smartcontracts/ERC20.abi.json";
 import ErrorMessage from "@/components/ErrorMessage";
+import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
+import HumanNumber from "@/components/HumanNumber";
 import {
   displayAddress,
   getAvatarUrl,
   getChainInfo,
   getTokenAddress,
 } from "@/lib/lib";
+import ChainIcon from "@/components/ChainIcon";
 
 const dingSound = "/cashing.mp3";
 
+function inc(obj, key, inc = 1) {
+  if (!obj[key]) {
+    obj[key] = inc;
+  }
+  obj[key] += inc;
+}
+
+const filter = (transactions, accountAddress) => {
+  if (!accountAddress) return transactions;
+  return transactions.filter(
+    (tx) => tx.from === accountAddress || tx.to === accountAddress
+  );
+};
+
 function MonitorPage(request) {
+  const router = useRouter();
+
   let { chain, tokenAddress } = request.params;
+  const { accountAddress } = request.searchParams;
+
   tokenAddress =
     tokenAddress.substr(0, 2) === "0x"
       ? tokenAddress
       : getTokenAddress(chain, tokenAddress);
 
-  console.log(">>> Using", chain, tokenAddress);
   const [provider, setProvider] = useState(null);
   const [tokenContract, setTokenContract] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -36,6 +56,33 @@ function MonitorPage(request) {
   const [listen, setListen] = useState(false);
   const [chainId, setChainId] = useState(null);
   const [error, setError] = useState(null);
+
+  const stats = {
+    recipients: {
+      transactionsCount: {},
+      totalAmount: {},
+    },
+    senders: {
+      transactionsCount: {},
+      totalAmount: {},
+    },
+  };
+
+  function updateStats(tx) {
+    inc(stats.recipients.transactionsCount, tx.to);
+    inc(
+      stats.recipients.totalAmount,
+      tx.to,
+      Math.round(parseFloat(tx.formattedAmount).toFixed(2) * 100)
+    );
+    inc(stats.senders.transactionsCount, tx.from);
+    inc(
+      stats.senders.totalAmount,
+      tx.from,
+      Math.round(parseFloat(tx.formattedAmount).toFixed(2) * 100)
+    );
+    window.stats = stats;
+  }
 
   function handleStartListening() {
     setListen(true);
@@ -62,7 +109,6 @@ function MonitorPage(request) {
         token.decimals = await tokenContract.decimals();
         token.symbol = await tokenContract.symbol();
         token.address = tokenAddress;
-        console.log(">>> set token", token);
         setToken(token);
       } catch (error) {
         console.error(
@@ -89,10 +135,11 @@ function MonitorPage(request) {
 
     if (savedTransactions.length > 0) {
       token.symbol = token.symbol || savedTransactions[0].currency;
+      savedTransactions.forEach(updateStats);
       setToken(token);
     }
-    setTransactions(savedTransactions);
-  }, [chain, tokenAddress]);
+    setTransactions(filter(savedTransactions, accountAddress));
+  }, [chain, tokenAddress, accountAddress]);
 
   useEffect(() => {
     window.clearTransactions = () => {
@@ -107,27 +154,28 @@ function MonitorPage(request) {
     };
 
     window.playSound = () => {
-      console.log(">>> Play DING");
       window.audio.audioEl.current.play();
     };
     window.stopListening = () => setListen(false);
-  }, [chain, tokenAddress]);
+  }, [chain, tokenAddress, accountAddress]);
 
   useEffect(() => {
     if (!listen || !tokenContract || !tokenContract.filters) return;
-    let index = 0;
     const transferEvent = tokenContract.filters.Transfer();
+
     tokenContract.on(transferEvent, (from, to, amount, event) => {
       const newTransaction = {
         from,
         to,
-        amount: formatUnits(amount, token.decimals),
+        amount,
+        formattedAmount: formatUnits(amount, token.decimals),
         currency: token.symbol,
         date: new Date(),
         hash: event.transactionHash,
+        logIndex: event.logIndex,
         isNew: true,
-        index: index++,
       };
+      updateStats(newTransaction);
       setTimeout(() => {
         newTransaction.isNew = false;
       }, 3000);
@@ -138,24 +186,21 @@ function MonitorPage(request) {
           `${chain}:${token.address}-transactions`,
           JSON.stringify(updatedTransactions)
         );
-        return updatedTransactions;
+        return filter(updatedTransactions, accountAddress);
       });
     });
 
     return () => {
       tokenContract.off(transferEvent);
     };
-  }, [listen, chain, token, tokenContract]);
+  }, [listen, chain, token, tokenContract, accountAddress]);
 
   // Compute totals
   const totalTransactions = transactions.length;
   const totalAmount = transactions.reduce(
-    (sum, tx) => sum + parseFloat(tx.amount),
+    (sum, tx) => sum + parseFloat(tx.formattedAmount),
     0
   );
-  const uniqueAddresses = new Set(
-    transactions.flatMap((tx) => [tx.from, tx.to])
-  ).size;
 
   if (!token) {
     return <div>Loading...</div>;
@@ -175,16 +220,43 @@ function MonitorPage(request) {
         src={dingSound}
         ref={(element) => (window.audio = element)}
       />
-      <h1>
-        Token: <span info={token.address}>{token.symbol}</span>
-      </h1>
+      <nav
+        aria-label="breadcrumb"
+        className="flex leading-none text-indigo-600 divide-x divide-indigo-400 mb-4"
+      >
+        <ol className="list-reset flex items-center ">
+          <li>
+            <Link href="#" className="text-blue-600 hover:text-blue-800">
+              <ChainIcon chainName={chain} />
+            </Link>
+          </li>
+          <li className="px-2">
+            <Link
+              href={`/${chain}/${request.params.tokenAddress}`}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              {token.symbol}
+            </Link>
+          </li>
+          {accountAddress && (
+            <li className="px-2">
+              <span className="text-gray-500">
+                {displayAddress(accountAddress)}
+              </span>
+            </li>
+          )}
+        </ol>
+      </nav>
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
           <div>
             <div className="text-sm font-medium text-gray-500">
-              Total Transactions
+              Number of Transactions
             </div>
-            <div className="text-3xl font-bold">{totalTransactions}</div>
+            <div className="text-3xl font-bold">
+              <AnimatedNumber value={totalTransactions} />
+            </div>
           </div>
         </div>
         <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
@@ -192,9 +264,11 @@ function MonitorPage(request) {
             <div className="text-sm font-medium text-gray-500">
               Total Amount Transferred
             </div>
-            <div className="text-3xl font-bold">
-              {totalAmount.toFixed(2)}{" "}
-              <span className="font-normal text-sm">{token.symbol}</span>
+            <div className="text-3xl font-bold flex items-baseline">
+              <div className="min-w-[110px] text-right mr-1">
+                <AnimatedNumber value={totalAmount.toFixed(2)} decimals={2} />
+              </div>
+              {} <span className="font-normal text-sm">{token.symbol}</span>
             </div>
           </div>
         </div>
@@ -237,8 +311,8 @@ function MonitorPage(request) {
         <ul className="bg-white shadow rounded-lg">
           {transactions.map((tx, key) => (
             <li
-              key={tx.index}
-              id={`transaction-${tx.index}`}
+              key={`transaction-${tx.hash}-${tx.logIndex}`}
+              id={`transaction-${tx.hash}-${tx.logIndex}`}
               className={`p-4 border-b border-gray-200 flex items-center ${
                 tx.isNew ? "highlight-animation" : ""
               }`}
@@ -257,16 +331,22 @@ function MonitorPage(request) {
                 <div className="flex flex-row align-left">
                   <div className="text-xs  text-gray-500 mr-2">
                     <label className="block mr-1 float-left">From:</label>{" "}
-                    {displayAddress(tx.from)}
+                    <Link href={`?accountAddress=${tx.from}`}>
+                      {displayAddress(tx.from)}
+                    </Link>
                   </div>
                   <div className="text-xs text-gray-500">
                     <label className="block mr-1 float-left">To:</label>{" "}
-                    {displayAddress(tx.to)}
+                    <Link href={`?accountAddress=${tx.to}`}>
+                      {displayAddress(tx.to)}
+                    </Link>
                   </div>
                 </div>
               </div>
               <div className="text-lg font-bold text-gray-600 text-right">
-                {parseFloat(tx.amount).toFixed(2)}{" "}
+                <HumanNumber
+                  value={parseFloat(tx.formattedAmount).toFixed(2)}
+                />{" "}
                 <span className="text-sm font-normal">{token.symbol}</span>
               </div>
             </li>

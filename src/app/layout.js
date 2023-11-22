@@ -36,10 +36,10 @@ export default function RootLayout({ children }) {
             </div>
             <div className="text-xs text-gray-700">
               <a
-                href="https://github.com/citizenwallet/monitor"
+                href="https://github.com/citizenwallet/live"
                 className="text-gray-500"
               >
-                github.com/citizenwallet/monitor
+                github.com/citizenwallet/live
               </a>
             </div>
           </div>
