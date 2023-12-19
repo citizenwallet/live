@@ -1,0 +1,16 @@
+{
+  "name": "live.citizenwallet.xyz",
+  "short_name": "Live Transactions",
+  "description": "Follow live transactions on the blockchain",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0070f3",
+  "icons": [
+    {
+      "src": "/live-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
