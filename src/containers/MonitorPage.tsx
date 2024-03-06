@@ -176,13 +176,14 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
   }
 
   if (error) {
-    return ErrorMessage(error.error, { message: error.message });
+    return ErrorMessage((error as any).error, { message: (error as any).message });
   }
 
   return (
     <div className="container">
       <AudioPlayer
         src={dingSound}
+        // @ts-ignore
         ref={(element) => (window.audio = element)}
       />
       <nav
