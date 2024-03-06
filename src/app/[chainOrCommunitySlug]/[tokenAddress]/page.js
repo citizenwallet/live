@@ -54,8 +54,7 @@ function MonitorPage(request) {
   const [transactions, setTransactions] = useState([]);
   const [token, setToken] = useState({});
   const [listen, setListen] = useState(false);
-  const [chainId, setChainId] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState < any > null;
 
   const [stats, setStats] = useState({
     recipients: {
@@ -142,7 +141,7 @@ function MonitorPage(request) {
       setToken(token);
     }
     setTransactions(filter(savedTransactions, accountAddress));
-  }, [chain, tokenAddress, accountAddress, updateStats]);
+  }, [chain, tokenAddress, accountAddress, updateStats, setError]);
 
   useEffect(() => {
     window.clearTransactions = () => {
