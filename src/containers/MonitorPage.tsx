@@ -1,63 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Web3Provider, JsonRpcProvider } from "@ethersproject/providers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { formatUnits } from "@ethersproject/units";
-import { ethers } from "ethers"; // for other utilities
-import { useRouter } from "next/navigation";
-import Image from "next/image";
 import AudioPlayer from "react-audio-player";
 import ABI from "@/smartcontracts/ERC20.abi.json";
+import profileABI from "@/smartcontracts/profile.abi.json";
 import ErrorMessage from "@/components/ErrorMessage";
+import TransactionRow from "@/components/TransactionRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
-import HumanNumber from "@/components/HumanNumber";
-import {
-  displayAddress,
-  getAvatarUrl,
-  getChainInfo,
-  getTokenAddress,
-} from "@/lib/lib";
-import ChainIcon from "@/components/ChainIcon";
+import { displayAddress } from "@/lib/lib";
+import { Config, useERC20 } from "@citizenwallet/sdk";
 
 const dingSound = "/cashing.mp3";
 
-function inc(obj, key, inc = 1) {
+function inc(obj: any, key: string, inc:number = 1) {
   if (!obj[key]) {
     obj[key] = inc;
   }
   obj[key] += inc;
 }
 
-const filter = (transactions, accountAddress) => {
+const filter = (transactions: any[], accountAddress: string) => {
   if (!accountAddress) return transactions;
   return transactions.filter(
     (tx) => tx.from === accountAddress || tx.to === accountAddress
   );
 };
 
-function MonitorPage(request) {
-  const router = useRouter();
+function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Config, accountAddress: string }) {
+  const tokenAddress = communityConfig.token.address;
+  const chain = communityConfig.node.chain_id;
 
-  let { chain, tokenAddress } = request.params;
-  const { accountAddress } = request.searchParams;
-
-  tokenAddress =
-    tokenAddress.substr(0, 2) === "0x"
-      ? tokenAddress
-      : getTokenAddress(chain, tokenAddress);
-
-  const [provider, setProvider] = useState(null);
-  const [tokenContract, setTokenContract] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [token, setToken] = useState({});
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [listen, setListen] = useState(false);
-  const [chainId, setChainId] = useState(null);
   const [error, setError] = useState(null);
 
-  const stats = {
+  const [stats, setStats] = useState({
     recipients: {
       transactionsCount: {},
       totalAmount: {},
@@ -66,104 +48,84 @@ function MonitorPage(request) {
       transactionsCount: {},
       totalAmount: {},
     },
-  };
+  });
+  const statsRef = useRef(stats);
 
-  function updateStats(tx) {
-    inc(stats.recipients.transactionsCount, tx.to);
+  const updateStats = useCallback((tx:any) => {
+    inc(statsRef.current.recipients.transactionsCount, tx.to);
     inc(
-      stats.recipients.totalAmount,
+      statsRef.current.recipients.totalAmount,
       tx.to,
-      Math.round(parseFloat(tx.formattedAmount).toFixed(2) * 100)
+      Math.round(parseFloat(parseFloat(tx.formattedAmount).toFixed(2)) * 100)
     );
-    inc(stats.senders.transactionsCount, tx.from);
+    inc(statsRef.current.senders.transactionsCount, tx.from);
     inc(
-      stats.senders.totalAmount,
+      statsRef.current.senders.totalAmount,
       tx.from,
-      Math.round(parseFloat(tx.formattedAmount).toFixed(2) * 100)
+      Math.round(parseFloat(parseFloat(tx.formattedAmount).toFixed(2)) * 100)
     );
-    window.stats = stats;
-  }
+    // @ts-ignore
+    window.stats = statsRef.current;
+    setStats(statsRef.current);
+  }, []);
 
   function handleStartListening() {
     setListen(true);
   }
 
   function handleClearTransactions() {
+    // @ts-ignore
     window.clearTransactions();
   }
 
+  const rpc = communityConfig.node.url;
+  const provider = useMemo(() => new JsonRpcProvider(rpc), [rpc]);
+  const tokenContract = useMemo(() => new Contract(tokenAddress, ABI, provider), [tokenAddress, provider]);
+  const profileContract = useMemo(() => new Contract(communityConfig.profile.address, profileABI, provider), [communityConfig, provider]);
+
+  const token = useMemo(() => ({
+    decimals: communityConfig.token.decimals,
+    symbol: communityConfig.token.symbol,
+    address: communityConfig.token.address,
+  }), [communityConfig]);
+
   useEffect(() => {
-    const rpc = localStorage.getItem(`${chain}-rpc`) || getChainInfo(chain).rpc;
-
-    if (!rpc && !window.ethereum) {
-      return setError("Please install MetaMask or provide a RPC URL");
-    }
-
-    const provider = rpc
-      ? new JsonRpcProvider(rpc)
-      : new Web3Provider(window.ethereum);
-    const tokenContract = new Contract(tokenAddress, ABI, provider);
-    const token = {};
-    const fetchDecimals = async (tokenContract) => {
-      try {
-        token.decimals = await tokenContract.decimals();
-        token.symbol = await tokenContract.symbol();
-        token.address = tokenAddress;
-        setToken(token);
-      } catch (error) {
-        console.error(
-          "Error fetching token info on",
-          chain,
-          JSON.stringify(error, null, "  ")
-        );
-        setError({
-          error: `Error fetching token info on ${chain}`,
-          message: error.reason,
-        });
-      }
-    };
-
-    setProvider(provider);
-    setTokenContract(tokenContract);
-    fetchDecimals(tokenContract);
 
     // Load transactions from local storage
     const savedTransactions =
       JSON.parse(
-        localStorage.getItem(`${chain}:${tokenAddress}-transactions`)
+        localStorage.getItem(`${chain}:${tokenAddress}-transactions`) || "[]"
       ) || [];
 
     if (savedTransactions.length > 0) {
-      token.symbol = token.symbol || savedTransactions[0].currency;
       savedTransactions.forEach(updateStats);
-      setToken(token);
     }
     setTransactions(filter(savedTransactions, accountAddress));
-  }, [chain, tokenAddress, accountAddress]);
+  }, [chain, tokenAddress, accountAddress, updateStats]);
 
   useEffect(() => {
+    // @ts-ignore
     window.clearTransactions = () => {
-      localStorage.setItem(`${chain}:${tokenAddress}-transactions`, null);
+      localStorage.removeItem(`${chain}:${tokenAddress}-transactions`);
       setTransactions([]);
     };
 
-    window.setRPC = (rpc) => {
-      localStorage.setItem(`${chain}-rpc`, rpc);
-      // reload page
-      window.history.go(0);
-    };
-
+    // @ts-ignore
     window.playSound = () => {
-      window.audio.audioEl.current.play();
+     // @ts-ignore
+     window.audio.audioEl.current.play();
     };
+    // @ts-ignore
     window.stopListening = () => setListen(false);
   }, [chain, tokenAddress, accountAddress]);
+
+
 
   useEffect(() => {
     if (!listen || !tokenContract || !tokenContract.filters) return;
     const transferEvent = tokenContract.filters.Transfer();
 
-    tokenContract.on(transferEvent, (from, to, amount, event) => {
+    const handleTransferEvent = (from: string, to: string, amount: bigint, event:any) => {
       const newTransaction = {
         from,
         to,
@@ -179,6 +141,7 @@ function MonitorPage(request) {
       setTimeout(() => {
         newTransaction.isNew = false;
       }, 3000);
+      // @ts-ignore
       window.playSound();
       setTransactions((prev) => {
         const updatedTransactions = [newTransaction, ...prev];
@@ -188,12 +151,14 @@ function MonitorPage(request) {
         );
         return filter(updatedTransactions, accountAddress);
       });
-    });
+    }
+
+    tokenContract.on(transferEvent, handleTransferEvent);
 
     return () => {
-      tokenContract.off(transferEvent);
+      tokenContract.off(transferEvent, handleTransferEvent);
     };
-  }, [listen, chain, token, tokenContract, accountAddress]);
+  }, [listen, chain, token, tokenContract, accountAddress, updateStats]);
 
   // Compute totals
   const totalTransactions = transactions.length;
@@ -227,12 +192,12 @@ function MonitorPage(request) {
         <ol className="list-reset flex items-center ">
           <li>
             <Link href="#" className="text-blue-600 hover:text-blue-800">
-              <ChainIcon chainName={chain} />
+              <img src={communityConfig.community.logo} alt="Token Icon" className="rounded-full mr-1 h-6" />
             </Link>
           </li>
           <li className="px-2">
             <Link
-              href={`/${chain}/${request.params.tokenAddress}`}
+              href={`/${chain}/${tokenAddress}`}
               className="text-blue-600 hover:text-blue-800"
             >
               {token.symbol}
@@ -310,46 +275,7 @@ function MonitorPage(request) {
       {listen && transactions.length > 0 && (
         <ul className="bg-white shadow rounded-lg">
           {transactions.map((tx, key) => (
-            <li
-              key={`transaction-${tx.hash}-${tx.logIndex}`}
-              id={`transaction-${tx.hash}-${tx.logIndex}`}
-              className={`p-4 border-b border-gray-200 flex items-center ${
-                tx.isNew ? "highlight-animation" : ""
-              }`}
-            >
-              <Image
-                src={getAvatarUrl(tx.from)}
-                alt="Avatar"
-                width={40}
-                height={40}
-                className="rounded-full mr-4"
-              />
-              <div className="flex flex-col justify-between w-full">
-                <div className="font-bold text-xs text-gray-500">
-                  {tx.date.toLocaleString()}
-                </div>
-                <div className="flex flex-row align-left">
-                  <div className="text-xs  text-gray-500 mr-2">
-                    <label className="block mr-1 float-left">From:</label>{" "}
-                    <Link href={`?accountAddress=${tx.from}`}>
-                      {displayAddress(tx.from)}
-                    </Link>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    <label className="block mr-1 float-left">To:</label>{" "}
-                    <Link href={`?accountAddress=${tx.to}`}>
-                      {displayAddress(tx.to)}
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              <div className="text-lg font-bold text-gray-600 text-right">
-                <HumanNumber
-                  value={parseFloat(tx.formattedAmount).toFixed(2)}
-                />{" "}
-                <span className="text-sm font-normal">{token.symbol}</span>
-              </div>
-            </li>
+            <TransactionRow key={key} tx={tx} token={token} profileContract={profileContract} />
           ))}
         </ul>
       )}

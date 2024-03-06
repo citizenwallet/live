@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@citizenwallet/sdk": "^1.1.27",
     "@ethersproject/contracts": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "@ethersproject/units": "^5.7.0",
@@ -16,13 +17,18 @@
     "next": "14.0.1",
     "react": "^18",
     "react-audio-player": "^0.17.0",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "smartcontracts": "github:citizenwallet/smartcontracts#v0.0.91"
   },
   "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.2.61",
+    "@types/react-dom": "^18.2.19",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.1",
     "postcss": "^8",
-    "tailwindcss": "^3.3.0"
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.3.3"
   }
 }
