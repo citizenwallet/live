@@ -54,7 +54,7 @@ function MonitorPage(request) {
   const [transactions, setTransactions] = useState([]);
   const [token, setToken] = useState({});
   const [listen, setListen] = useState(false);
-  const [error, setError] = useState < any > null;
+  const [error, setError] = useState(null);
 
   const [stats, setStats] = useState({
     recipients: {
