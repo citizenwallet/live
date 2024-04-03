@@ -3,6 +3,10 @@
     "slug": "polygon",
     "rpc": "https://nd-147-012-483.p2pify.com/d8ba4ac942ec62a14e0cc844d373d9d2"
   },
+  "100": {
+    "slug": "gnosis",
+    "rpc": "https://nd-316-960-830.p2pify.com/6358ba724050b705cede1d956917ce60"
+  },
   "8453": {
     "slug": "base",
     "rpc": "https://base.llamarpc.com"
