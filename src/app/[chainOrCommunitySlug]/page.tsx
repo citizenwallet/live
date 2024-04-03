@@ -24,7 +24,7 @@ export default async function Page({
   );
   const configs = await res.json();
   const config = configs.find(
-    (config) => config.community.alias === communitySlug
+    (config: any) => config.community.alias === communitySlug
   );
 
   return (
