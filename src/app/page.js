@@ -36,6 +36,9 @@ async function HomePage(request) {
           <Link href="/polygon/EURe">/polygon/EURe</Link>
         </li>
         <li>
+          <Link href="/gnosis/EURb">/gnosos/EURb</Link>
+        </li>
+        <li>
           <Link href="/polygon/ZINNE">/polygon/ZINNE</Link>
         </li>
       </ul>
