@@ -5,6 +5,7 @@ const nextConfig = {
       {
         hostname: "api.multiavatar.com",
       },
+      { hostname: "ipfs.internal.citizenwallet.xyz" },
     ],
   },
 };
