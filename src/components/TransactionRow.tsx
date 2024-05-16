@@ -27,7 +27,7 @@ export default function TransactionRow({
       <Image
         src={
           fromProfile?.image_medium
-            ? getUrlFromIPFS(fromProfile.image_medium)
+            ? getUrlFromIPFS(fromProfile.image_medium) || ""
             : getAvatarUrl(tx.from)
         }
         alt="Avatar"
