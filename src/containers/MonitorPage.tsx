@@ -17,7 +17,7 @@ import { Config, useERC20 } from "@citizenwallet/sdk";
 
 const dingSound = "/cashing.mp3";
 
-function inc(obj: any, key: string, inc:number = 1) {
+function inc(obj: any, key: string, inc: number = 1) {
   if (!obj[key]) {
     obj[key] = inc;
   }
@@ -31,11 +31,18 @@ const filter = (transactions: any[], accountAddress: string) => {
   );
 };
 
-function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Config, accountAddress: string }) {
+function MonitorPage({
+  communityConfig,
+  accountAddress,
+}: {
+  communityConfig: Config;
+  accountAddress: string;
+}) {
   const tokenAddress = communityConfig.token.address;
   const chain = communityConfig.node.chain_id;
 
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactionsCount, setTransactionsCount] = useState(0);
   const [listen, setListen] = useState(false);
   const [error, setError] = useState(null);
 
@@ -51,7 +58,7 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
   });
   const statsRef = useRef(stats);
 
-  const updateStats = useCallback((tx:any) => {
+  const updateStats = useCallback((tx: any) => {
     inc(statsRef.current.recipients.transactionsCount, tx.to);
     inc(
       statsRef.current.recipients.totalAmount,
@@ -80,17 +87,22 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
 
   const rpc = communityConfig.node.url;
   const provider = useMemo(() => new JsonRpcProvider(rpc), [rpc]);
-  const tokenContract = useMemo(() => new Contract(tokenAddress, ABI, provider), [tokenAddress, provider]);
-  const profileContract = useMemo(() => new Contract(communityConfig.profile.address, profileABI, provider), [communityConfig, provider]);
+  const tokenContract = useMemo(
+    () => new Contract(tokenAddress, ABI, provider),
+    [tokenAddress, provider]
+  );
+  const communitySlug = communityConfig.community.alias;
 
-  const token = useMemo(() => ({
-    decimals: communityConfig.token.decimals,
-    symbol: communityConfig.token.symbol,
-    address: communityConfig.token.address,
-  }), [communityConfig]);
+  const token = useMemo(
+    () => ({
+      decimals: communityConfig.token.decimals,
+      symbol: communityConfig.token.symbol,
+      address: communityConfig.token.address,
+    }),
+    [communityConfig]
+  );
 
   useEffect(() => {
-
     // Load transactions from local storage
     const savedTransactions =
       JSON.parse(
@@ -100,7 +112,14 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
     if (savedTransactions.length > 0) {
       savedTransactions.forEach(updateStats);
     }
-    setTransactions(filter(savedTransactions, accountAddress));
+    const filteredTransactions = filter(savedTransactions, accountAddress);
+    // console.log(
+    //   ">>> filteredTransactions",
+    //   filteredTransactions.length,
+    //   filteredTransactions
+    // );
+    setTransactions(filteredTransactions);
+    setTransactionsCount(filteredTransactions.length);
   }, [chain, tokenAddress, accountAddress, updateStats]);
 
   useEffect(() => {
@@ -108,24 +127,28 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
     window.clearTransactions = () => {
       localStorage.removeItem(`${chain}:${tokenAddress}-transactions`);
       setTransactions([]);
+      setTransactionsCount(0);
     };
 
     // @ts-ignore
     window.playSound = () => {
-     // @ts-ignore
-     window.audio.audioEl.current.play();
+      // @ts-ignore
+      window.audio.audioEl.current.play();
     };
     // @ts-ignore
     window.stopListening = () => setListen(false);
   }, [chain, tokenAddress, accountAddress]);
 
-
-
   useEffect(() => {
     if (!listen || !tokenContract || !tokenContract.filters) return;
     const transferEvent = tokenContract.filters.Transfer();
 
-    const handleTransferEvent = (from: string, to: string, amount: bigint, event:any) => {
+    const handleTransferEvent = (
+      from: string,
+      to: string,
+      amount: bigint,
+      event: any
+    ) => {
       const newTransaction = {
         from,
         to,
@@ -149,9 +172,14 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
           `${chain}:${token.address}-transactions`,
           JSON.stringify(updatedTransactions)
         );
-        return filter(updatedTransactions, accountAddress);
+        const filteredTransactions = filter(
+          updatedTransactions,
+          accountAddress
+        );
+        setTransactionsCount(filteredTransactions.length);
+        return filteredTransactions;
       });
-    }
+    };
 
     tokenContract.on(transferEvent, handleTransferEvent);
 
@@ -176,7 +204,9 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
   }
 
   if (error) {
-    return ErrorMessage((error as any).error, { message: (error as any).message });
+    return ErrorMessage((error as any).error, {
+      message: (error as any).message,
+    });
   }
 
   return (
@@ -193,12 +223,16 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
         <ol className="list-reset flex items-center ">
           <li>
             <Link href="#" className="text-blue-600 hover:text-blue-800">
-              <img src={communityConfig.community.logo} alt="Token Icon" className="rounded-full mr-1 h-6" />
+              <img
+                src={communityConfig.community.logo}
+                alt="Token Icon"
+                className="rounded-full mr-1 h-6"
+              />
             </Link>
           </li>
           <li className="px-2">
             <Link
-              href={`/${chain}/${tokenAddress}`}
+              href={`/${communitySlug}`}
               className="text-blue-600 hover:text-blue-800"
             >
               {token.symbol}
@@ -221,7 +255,7 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
               Number of Transactions
             </div>
             <div className="text-3xl font-bold">
-              <AnimatedNumber value={totalTransactions} />
+              <AnimatedNumber value={transactionsCount} />
             </div>
           </div>
         </div>
@@ -276,7 +310,12 @@ function MonitorPage({ communityConfig, accountAddress } : { communityConfig: Co
       {listen && transactions.length > 0 && (
         <ul className="bg-white shadow rounded-lg">
           {transactions.map((tx, key) => (
-            <TransactionRow key={key} tx={tx} token={token} profileContract={profileContract} />
+            <TransactionRow
+              key={key}
+              tx={tx}
+              token={token}
+              communitySlug={communitySlug}
+            />
           ))}
         </ul>
       )}
