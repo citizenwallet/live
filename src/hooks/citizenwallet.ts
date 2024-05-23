@@ -50,6 +50,7 @@ export const useProfile = (communitySlug: string, account: string) => {
     if (cachedItem) {
       const cacheEntry = JSON.parse(cachedItem);
       setProfile(cacheEntry.data);
+      return;
       // return [cacheEntry.data]; // we always fetch the new updated profile info for next load.
     }
 

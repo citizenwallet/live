@@ -56,7 +56,7 @@ code {
 
 @keyframes highlight {
   from {
-    background-color: yellow;
+    background-color: rgba(253, 230, 138);
   }
   to {
     background-color: transparent;
@@ -64,5 +64,5 @@ code {
 }
 
 .highlight-animation {
-  animation: highlight 3s ease-out;
+  animation: highlight 1.5s ease-out;
 }
