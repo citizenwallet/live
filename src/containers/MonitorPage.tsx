@@ -13,7 +13,8 @@ import TransactionRow from "@/components/TransactionRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
 import { displayAddress } from "@/lib/lib";
-import { Config, useERC20 } from "@citizenwallet/sdk";
+import { Config, Transfer, useERC20, useSafeEffect } from "@citizenwallet/sdk";
+import { useTransfers } from "@/state/transactions/logic";
 
 const dingSound = "/cashing.mp3";
 
@@ -41,7 +42,7 @@ function MonitorPage({
   const tokenAddress = communityConfig.token.address;
   const chain = communityConfig.node.chain_id;
 
-  const [transactions, setTransactions] = useState<any[]>([]);
+  // const [transactions, setTransactions] = useState<any[]>([]);
   const [transactionsCount, setTransactionsCount] = useState(0);
   const [listen, setListen] = useState(false);
   const [error, setError] = useState(null);
@@ -76,15 +77,6 @@ function MonitorPage({
     setStats(statsRef.current);
   }, []);
 
-  function handleStartListening() {
-    setListen(true);
-  }
-
-  function handleClearTransactions() {
-    // @ts-ignore
-    window.clearTransactions();
-  }
-
   const rpc = communityConfig.node.url;
   const provider = useMemo(() => new JsonRpcProvider(rpc), [rpc]);
   const tokenContract = useMemo(
@@ -102,31 +94,54 @@ function MonitorPage({
     [communityConfig]
   );
 
-  useEffect(() => {
-    // Load transactions from local storage
-    const savedTransactions =
-      JSON.parse(
-        localStorage.getItem(`${chain}:${tokenAddress}-transactions`) || "[]"
-      ) || [];
+  const unsubscribeRef = useRef<() => void | undefined>();
 
-    if (savedTransactions.length > 0) {
-      savedTransactions.forEach(updateStats);
-    }
-    const filteredTransactions = filter(savedTransactions, accountAddress);
-    // console.log(
-    //   ">>> filteredTransactions",
-    //   filteredTransactions.length,
-    //   filteredTransactions
-    // );
-    setTransactions(filteredTransactions);
-    setTransactionsCount(filteredTransactions.length);
-  }, [chain, tokenAddress, accountAddress, updateStats]);
+  const [store, actions] = useTransfers(communityConfig);
+
+  useSafeEffect(() => {
+    actions.getSavedTransfers();
+
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [actions]);
+
+  function handleStartListening() {
+    setListen(true);
+    unsubscribeRef.current = actions.listen();
+  }
+
+  function handleClearTransactions() {
+    actions.clearTransfers();
+    // @ts-ignore
+    // window.clearTransactions();
+  }
+
+  // useEffect(() => {
+  //   // Load transactions from local storage
+  //   const savedTransactions =
+  //     JSON.parse(
+  //       localStorage.getItem(`${chain}:${tokenAddress}-transactions`) || "[]"
+  //     ) || [];
+
+  //   if (savedTransactions.length > 0) {
+  //     savedTransactions.forEach(updateStats);
+  //   }
+  //   const filteredTransactions = filter(savedTransactions, accountAddress);
+  //   // console.log(
+  //   //   ">>> filteredTransactions",
+  //   //   filteredTransactions.length,
+  //   //   filteredTransactions
+  //   // );
+  //   setTransactions(filteredTransactions);
+  //   setTransactionsCount(filteredTransactions.length);
+  // }, [chain, tokenAddress, accountAddress, updateStats]);
 
   useEffect(() => {
     // @ts-ignore
     window.clearTransactions = () => {
       localStorage.removeItem(`${chain}:${tokenAddress}-transactions`);
-      setTransactions([]);
+      // setTransactions([]);
       setTransactionsCount(0);
     };
 
@@ -139,61 +154,62 @@ function MonitorPage({
     window.stopListening = () => setListen(false);
   }, [chain, tokenAddress, accountAddress]);
 
-  useEffect(() => {
-    if (!listen || !tokenContract || !tokenContract.filters) return;
-    const transferEvent = tokenContract.filters.Transfer();
+  // useEffect(() => {
+  //   if (!listen || !tokenContract || !tokenContract.filters) return;
+  //   const transferEvent = tokenContract.filters.Transfer();
 
-    const handleTransferEvent = (
-      from: string,
-      to: string,
-      amount: bigint,
-      event: any
-    ) => {
-      const newTransaction = {
-        from,
-        to,
-        amount,
-        formattedAmount: formatUnits(amount, token.decimals),
-        currency: token.symbol,
-        date: new Date(),
-        hash: event.transactionHash,
-        logIndex: event.logIndex,
-        isNew: true,
-      };
-      updateStats(newTransaction);
-      setTimeout(() => {
-        newTransaction.isNew = false;
-      }, 3000);
-      // @ts-ignore
-      window.playSound();
-      setTransactions((prev) => {
-        const updatedTransactions = [newTransaction, ...prev];
-        localStorage.setItem(
-          `${chain}:${token.address}-transactions`,
-          JSON.stringify(updatedTransactions)
-        );
-        const filteredTransactions = filter(
-          updatedTransactions,
-          accountAddress
-        );
-        setTransactionsCount(filteredTransactions.length);
-        return filteredTransactions;
-      });
-    };
+  //   const handleTransferEvent = (
+  //     from: string,
+  //     to: string,
+  //     amount: bigint,
+  //     event: any
+  //   ) => {
+  //     const newTransaction = {
+  //       from,
+  //       to,
+  //       amount,
+  //       formattedAmount: formatUnits(amount, token.decimals),
+  //       currency: token.symbol,
+  //       date: new Date(),
+  //       hash: event.transactionHash,
+  //       logIndex: event.logIndex,
+  //     };
+  //     updateStats(newTransaction);
 
-    tokenContract.on(transferEvent, handleTransferEvent);
+  //     // @ts-ignore
+  //     window.playSound();
+  //     setTransactions((prev) => {
+  //       const updatedTransactions = [newTransaction, ...prev];
+  //       localStorage.setItem(
+  //         `${chain}:${token.address}-transactions`,
+  //         JSON.stringify(updatedTransactions)
+  //       );
+  //       const filteredTransactions = filter(
+  //         updatedTransactions,
+  //         accountAddress
+  //       );
+  //       setTransactionsCount(filteredTransactions.length);
+  //       return filteredTransactions;
+  //     });
+  //   };
 
-    return () => {
-      tokenContract.off(transferEvent, handleTransferEvent);
-    };
-  }, [listen, chain, token, tokenContract, accountAddress, updateStats]);
+  //   tokenContract.on(transferEvent, handleTransferEvent);
+
+  //   return () => {
+  //     tokenContract.off(transferEvent, handleTransferEvent);
+  //   };
+  // }, [listen, chain, token, tokenContract, accountAddress, updateStats]);
+
+  const transfers = store((state) => state.transfers);
+  console.log(">>> transfers", transfers.length, transfers);
 
   // Compute totals
-  const totalTransactions = transactions.length;
-  const totalAmount = transactions.reduce(
-    (sum, tx) => sum + parseFloat(tx.formattedAmount),
-    0
-  );
+  const totalTransfers = store((state) => state.totalTransfers);
+  // const totalAmount = transactions.reduce(
+  //   (sum, tx) => sum + parseFloat(tx.formattedAmount),
+  //   0
+  // );
+  const totalAmount = store((state) => state.totalAmount);
 
   if (!token) {
     return <div>Loading...</div>;
@@ -255,7 +271,7 @@ function MonitorPage({
               Number of Transactions
             </div>
             <div className="text-3xl font-bold">
-              <AnimatedNumber value={transactionsCount} />
+              <AnimatedNumber value={totalTransfers} />
             </div>
           </div>
         </div>
@@ -266,7 +282,13 @@ function MonitorPage({
             </div>
             <div className="text-3xl font-bold flex items-baseline">
               <div className="min-w-[110px] text-right mr-1">
-                <AnimatedNumber value={totalAmount.toFixed(2)} decimals={2} />
+                <AnimatedNumber
+                  value={formatUnits(
+                    totalAmount,
+                    communityConfig.token.decimals
+                  )}
+                  decimals={2}
+                />
               </div>
               {} <span className="font-normal text-sm">{token.symbol}</span>
             </div>
@@ -297,7 +319,7 @@ function MonitorPage({
               Start Listening
             </button>
           </div>
-          {transactions.length > 0 && (
+          {transfers.length > 0 && (
             <div className="mt-2 text-center">
               <a onClick={handleClearTransactions} href="#" className="text-sm">
                 Clear Transactions
@@ -306,15 +328,16 @@ function MonitorPage({
           )}
         </div>
       )}
-      {listen && transactions.length === 0 && <Loading />}
-      {listen && transactions.length > 0 && (
+      {listen && transfers.length === 0 && <Loading />}
+      {listen && transfers.length > 0 && (
         <ul className="bg-white shadow rounded-lg">
-          {transactions.map((tx, key) => (
+          {transfers.map((tx) => (
             <TransactionRow
-              key={key}
+              key={tx.tx_hash}
               tx={tx}
               token={token}
               communitySlug={communitySlug}
+              decimals={communityConfig.token.decimals}
             />
           ))}
         </ul>

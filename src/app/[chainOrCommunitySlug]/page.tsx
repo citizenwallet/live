@@ -1,6 +1,7 @@
 "use server";
 
 import MonitorPage from "@/containers/MonitorPage";
+import { ConfigService } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 
 const configUrl =
@@ -19,13 +20,9 @@ export default async function Page({
   params: { chainOrCommunitySlug: communitySlug },
   searchParams: { accountAddress },
 }: props) {
-  const res = await fetch(
-    `${configUrl}?cacheBuster=${Math.round(new Date().getTime() / 10000)}`
-  );
-  const configs = await res.json();
-  const config = configs.find(
-    (config: any) => config.community.alias === communitySlug
-  );
+  const configService = new ConfigService();
+
+  const config = await configService.getBySlug(communitySlug);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
