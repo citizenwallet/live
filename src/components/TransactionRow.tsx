@@ -61,7 +61,19 @@ export default function TransactionRow({
                 : displayAddress(tx.to)}{" "}
             </Link>
           </div>
+          {tx.data && (
+            <div className="text-xs  text-gray-500 mr-2">
+              <label className="block mr-1 float-left">
+                {tx.data.description || "No description"}
+              </label>{" "}
+            </div>
+          )}
         </div>
+        {tx.data && (
+          <div className="text-xs text-gray-500">
+            {tx.data.description || "No description"}
+          </div>
+        )}
       </div>
       <div className="text-lg font-bold text-gray-600 text-right">
         <HumanNumber value={formatUnits(BigInt(tx.value), decimals)} />{" "}
