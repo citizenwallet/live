@@ -284,7 +284,7 @@ function MonitorPage({
               <div className="min-w-[110px] text-right mr-1">
                 <AnimatedNumber
                   value={formatUnits(
-                    totalAmount,
+                    BigInt(totalAmount),
                     communityConfig.token.decimals
                   )}
                   decimals={2}
