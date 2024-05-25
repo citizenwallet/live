@@ -64,7 +64,7 @@ export default function TransactionRow({
         </div>
       </div>
       <div className="text-lg font-bold text-gray-600 text-right">
-        <HumanNumber value={formatUnits(tx.value, decimals)} />{" "}
+        <HumanNumber value={formatUnits(BigInt(tx.value), decimals)} />{" "}
         <span className="text-sm font-normal">{token.symbol}</span>
       </div>
       {/* <div className="absolute bottom-1 right-1 text-xs text-gray-500">
