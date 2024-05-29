@@ -83,7 +83,6 @@ function MonitorPage({
   );
 
   const transfers = store((state) => state.transfers);
-  console.log(">>> transfers", transfers.length, transfers);
 
   // Compute totals
   const totalTransfers = store((state) => state.totalTransfers);

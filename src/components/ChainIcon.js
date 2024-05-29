@@ -2,14 +2,7 @@ import { getChainInfo } from "@/lib/lib";
 
 const ChainIcon = ({ chainName, chainId }) => {
   const chain = getChainInfo(chainName || chainId);
-  console.log(
-    ">>> chainName",
-    chainName,
-    "chainId",
-    chainId,
-    "chain found",
-    chain
-  );
+
   const iconSrc = `https://icons.llamao.fi/icons/chains/rsz_${chain.slug}.jpg`;
 
   return (
