@@ -4,7 +4,7 @@ import Link from "next/link";
 import HumanNumber from "./HumanNumber";
 import { useProfile } from "@/hooks/citizenwallet";
 import { getUrlFromIPFS } from "@/lib/ipfs";
-import { Transfer } from "@citizenwallet/sdk";
+import { ConfigToken, Transfer } from "@citizenwallet/sdk";
 import { formatUnits } from "ethers";
 export default function TransactionRow({
   token,
@@ -12,7 +12,7 @@ export default function TransactionRow({
   communitySlug,
   decimals,
 }: {
-  token: any;
+  token: ConfigToken;
   tx: Transfer;
   communitySlug: string;
   decimals: number;

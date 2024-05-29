@@ -5,14 +5,22 @@ export type TransferStore = {
   transfers: Transfer[];
   totalTransfers: number;
   totalAmount: number;
+  fromDate: Date;
+  loading: boolean;
   addTransfers: (transfers: Transfer[]) => void;
   putTransfers: (transfers: Transfer[]) => void;
+  clearTransfers: () => void;
+  setDate: (date: Date) => void;
+  startLoadingFromDate: (date: Date) => void;
+  stopLoadingFromDate: () => void;
 };
 
 const getInitialState = () => ({
   transfers: [],
   totalTransfers: 0,
   totalAmount: 0,
+  fromDate: new Date(),
+  loading: false,
 });
 
 export const useTransferStore = create<TransferStore>((set) => ({
@@ -55,4 +63,15 @@ export const useTransferStore = create<TransferStore>((set) => ({
         ),
       };
     }),
+  clearTransfers: () => set(getInitialState()),
+  setDate: (date: Date) => set({ fromDate: date }),
+  startLoadingFromDate: (date: Date) =>
+    set({
+      fromDate: date,
+      loading: true,
+      transfers: [],
+      totalAmount: 0,
+      totalTransfers: 0,
+    }),
+  stopLoadingFromDate: () => set({ loading: false }),
 }));
