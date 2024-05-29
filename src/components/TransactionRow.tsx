@@ -2,28 +2,38 @@ import Image from "next/image";
 import { displayAddress, getAvatarUrl } from "@/lib/lib";
 import Link from "next/link";
 import HumanNumber from "./HumanNumber";
-import { useProfile } from "@/hooks/citizenwallet";
 import { getUrlFromIPFS } from "@/lib/ipfs";
-import { ConfigToken, Transfer } from "@citizenwallet/sdk";
+import { ConfigToken, Profile, Transfer } from "@citizenwallet/sdk";
 import { formatUnits } from "ethers";
+import { useEffect } from "react";
+import { ProfilesStore } from "@/state/profiles/state";
+import { StoreApi, UseBoundStore } from "zustand";
 export default function TransactionRow({
   token,
   tx,
   communitySlug,
   decimals,
+  profiles,
+  onProfileFetch,
 }: {
   token: ConfigToken;
   tx: Transfer;
   communitySlug: string;
   decimals: number;
+  profiles: UseBoundStore<StoreApi<ProfilesStore>>;
+  onProfileFetch: (account: string) => void;
 }) {
-  const [fromProfile] = useProfile(communitySlug, tx.from);
-  const [toProfile] = useProfile(communitySlug, tx.to);
+  const fromProfile: Profile | undefined = profiles(
+    (state) => state.profiles[tx.from]
+  );
+  const toProfile: Profile | undefined = profiles(
+    (state) => state.profiles[tx.to]
+  );
 
-  console.log("tx hash", tx.tx_hash);
-  console.log("from", tx.from);
-  console.log("to", tx.to);
-  console.log("value", tx.value);
+  useEffect(() => {
+    onProfileFetch(tx.from);
+    onProfileFetch(tx.to);
+  }, [onProfileFetch, tx.from, tx.to]);
 
   const backgroundColor =
     tx.status === "success" ? "highlight-animation" : "bg-yellow-200";
