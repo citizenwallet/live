@@ -45,7 +45,7 @@ export const useTransferStore = create<TransferStore>((set) => ({
       // add or update the transfers based on their hash
       for (const transfer of transfers) {
         const index = existingTransfers.findIndex(
-          (t) => t.tx_hash === transfer.tx_hash
+          (t) => t.hash === transfer.hash
         );
         if (index === -1) {
           existingTransfers.unshift(transfer);
@@ -53,6 +53,12 @@ export const useTransferStore = create<TransferStore>((set) => ({
           existingTransfers[index] = transfer;
         }
       }
+
+      existingTransfers.sort((a, b) => {
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
 
       return {
         transfers: existingTransfers,

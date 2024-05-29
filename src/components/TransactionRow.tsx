@@ -20,14 +20,17 @@ export default function TransactionRow({
   const [fromProfile] = useProfile(communitySlug, tx.from);
   const [toProfile] = useProfile(communitySlug, tx.to);
 
+  console.log("tx hash", tx.tx_hash);
+  console.log("from", tx.from);
+  console.log("to", tx.to);
+  console.log("value", tx.value);
+
   const backgroundColor =
     tx.status === "success" ? "highlight-animation" : "bg-yellow-200";
 
   return (
-    <li
-      key={`transaction-${tx.tx_hash}`}
-      id={`transaction-${tx.tx_hash}`}
-      className={`relative p-4 border border-gray-200 flex items-center ${backgroundColor} transition-colors`}
+    <div
+      className={`relative p-4 border border-gray-200 rounded-lg flex flex-1 items-center ${backgroundColor} transition-colors`}
     >
       <Image
         src={
@@ -75,6 +78,6 @@ export default function TransactionRow({
       {/* <div className="absolute bottom-1 right-1 text-xs text-gray-500">
         {tx.status === "success" ? "✅" : "⏳"}
       </div> */}
-    </li>
+    </div>
   );
 }
