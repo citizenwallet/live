@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
@@ -15,6 +15,7 @@ import { DatePicker } from "@/components/DatePicker";
 import { Button } from "@/components/ui/button";
 import { LightningBoltIcon, StopIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
+import { List, AutoSizer } from "react-virtualized";
 
 const dingSound = "/cashing.mp3";
 
@@ -38,6 +39,14 @@ function MonitorPage({
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
   }, [actions]);
+
+  useEffect(() => {
+    // @ts-ignore
+    window.playSound = () => {
+      // @ts-ignore
+      window.audio.audioEl.current.play();
+    };
+  }, []);
 
   function handleStartListening() {
     setListen(true);
@@ -75,7 +84,7 @@ function MonitorPage({
   const loading = store((state) => state.loading);
 
   return (
-    <div className="container">
+    <div className="container flex flex-col flex-1">
       <AudioPlayer
         src={dingSound}
         // @ts-ignore
@@ -208,17 +217,36 @@ function MonitorPage({
       )}
       {listen && transfers.length === 0 && <Loading />}
       {listen && transfers.length > 0 && (
-        <ul className="bg-white shadow rounded-lg">
-          {transfers.map((tx) => (
-            <TransactionRow
-              key={tx.tx_hash}
-              tx={tx}
-              token={communityConfig.token}
-              communitySlug={communitySlug}
-              decimals={communityConfig.token.decimals}
+        <AutoSizer className="flex-1 h-auto">
+          {({ height, width }) => (
+            <List
+              width={width}
+              height={height - 320}
+              rowHeight={90}
+              className="bg-white rounded-lg"
+              rowRenderer={({
+                index,
+                key,
+                style,
+              }: {
+                index: number;
+                key: string;
+                style: any;
+              }) => (
+                <div key={key} style={style} className="flex flex-row">
+                  <TransactionRow
+                    tx={transfers[index]}
+                    token={communityConfig.token}
+                    communitySlug={communitySlug}
+                    decimals={communityConfig.token.decimals}
+                  />
+                </div>
+              )}
+              rowCount={transfers.length}
+              overscanRowCount={3}
             />
-          ))}
-        </ul>
+          )}
+        </AutoSizer>
       )}
     </div>
   );
