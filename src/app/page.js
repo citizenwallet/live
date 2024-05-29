@@ -1,14 +1,19 @@
 import Link from "next/link";
 import { ConfigService } from "@citizenwallet/sdk";
+import { Heading, Text } from "@radix-ui/themes";
 
 async function HomePage(request) {
   const configService = new ConfigService();
   const configs = await configService.get();
 
   return (
-    <div className="container">
-      <h1>Monitor transactions on the blockchain</h1>
-      <h2>Citizen Wallet Commmunities</h2>
+    <div className="flex flex-col flex-1 p-20">
+      <Heading as="h1" className="mb-2">
+        Monitor transactions on the blockchain
+      </Heading>
+      <Heading as="h2" className="mb-2">
+        Citizen Wallet Commmunities
+      </Heading>
       <ul>
         {configs
           .filter((c) => !c.community.hidden)
@@ -18,10 +23,12 @@ async function HomePage(request) {
             </li>
           ))}
       </ul>
-      <h2>Any other ERC20 token</h2>
-      <p>
+      <Heading as="h2" className="mb-2">
+        Any other ERC20 token
+      </Heading>
+      <Text as="p" className="mb-2">
         Just append <code>/:chain/:tokenAddress</code> to the URL
-      </p>
+      </Text>
       <ul>
         <li>
           <Link href="/celo/cEUR">/celo/cEUR</Link>
