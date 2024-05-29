@@ -1,5 +1,5 @@
 import CitizenWalletCommunity from "@/lib/citizenwallet";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const setCache = function (cacheKey: string, data: any) {
   const dataString = JSON.stringify({
@@ -40,6 +40,8 @@ export const useCommunity = (communitySlug: string) => {
 export const useProfile = (communitySlug: string, account: string) => {
   const [profile, setProfile] = useState<any>(undefined);
 
+  const fetchingRef = useRef<{ [key: string]: boolean | undefined }>({});
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!communitySlug) return;
@@ -50,13 +52,17 @@ export const useProfile = (communitySlug: string, account: string) => {
     if (cachedItem) {
       const cacheEntry = JSON.parse(cachedItem);
       setProfile(cacheEntry.data);
-      return;
+      // return;
       // return [cacheEntry.data]; // we always fetch the new updated profile info for next load.
     }
+
+    if (fetchingRef.current[account]) return;
+    fetchingRef.current[account] = true;
 
     function setProfileCache(profile: any) {
       setProfile(profile);
       setCache(cacheKey, profile);
+      fetchingRef.current[account] = false;
     }
 
     const configUrl = `${window.location.protocol}//${window.location.host}/api/getConfig`;

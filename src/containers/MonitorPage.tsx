@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { LightningBoltIcon, StopIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
+import { useProfiles } from "@/state/profiles/logic";
 
 const dingSound = "/cashing.mp3";
 
@@ -33,6 +34,7 @@ function MonitorPage({
   const unsubscribeRef = useRef<() => void | undefined>();
 
   const [store, actions] = useTransfers(communityConfig);
+  const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
   useSafeEffect(() => {
     return () => {
@@ -72,6 +74,13 @@ function MonitorPage({
 
     actions.loadFrom(date);
   }
+
+  const handleProfileFetch = useCallback(
+    (account: string) => {
+      profilesActions.fetchProfile(account);
+    },
+    [profilesActions]
+  );
 
   const transfers = store((state) => state.transfers);
   console.log(">>> transfers", transfers.length, transfers);
@@ -239,6 +248,8 @@ function MonitorPage({
                     token={communityConfig.token}
                     communitySlug={communitySlug}
                     decimals={communityConfig.token.decimals}
+                    profiles={profilesStore}
+                    onProfileFetch={handleProfileFetch}
                   />
                 </div>
               )}

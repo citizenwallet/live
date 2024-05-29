@@ -1,11 +1,6 @@
-import {
-  Config,
-  ConfigToken,
-  IndexerService,
-  Transfer,
-} from "@citizenwallet/sdk";
+import { Config, ConfigToken, IndexerService } from "@citizenwallet/sdk";
 import { TransferStore, useTransferStore } from "./state";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
 
