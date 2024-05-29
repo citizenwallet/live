@@ -28,7 +28,7 @@ async function generateCacheList() {
 
   // Add additional URLs to cache as needed
   cacheList.push("/", "/manifest.json");
-  console.log("Cache list:", cacheList);
+
   return cacheList;
 }
 
