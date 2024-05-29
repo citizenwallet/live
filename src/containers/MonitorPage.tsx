@@ -1,36 +1,22 @@
 "use client";
 
-import { useMemo, useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import { Contract } from "@ethersproject/contracts";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
-import ABI from "@/smartcontracts/ERC20.abi.json";
-import profileABI from "@/smartcontracts/profile.abi.json";
-import ErrorMessage from "@/components/ErrorMessage";
 import TransactionRow from "@/components/TransactionRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
 import { displayAddress } from "@/lib/lib";
-import { Config, Transfer, useERC20, useSafeEffect } from "@citizenwallet/sdk";
+import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
+import Image from "next/image";
+import { DatePicker } from "@/components/DatePicker";
+import { Button } from "@/components/ui/button";
+import { LightningBoltIcon, StopIcon } from "@radix-ui/react-icons";
+import { LoaderCircleIcon } from "lucide-react";
 
 const dingSound = "/cashing.mp3";
-
-function inc(obj: any, key: string, inc: number = 1) {
-  if (!obj[key]) {
-    obj[key] = inc;
-  }
-  obj[key] += inc;
-}
-
-const filter = (transactions: any[], accountAddress: string) => {
-  if (!accountAddress) return transactions;
-  return transactions.filter(
-    (tx) => tx.from === accountAddress || tx.to === accountAddress
-  );
-};
 
 function MonitorPage({
   communityConfig,
@@ -39,68 +25,15 @@ function MonitorPage({
   communityConfig: Config;
   accountAddress: string;
 }) {
-  const tokenAddress = communityConfig.token.address;
-  const chain = communityConfig.node.chain_id;
-
-  // const [transactions, setTransactions] = useState<any[]>([]);
-  const [transactionsCount, setTransactionsCount] = useState(0);
   const [listen, setListen] = useState(false);
-  const [error, setError] = useState(null);
 
-  const [stats, setStats] = useState({
-    recipients: {
-      transactionsCount: {},
-      totalAmount: {},
-    },
-    senders: {
-      transactionsCount: {},
-      totalAmount: {},
-    },
-  });
-  const statsRef = useRef(stats);
-
-  const updateStats = useCallback((tx: any) => {
-    inc(statsRef.current.recipients.transactionsCount, tx.to);
-    inc(
-      statsRef.current.recipients.totalAmount,
-      tx.to,
-      Math.round(parseFloat(parseFloat(tx.formattedAmount).toFixed(2)) * 100)
-    );
-    inc(statsRef.current.senders.transactionsCount, tx.from);
-    inc(
-      statsRef.current.senders.totalAmount,
-      tx.from,
-      Math.round(parseFloat(parseFloat(tx.formattedAmount).toFixed(2)) * 100)
-    );
-    // @ts-ignore
-    window.stats = statsRef.current;
-    setStats(statsRef.current);
-  }, []);
-
-  const rpc = communityConfig.node.url;
-  const provider = useMemo(() => new JsonRpcProvider(rpc), [rpc]);
-  const tokenContract = useMemo(
-    () => new Contract(tokenAddress, ABI, provider),
-    [tokenAddress, provider]
-  );
   const communitySlug = communityConfig.community.alias;
-
-  const token = useMemo(
-    () => ({
-      decimals: communityConfig.token.decimals,
-      symbol: communityConfig.token.symbol,
-      address: communityConfig.token.address,
-    }),
-    [communityConfig]
-  );
 
   const unsubscribeRef = useRef<() => void | undefined>();
 
   const [store, actions] = useTransfers(communityConfig);
 
   useSafeEffect(() => {
-    actions.getSavedTransfers();
-
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
@@ -111,119 +44,35 @@ function MonitorPage({
     unsubscribeRef.current = actions.listen();
   }
 
-  function handleClearTransactions() {
-    actions.clearTransfers();
-    // @ts-ignore
-    // window.clearTransactions();
+  function handleStopListening() {
+    setListen(false);
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
   }
 
-  // useEffect(() => {
-  //   // Load transactions from local storage
-  //   const savedTransactions =
-  //     JSON.parse(
-  //       localStorage.getItem(`${chain}:${tokenAddress}-transactions`) || "[]"
-  //     ) || [];
+  function handleClearTransactions() {
+    actions.clearTransfers();
+  }
 
-  //   if (savedTransactions.length > 0) {
-  //     savedTransactions.forEach(updateStats);
-  //   }
-  //   const filteredTransactions = filter(savedTransactions, accountAddress);
-  //   // console.log(
-  //   //   ">>> filteredTransactions",
-  //   //   filteredTransactions.length,
-  //   //   filteredTransactions
-  //   // );
-  //   setTransactions(filteredTransactions);
-  //   setTransactionsCount(filteredTransactions.length);
-  // }, [chain, tokenAddress, accountAddress, updateStats]);
+  function handleFetchFrom(date: Date | undefined) {
+    if (!date) {
+      actions.clearTransfers();
+      return;
+    }
 
-  useEffect(() => {
-    // @ts-ignore
-    window.clearTransactions = () => {
-      localStorage.removeItem(`${chain}:${tokenAddress}-transactions`);
-      // setTransactions([]);
-      setTransactionsCount(0);
-    };
-
-    // @ts-ignore
-    window.playSound = () => {
-      // @ts-ignore
-      window.audio.audioEl.current.play();
-    };
-    // @ts-ignore
-    window.stopListening = () => setListen(false);
-  }, [chain, tokenAddress, accountAddress]);
-
-  // useEffect(() => {
-  //   if (!listen || !tokenContract || !tokenContract.filters) return;
-  //   const transferEvent = tokenContract.filters.Transfer();
-
-  //   const handleTransferEvent = (
-  //     from: string,
-  //     to: string,
-  //     amount: bigint,
-  //     event: any
-  //   ) => {
-  //     const newTransaction = {
-  //       from,
-  //       to,
-  //       amount,
-  //       formattedAmount: formatUnits(amount, token.decimals),
-  //       currency: token.symbol,
-  //       date: new Date(),
-  //       hash: event.transactionHash,
-  //       logIndex: event.logIndex,
-  //     };
-  //     updateStats(newTransaction);
-
-  //     // @ts-ignore
-  //     window.playSound();
-  //     setTransactions((prev) => {
-  //       const updatedTransactions = [newTransaction, ...prev];
-  //       localStorage.setItem(
-  //         `${chain}:${token.address}-transactions`,
-  //         JSON.stringify(updatedTransactions)
-  //       );
-  //       const filteredTransactions = filter(
-  //         updatedTransactions,
-  //         accountAddress
-  //       );
-  //       setTransactionsCount(filteredTransactions.length);
-  //       return filteredTransactions;
-  //     });
-  //   };
-
-  //   tokenContract.on(transferEvent, handleTransferEvent);
-
-  //   return () => {
-  //     tokenContract.off(transferEvent, handleTransferEvent);
-  //   };
-  // }, [listen, chain, token, tokenContract, accountAddress, updateStats]);
+    actions.loadFrom(date);
+  }
 
   const transfers = store((state) => state.transfers);
   console.log(">>> transfers", transfers.length, transfers);
 
   // Compute totals
   const totalTransfers = store((state) => state.totalTransfers);
-  // const totalAmount = transactions.reduce(
-  //   (sum, tx) => sum + parseFloat(tx.formattedAmount),
-  //   0
-  // );
   const totalAmount = store((state) => state.totalAmount);
 
-  if (!token) {
-    return <div>Loading...</div>;
-  }
-
-  if (!tokenAddress || tokenAddress.length !== 42) {
-    return ErrorMessage("Invalid token address");
-  }
-
-  if (error) {
-    return ErrorMessage((error as any).error, {
-      message: (error as any).message,
-    });
-  }
+  const date = store((state) => state.fromDate);
+  const loading = store((state) => state.loading);
 
   return (
     <div className="container">
@@ -239,10 +88,12 @@ function MonitorPage({
         <ol className="list-reset flex items-center ">
           <li>
             <Link href="#" className="text-blue-600 hover:text-blue-800">
-              <img
+              <Image
                 src={communityConfig.community.logo}
                 alt="Token Icon"
                 className="rounded-full mr-1 h-6"
+                height={24}
+                width={24}
               />
             </Link>
           </li>
@@ -251,7 +102,7 @@ function MonitorPage({
               href={`/${communitySlug}`}
               className="text-blue-600 hover:text-blue-800"
             >
-              {token.symbol}
+              {communityConfig.token.symbol}
             </Link>
           </li>
           {accountAddress && (
@@ -290,34 +141,61 @@ function MonitorPage({
                   decimals={2}
                 />
               </div>
-              {} <span className="font-normal text-sm">{token.symbol}</span>
+              {}{" "}
+              <span className="font-normal text-sm">
+                {communityConfig.token.symbol}
+              </span>
             </div>
           </div>
         </div>
       </div>
-      {!listen && (
-        <div className="flex justify-center flex-col my-20">
+      <div className="flex justify-center flex-col my-10">
+        <div className="text-center">
+          {!listen && (
+            <div className="text-sm font-medium text-gray-500 p-4">
+              Load Transactions from
+            </div>
+          )}
+          {!listen && (
+            <DatePicker
+              onChange={handleFetchFrom}
+              value={date}
+              disabled={loading}
+            />
+          )}
+        </div>
+      </div>
+      {loading && (
+        <div className="flex justify-center items-center flex-col p-4">
+          <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
+          <div className="text-sm font-medium text-gray-500">
+            Downloading transactions...
+          </div>
+        </div>
+      )}
+      {listen && !loading && (
+        <div className="flex justify-center flex-col p-4">
           <div className="text-center">
-            <button
+            <Button
+              onClick={handleStopListening}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+            >
+              <StopIcon className="w-5 h-5 mr-2" />
+              Stop Listening
+            </Button>
+          </div>
+        </div>
+      )}
+      {!listen && !loading && (
+        <div className="flex justify-center flex-col p-4">
+          <div className="text-center">
+            <Button
               onClick={handleStartListening}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
             >
-              <svg
-                className="inline-block mr-2 -mt-1 w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                ></path>
-              </svg>
+              <LightningBoltIcon className="w-5 h-5 mr-2" />
               Start Listening
-            </button>
+            </Button>
           </div>
           {transfers.length > 0 && (
             <div className="mt-2 text-center">
@@ -335,7 +213,7 @@ function MonitorPage({
             <TransactionRow
               key={tx.tx_hash}
               tx={tx}
-              token={token}
+              token={communityConfig.token}
               communitySlug={communitySlug}
               decimals={communityConfig.token.decimals}
             />

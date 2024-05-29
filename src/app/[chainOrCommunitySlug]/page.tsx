@@ -4,9 +4,6 @@ import MonitorPage from "@/containers/MonitorPage";
 import { ConfigService } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 
-const configUrl =
-  "https://config.internal.citizenwallet.xyz/v3/communities.json";
-
 interface props {
   params: {
     chainOrCommunitySlug: string;
