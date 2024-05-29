@@ -35,9 +35,9 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Theme className="h-screen w-screen flex flex-col">
+        <Theme className="h-screen w-screen flex flex-col items-center">
           {children}
-          <footer className="bg-gray-100">
+          <footer className="bg-gray-100 w-full">
             <div className="container text-white text-center p-4 flex justify-between items-center">
               <div>
                 <a href="https://citizenwallet.xyz">
