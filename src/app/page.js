@@ -7,7 +7,7 @@ async function HomePage(request) {
   const configs = await configService.get();
 
   return (
-    <div className="flex flex-col flex-1 p-20">
+    <div className="flex flex-col flex-1 p-20 max-w-screen-md">
       <Heading as="h1" className="mb-2">
         Monitor transactions on the blockchain
       </Heading>
