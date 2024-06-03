@@ -87,6 +87,7 @@ class TransferLogic {
         await this.indexer.getAllNewTransfers(this.token.address, params);
 
       if (transfers.length === 0) {
+        this.store.stopLoadingFromDate();
         return;
       }
 
@@ -104,7 +105,10 @@ class TransferLogic {
       const nextOffset = offset + this.loaderFetchLimit;
 
       return this.loadFrom(date, nextOffset);
-    } catch (_) {}
+    } catch (e) {
+      console.error("loadFrom error", e);
+      this.store.stopLoadingFromDate();
+    }
   }
 }
 
