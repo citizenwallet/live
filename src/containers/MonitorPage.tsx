@@ -100,7 +100,7 @@ function MonitorPage({
       />
       <nav
         aria-label="breadcrumb"
-        className="flex leading-none text-indigo-600 divide-x divide-indigo-400 mb-4"
+        className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2"
       >
         <ol className="list-reset flex items-center ">
           <li>
@@ -130,6 +130,15 @@ function MonitorPage({
             </li>
           )}
         </ol>
+        {listen && (
+          <a
+            onClick={handleStopListening}
+            title="Stop listening"
+            className="cursor-pointer"
+          >
+            <Loading />
+          </a>
+        )}
       </nav>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -166,22 +175,20 @@ function MonitorPage({
           </div>
         </div>
       </div>
-      <div className="flex justify-center flex-col my-10">
-        <div className="text-center">
-          {!listen && (
+      {!listen && (
+        <div className="flex justify-center flex-col my-10">
+          <div className="text-center">
             <div className="text-sm font-medium text-gray-500 p-4">
               Load Transactions from
             </div>
-          )}
-          {!listen && (
             <DatePicker
               onChange={handleFetchFrom}
               value={date}
               disabled={loading}
             />
-          )}
+          </div>
         </div>
-      </div>
+      )}
       {loading && (
         <div className="flex justify-center items-center flex-col p-4">
           <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
@@ -190,19 +197,7 @@ function MonitorPage({
           </div>
         </div>
       )}
-      {listen && !loading && (
-        <div className="flex justify-center flex-col p-4">
-          <div className="text-center">
-            <Button
-              onClick={handleStopListening}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
-            >
-              <StopIcon className="w-5 h-5 mr-2" />
-              Stop Listening
-            </Button>
-          </div>
-        </div>
-      )}
+
       {!listen && !loading && (
         <div className="flex justify-center flex-col p-4">
           <div className="text-center">
@@ -210,8 +205,7 @@ function MonitorPage({
               onClick={handleStartListening}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
             >
-              <LightningBoltIcon className="w-5 h-5 mr-2" />
-              Start Listening
+              Show transactions
             </Button>
           </div>
           {transfers.length > 0 && (
@@ -223,13 +217,12 @@ function MonitorPage({
           )}
         </div>
       )}
-      {listen && transfers.length === 0 && <Loading />}
       {listen && transfers.length > 0 && (
-        <AutoSizer className="flex-1 h-auto">
+        <AutoSizer className="flex-1">
           {({ height, width }) => (
             <List
               width={width}
-              height={height - 320}
+              height={height - 170}
               rowHeight={90}
               className="bg-white rounded-lg"
               rowRenderer={({

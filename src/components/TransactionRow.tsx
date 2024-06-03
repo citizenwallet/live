@@ -40,7 +40,7 @@ export default function TransactionRow({
 
   return (
     <div
-      className={`relative p-4 border border-gray-200 rounded-lg flex flex-1 items-center ${backgroundColor} transition-colors`}
+      className={`relative my-1 mr-3 p-4 border border-gray-200 rounded-lg flex flex-1 items-center ${backgroundColor} transition-colors`}
     >
       <Image
         src={

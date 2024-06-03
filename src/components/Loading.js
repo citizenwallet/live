@@ -1,8 +1,8 @@
 const Loading = () => {
   return (
-    <div className="loader-wrapper flex justify-center items-center h-40">
+    <div className="loader-wrapper flex justify-center items-center h-6">
       <svg
-        className="animate-pulse h-10 w-10 text-blue-500"
+        className="animate-pulse h-6 w-6 text-red-500"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
