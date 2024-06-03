@@ -120,7 +120,10 @@ function MonitorPage({
         >
           <ol className="list-reset flex items-center ">
             <li>
-              <Link href="#" className="text-blue-600 hover:text-blue-800">
+              <Link
+                href="#"
+                className="text-blue-600 hover:text-blue-800 min-w-6 block"
+              >
                 <Image
                   src={communityConfig.community.logo}
                   alt="Token Icon"
@@ -147,7 +150,7 @@ function MonitorPage({
             )}
           </ol>
           <div className="flex items-center">
-            <div className="text-sm font-medium text-gray-500 p-4">from</div>
+            <div className="text-sm font-medium text-gray-500 p-2">from</div>
             <input
               className="h-6"
               type="datetime-local"
@@ -218,7 +221,7 @@ function MonitorPage({
           </div>
         )}
       </div>
-      <div className="w-full pl-3 pr-1 h-full">
+      <div className="w-full pl-3 pr-1 h-full max-w-screen-lg">
         {transfers.length > 0 && (
           <div className="w-full h-full">
             <AutoSizer>
@@ -226,7 +229,7 @@ function MonitorPage({
                 <List
                   width={width}
                   height={height}
-                  rowHeight={90}
+                  rowHeight={130}
                   className="bg-white rounded-lg"
                   rowRenderer={({
                     index,

@@ -39,55 +39,83 @@ export default function TransactionRow({
     tx.status === "success" ? "highlight-animation" : "bg-yellow-200";
 
   return (
-    <div
-      className={`relative my-1 mr-3 p-4 border border-gray-200 rounded-lg flex flex-1 items-center ${backgroundColor} transition-colors`}
-    >
-      <Image
-        src={
-          fromProfile?.image_medium
-            ? getUrlFromIPFS(fromProfile.image_medium) || ""
-            : getAvatarUrl(tx.from)
-        }
-        alt="Avatar"
-        width={40}
-        height={40}
-        className="rounded-full mr-4"
-      />
-      <div className="flex flex-col justify-between w-full">
-        <div className="font-bold text-xs text-gray-500">
-          {new Date(tx.created_at).toLocaleString()}
-        </div>
-        <div className="flex flex-row align-left">
-          <div className="text-xs  text-gray-500 mr-2">
-            <label className="block mr-1 float-left">From:</label>{" "}
-            <Link href={`?accountAddress=${tx.from}`}>
-              {fromProfile?.name
-                ? `${fromProfile.name} (@${fromProfile.username})`
-                : displayAddress(tx.from)}
-            </Link>
-          </div>
-          <div className="text-xs text-gray-500">
-            <label className="block mr-1 float-left">To:</label>{" "}
-            <Link href={`?accountAddress=${tx.to}`}>
-              {toProfile?.name
-                ? `${toProfile.name} (@${toProfile.username})`
-                : displayAddress(tx.to)}{" "}
-            </Link>
-          </div>
-        </div>
-        {tx.data && (
-          <div className="text-xs text-gray-500 font-bold">
-            {tx.data.description || "No description"}
-          </div>
-        )}
+    <div className="my-3 mr-3 w-full flex flex-col">
+      <div className="text-xs text-gray-500">
+        {new Date(tx.created_at).toLocaleString()}
       </div>
-      <div className="text-lg font-bold text-gray-600 text-right">
-        <HumanNumber value={formatUnits(BigInt(tx.value), decimals)} />{" "}
-        <span className="text-sm font-normal">{token.symbol}</span>
-      </div>
-      {/* <div className="absolute bottom-1 right-1 text-xs text-gray-500">
+      <div
+        className={`relative flex flex-1 items-center p-4 border border-gray-200 rounded-lg ${backgroundColor} transition-colors`}
+      >
+        <div className="relative mr-3">
+          <Image
+            src={
+              fromProfile?.image_medium
+                ? getUrlFromIPFS(fromProfile.image_medium) || ""
+                : getAvatarUrl(tx.from)
+            }
+            alt="from avatar"
+            width={60}
+            height={60}
+            className="rounded-full mr-4"
+          />
+          <div
+            className="  "
+            style={{ position: "absolute", bottom: -5, right: -5 }}
+          >
+            <Image
+              src={
+                toProfile?.image_medium
+                  ? getUrlFromIPFS(toProfile.image_medium) || ""
+                  : getAvatarUrl(tx.to)
+              }
+              width={30}
+              height={30}
+              alt="to avatar"
+              className="rounded-full mr-1"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col justify-between w-full">
+          <div className="flex flex-row align-left w-full">
+            <div className="flex flex-row text-sm  text-gray-500">
+              <label className="block mr-1 float-left">From:</label>{" "}
+              <Link href={`?accountAddress=${tx.from}`}>
+                {fromProfile?.name ? (
+                  <div>
+                    <span className="font-bold">{fromProfile.name}</span>
+                    <span>&nbsp;(@{fromProfile.username})</span>
+                  </div>
+                ) : (
+                  displayAddress(tx.from)
+                )}
+              </Link>
+              <label className="block ml-2 mr-1 float-left">To:</label>{" "}
+              <Link href={`?accountAddress=${tx.to}`}>
+                {toProfile?.name ? (
+                  <div>
+                    <span className="font-bold">{toProfile.name}</span>
+                    <span>&nbsp;(@{toProfile.username})</span>
+                  </div>
+                ) : (
+                  displayAddress(tx.to)
+                )}{" "}
+              </Link>
+            </div>
+          </div>
+          {tx.data && (
+            <div className="text-sm text-gray-500 font-bold my-2">
+              {tx.data.description || "No description"}
+            </div>
+          )}
+        </div>
+        <div className="text-xl font-bold text-gray-600 text-right">
+          <HumanNumber value={formatUnits(BigInt(tx.value), decimals)} />{" "}
+          <span className="text-sm font-normal">{token.symbol}</span>
+        </div>
+        {/* <div className="absolute bottom-1 right-1 text-xs text-gray-500">
         {tx.status === "success" ? "✅" : "⏳"}
       </div> */}
+      </div>{" "}
     </div>
   );
 }
