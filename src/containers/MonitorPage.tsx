@@ -90,168 +90,178 @@ function MonitorPage({
 
   const date = store((state) => state.fromDate);
   const loading = store((state) => state.loading);
-
+  const totalAmountTransferred = formatUnits(
+    BigInt(totalAmount),
+    communityConfig.token.decimals
+  );
   return (
-    <div className="container flex flex-col flex-1">
-      <AudioPlayer
-        src={dingSound}
-        // @ts-ignore
-        ref={(element) => (window.audio = element)}
-      />
-      <nav
-        aria-label="breadcrumb"
-        className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2"
-      >
-        <ol className="list-reset flex items-center ">
-          <li>
-            <Link href="#" className="text-blue-600 hover:text-blue-800">
-              <Image
-                src={communityConfig.community.logo}
-                alt="Token Icon"
-                className="rounded-full mr-1 h-6"
-                height={24}
-                width={24}
-              />
-            </Link>
-          </li>
-          <li className="px-2">
-            <Link
-              href={`/${communitySlug}`}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              {communityConfig.token.symbol}
-            </Link>
-          </li>
-          {accountAddress && (
-            <li className="px-2">
-              <span className="text-gray-500">
-                {displayAddress(accountAddress)}
-              </span>
-            </li>
-          )}
-        </ol>
-        {listen && (
-          <a
-            onClick={handleStopListening}
-            title="Stop listening"
-            className="cursor-pointer"
-          >
-            <Loading />
-          </a>
-        )}
-      </nav>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
-          <div>
-            <div className="text-sm font-medium text-gray-500">
-              Number of Transactions
-            </div>
-            <div className="text-3xl font-bold">
-              <AnimatedNumber value={totalTransfers} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
-          <div>
-            <div className="text-sm font-medium text-gray-500">
-              Total Amount Transferred
-            </div>
-            <div className="text-3xl font-bold flex items-baseline">
-              <div className="min-w-[110px] text-right mr-1">
-                <AnimatedNumber
-                  value={formatUnits(
-                    BigInt(totalAmount),
-                    communityConfig.token.decimals
-                  )}
-                  decimals={2}
+    <>
+      <div className="flex flex-col flex-1 w-full max-w-screen-lg mx-auto px-3">
+        <AudioPlayer
+          src={dingSound}
+          // @ts-ignore
+          ref={(element) => (window.audio = element)}
+        />
+        <nav
+          aria-label="breadcrumb"
+          className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2"
+        >
+          <ol className="list-reset flex items-center ">
+            <li>
+              <Link href="#" className="text-blue-600 hover:text-blue-800">
+                <Image
+                  src={communityConfig.community.logo}
+                  alt="Token Icon"
+                  className="rounded-full mr-1 h-6"
+                  height={24}
+                  width={24}
                 />
-              </div>
-              {}{" "}
-              <span className="font-normal text-sm">
+              </Link>
+            </li>
+            <li className="px-2">
+              <Link
+                href={`/${communitySlug}`}
+                className="text-blue-600 hover:text-blue-800"
+              >
                 {communityConfig.token.symbol}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-      {!listen && (
-        <div className="flex justify-center flex-col my-10">
-          <div className="text-center">
-            <div className="text-sm font-medium text-gray-500 p-4">
-              Load Transactions from
-            </div>
-            <DatePicker
-              onChange={handleFetchFrom}
-              value={date}
-              disabled={loading}
-            />
-          </div>
-        </div>
-      )}
-      {loading && (
-        <div className="flex justify-center items-center flex-col p-4">
-          <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
-          <div className="text-sm font-medium text-gray-500">
-            Downloading transactions...
-          </div>
-        </div>
-      )}
-
-      {!listen && !loading && (
-        <div className="flex justify-center flex-col p-4">
-          <div className="text-center">
-            <Button
-              onClick={handleStartListening}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+              </Link>
+            </li>
+            {accountAddress && (
+              <li className="px-2">
+                <span className="text-gray-500">
+                  {displayAddress(accountAddress)}
+                </span>
+              </li>
+            )}
+          </ol>
+          {listen && (
+            <a
+              onClick={handleStopListening}
+              title="Stop listening"
+              className="cursor-pointer"
             >
-              Show transactions
-            </Button>
-          </div>
-          {transfers.length > 0 && (
-            <div className="mt-2 text-center">
-              <a onClick={handleClearTransactions} href="#" className="text-sm">
-                Clear Transactions
-              </a>
-            </div>
+              <Loading />
+            </a>
           )}
-        </div>
-      )}
-      {listen && transfers.length > 0 && (
-        <AutoSizer className="flex-1">
-          {({ height, width }) => (
-            <List
-              width={width}
-              height={height - 170}
-              rowHeight={90}
-              className="bg-white rounded-lg"
-              rowRenderer={({
-                index,
-                key,
-                style,
-              }: {
-                index: number;
-                key: string;
-                style: any;
-              }) => (
-                <div key={key} style={style} className="flex flex-row">
-                  <TransactionRow
-                    tx={transfers[index]}
-                    token={communityConfig.token}
-                    communitySlug={communitySlug}
-                    decimals={communityConfig.token.decimals}
-                    profiles={profilesStore}
-                    onProfileFetch={handleProfileFetch}
+        </nav>
+
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Number of Transactions
+              </div>
+              <div className="text-3xl font-bold">
+                <AnimatedNumber value={totalTransfers} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                Total Amount Transferred
+              </div>
+              <div className="text-3xl font-bold flex items-baseline">
+                <div className="text-right mr-1">
+                  <AnimatedNumber
+                    value={totalAmountTransferred}
+                    decimals={parseInt(totalAmountTransferred) >= 10000 ? 0 : 2}
                   />
                 </div>
+                {}{" "}
+                <span className="font-normal text-sm">
+                  {communityConfig.token.symbol}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {!listen && (
+          <div className="flex justify-center flex-col my-10">
+            <div className="text-center">
+              <div className="text-sm font-medium text-gray-500 p-4">
+                Load Transactions from
+              </div>
+              <DatePicker
+                onChange={handleFetchFrom}
+                value={date}
+                disabled={loading}
+              />
+            </div>
+          </div>
+        )}
+        {loading && (
+          <div className="flex justify-center items-center flex-col p-4">
+            <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
+            <div className="text-sm font-medium text-gray-500">
+              Downloading transactions...
+            </div>
+          </div>
+        )}
+
+        {!listen && !loading && (
+          <div className="flex justify-center flex-col p-4">
+            <div className="text-center">
+              <Button
+                onClick={handleStartListening}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+              >
+                Show transactions
+              </Button>
+            </div>
+            {transfers.length > 0 && (
+              <div className="mt-2 text-center">
+                <a
+                  onClick={handleClearTransactions}
+                  href="#"
+                  className="text-sm"
+                >
+                  Clear Transactions
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="w-full pl-3 pr-1 h-full">
+        {listen && transfers.length > 0 && (
+          <div className="w-full h-full">
+            <AutoSizer>
+              {({ height, width }) => (
+                <List
+                  width={width}
+                  height={height}
+                  rowHeight={90}
+                  className="bg-white rounded-lg"
+                  rowRenderer={({
+                    index,
+                    key,
+                    style,
+                  }: {
+                    index: number;
+                    key: string;
+                    style: any;
+                  }) => (
+                    <div key={key} style={style} className="flex flex-row">
+                      <TransactionRow
+                        tx={transfers[index]}
+                        token={communityConfig.token}
+                        communitySlug={communitySlug}
+                        decimals={communityConfig.token.decimals}
+                        profiles={profilesStore}
+                        onProfileFetch={handleProfileFetch}
+                      />
+                    </div>
+                  )}
+                  rowCount={transfers.length}
+                  overscanRowCount={3}
+                />
               )}
-              rowCount={transfers.length}
-              overscanRowCount={3}
-            />
-          )}
-        </AutoSizer>
-      )}
-    </div>
+            </AutoSizer>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
