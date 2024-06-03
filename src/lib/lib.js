@@ -32,5 +32,10 @@ export function getAvatarUrl(address) {
 }
 
 export function displayAddress(address) {
-  return address.substr(0, 6) + "..." + address.substr(-4);
+  return (
+    <div className="">
+      <span>{`${address.substr(0, 6)}`}&hellip;</span>
+      <span className="hidden sm:!inline">{address.substr(-4)}</span>
+    </div>
+  );
 }
