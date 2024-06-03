@@ -13,12 +13,24 @@ import { useTransfers } from "@/state/transactions/logic";
 import Image from "next/image";
 import { DatePicker } from "@/components/DatePicker";
 import { Button } from "@/components/ui/button";
-import { LightningBoltIcon, StopIcon } from "@radix-ui/react-icons";
+import { LightningBoltIcon, StopIcon, PlayIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
 import { useProfiles } from "@/state/profiles/logic";
 
 const dingSound = "/cashing.mp3";
+
+function formatDateToISO(date: Date) {
+  // Extract the year, month, and day from the date
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const day = String(date.getDate()).padStart(2, "0");
+
+  // Combine the parts into the desired format
+  const formattedDate = `${year}-${month}-${day}T00:00`;
+
+  return formattedDate;
+}
 
 function MonitorPage({
   communityConfig,
@@ -104,7 +116,7 @@ function MonitorPage({
         />
         <nav
           aria-label="breadcrumb"
-          className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2"
+          className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-6"
         >
           <ol className="list-reset flex items-center ">
             <li>
@@ -134,15 +146,36 @@ function MonitorPage({
               </li>
             )}
           </ol>
-          {listen && (
-            <a
-              onClick={handleStopListening}
-              title="Stop listening"
-              className="cursor-pointer"
-            >
-              <Loading />
-            </a>
-          )}
+          <div className="flex items-center">
+            <div className="text-sm font-medium text-gray-500 p-4">from</div>
+            <input
+              className="h-6"
+              type="datetime-local"
+              value={formatDateToISO(date)}
+              min="2020-01-01T00:00"
+              max={formatDateToISO(new Date())}
+              onChange={(e) => handleFetchFrom(new Date(e.target.value))}
+              disabled={loading}
+            />
+            {!listen && (
+              <a
+                onClick={handleStartListening}
+                title="Start listening"
+                className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+              >
+                <PlayIcon />
+              </a>
+            )}
+            {listen && (
+              <a
+                onClick={handleStopListening}
+                title="Stop listening"
+                className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+              >
+                <Loading />
+              </a>
+            )}
+          </div>
         </nav>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -176,20 +209,6 @@ function MonitorPage({
             </div>
           </div>
         </div>
-        {!listen && (
-          <div className="flex justify-center flex-col my-10">
-            <div className="text-center">
-              <div className="text-sm font-medium text-gray-500 p-4">
-                Load Transactions from
-              </div>
-              <DatePicker
-                onChange={handleFetchFrom}
-                value={date}
-                disabled={loading}
-              />
-            </div>
-          </div>
-        )}
         {loading && (
           <div className="flex justify-center items-center flex-col p-4">
             <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
@@ -198,33 +217,9 @@ function MonitorPage({
             </div>
           </div>
         )}
-
-        {!listen && !loading && (
-          <div className="flex justify-center flex-col p-4">
-            <div className="text-center">
-              <Button
-                onClick={handleStartListening}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
-              >
-                Show transactions
-              </Button>
-            </div>
-            {transfers.length > 0 && (
-              <div className="mt-2 text-center">
-                <a
-                  onClick={handleClearTransactions}
-                  href="#"
-                  className="text-sm"
-                >
-                  Clear Transactions
-                </a>
-              </div>
-            )}
-          </div>
-        )}
       </div>
       <div className="w-full pl-3 pr-1 h-full">
-        {listen && transfers.length > 0 && (
+        {transfers.length > 0 && (
           <div className="w-full h-full">
             <AutoSizer>
               {({ height, width }) => (

@@ -1,33 +1,46 @@
 import { ConfigService } from "@citizenwallet/sdk";
-import { Box, Container, Heading, Link, Section, Text } from "@radix-ui/themes";
-
+import { Box, Container, Link, Text } from "@radix-ui/themes";
+import Loading from "../components/Loading";
+import Image from "next/image";
 async function HomePage(request) {
   const configService = new ConfigService();
   const configs = await configService.get();
 
   return (
-    <Box className="flex flex-col flex-1">
-      <Container className="pt-20">
-        <Heading as="h1">Monitor transactions on the blockchain</Heading>
-        <Section>
-          <Heading as="h2" className="mb-2">
-            Citizen Wallet Commmunities
-          </Heading>
+    <Box className="flex flex-col flex-1 px-3">
+      <Container className="mt-6">
+        <div className="flex items-center">
+          <Loading />
+          <h1 className="ml-2">Transactions monitor</h1>
+        </div>
+        <div>
+          <h2 className="mb-2">Citizen Wallet Commmunities</h2>
           <ul>
             {configs
               .filter((c) => !c.community.hidden)
               .map(({ community }) => (
-                <li key={community.alias}>
-                  <Link href={`/${community.alias}`}>{community.name}</Link>
+                <li
+                  key={community.alias}
+                  className="border-gray-200 rounded-lg my-2 p-2 border-2"
+                >
+                  <Link href={`/${community.alias}`}>
+                    <div className="flex items-center">
+                      <Image
+                        src={community.logo}
+                        width={24}
+                        height={24}
+                        className="mr-2"
+                      />{" "}
+                      {community.name}
+                    </div>
+                  </Link>
                 </li>
               ))}
           </ul>
-        </Section>
+        </div>
 
-        <Section>
-          <Heading as="h2" className="mb-2">
-            Any other ERC20 token
-          </Heading>
+        <div className="mb-8">
+          <h2 className="mb-2">Any other ERC20 token</h2>
           <Text as="p" className="mb-2">
             Just append <code>/:chain/:tokenAddress</code> to the URL
           </Text>
@@ -51,7 +64,7 @@ async function HomePage(request) {
               <Link href="/polygon/ZINNE">/polygon/ZINNE</Link>
             </li>
           </ul>
-        </Section>
+        </div>
       </Container>
     </Box>
   );

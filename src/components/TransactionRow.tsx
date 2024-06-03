@@ -76,7 +76,7 @@ export default function TransactionRow({
           </div>
         </div>
         {tx.data && (
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 font-bold">
             {tx.data.description || "No description"}
           </div>
         )}
