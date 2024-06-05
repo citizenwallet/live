@@ -51,7 +51,7 @@ class TransferLogic {
         const combinedTransfers = this.storeGetter().transfers;
 
         // play sound if there are new transfers that are successful
-        if (transfers.some((t) => t.status === "success")) {
+        if (transfers.some((t) => t.status === "pending")) {
           // @ts-ignore
           window.playSound();
         }
