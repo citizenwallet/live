@@ -32,7 +32,7 @@ const AnimatedNumber = ({ value, decimals = 0, duration = 1000 }) => {
   }, [value, decimals, duration]);
 
   return (
-    <div className="text-3xl font-bold transition ease-in-out duration-150">
+    <div className="text-3xl sm:text-4xl md:text-5xl font-bold transition ease-in-out duration-150">
       <HumanNumber
         value={parseFloat(displayNumber / 10 ** decimals).toFixed(decimals)}
       />

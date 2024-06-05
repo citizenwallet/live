@@ -116,7 +116,7 @@ function MonitorPage({
         />
         <nav
           aria-label="breadcrumb"
-          className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-6"
+          className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
         >
           <ol className="list-reset flex items-center ">
             <li>
@@ -127,9 +127,9 @@ function MonitorPage({
                 <Image
                   src={communityConfig.community.logo}
                   alt="Token Icon"
-                  className="rounded-full mr-1 h-6"
-                  height={24}
-                  width={24}
+                  className="rounded-full mr-1 h-16"
+                  height={64}
+                  width={64}
                 />
               </Link>
             </li>
@@ -187,7 +187,7 @@ function MonitorPage({
               <div className="text-sm font-medium text-gray-500">
                 Number of Transactions
               </div>
-              <div className="text-3xl font-bold">
+              <div className="font-bold">
                 <AnimatedNumber value={totalTransfers} />
               </div>
             </div>
@@ -197,7 +197,7 @@ function MonitorPage({
               <div className="text-sm font-medium text-gray-500">
                 Total Amount Transferred
               </div>
-              <div className="text-3xl font-bold flex items-baseline">
+              <div className="font-bold flex items-baseline">
                 <div className="text-right mr-1">
                   <AnimatedNumber
                     value={totalAmountTransferred}

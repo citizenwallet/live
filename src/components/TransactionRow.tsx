@@ -108,7 +108,7 @@ export default function TransactionRow({
             </div>
           )}
         </div>
-        <div className="text-xl font-bold text-gray-600 text-right">
+        <div className="flex flex-col text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 text-right">
           <HumanNumber value={formatUnits(BigInt(tx.value), decimals)} />{" "}
           <span className="text-sm font-normal">{token.symbol}</span>
         </div>
