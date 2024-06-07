@@ -31,11 +31,15 @@ export function getAvatarUrl(address) {
   return `https://api.multiavatar.com/${address}.png`;
 }
 
-export function displayAddress(address) {
+export function displayAddress(address, format = "short") {
   return (
     <div className="">
       <span>{`${address.substr(0, 6)}`}&hellip;</span>
-      <span className="hidden sm:!inline">{address.substr(-4)}</span>
+      {format === "medium" ? (
+        <span className="">{address.substr(-4)}</span>
+      ) : (
+        <span className="hidden sm:!inline">{address.substr(-4)}</span>
+      )}
     </div>
   );
 }

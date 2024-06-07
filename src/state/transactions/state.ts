@@ -7,11 +7,13 @@ export type TransferStore = {
   totalAmount: number;
   fromDate: Date;
   loading: boolean;
+  account: string | null;
   addTransfers: (transfers: Transfer[]) => void;
   putTransfers: (transfers: Transfer[]) => void;
   clearTransfers: () => void;
   setDate: (date: Date) => void;
   startLoadingFromDate: (date: Date) => void;
+  setAccount: (account: string | null) => void;
   stopLoadingFromDate: () => void;
 };
 
@@ -21,6 +23,7 @@ const getInitialState = () => ({
   totalAmount: 0,
   fromDate: new Date(),
   loading: false,
+  account: null,
 });
 
 export const useTransferStore = create<TransferStore>((set) => ({
@@ -80,4 +83,5 @@ export const useTransferStore = create<TransferStore>((set) => ({
       totalTransfers: 0,
     }),
   stopLoadingFromDate: () => set({ loading: false }),
+  setAccount: (account: string | null) => set({ account }),
 }));

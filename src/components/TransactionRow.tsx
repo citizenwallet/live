@@ -15,6 +15,7 @@ export default function TransactionRow({
   decimals,
   profiles,
   onProfileFetch,
+  onProfileClick,
 }: {
   token: ConfigToken;
   tx: Transfer;
@@ -22,6 +23,7 @@ export default function TransactionRow({
   decimals: number;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
   onProfileFetch: (account: string) => void;
+  onProfileClick: (account: string) => void;
 }) {
   const fromProfile: Profile | undefined = profiles(
     (state) => state.profiles[tx.from]
@@ -47,39 +49,43 @@ export default function TransactionRow({
         className={`relative flex flex-1 items-center p-4 border border-gray-200 rounded-lg ${backgroundColor} transition-colors`}
       >
         <div className="relative mr-3">
-          <Image
-            src={
-              fromProfile?.image_medium
-                ? getUrlFromIPFS(fromProfile.image_medium) || ""
-                : getAvatarUrl(tx.from)
-            }
-            alt="from avatar"
-            width={60}
-            height={60}
-            className="rounded-full mr-4"
-          />
+          <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
+            <Image
+              src={
+                fromProfile?.image_medium
+                  ? getUrlFromIPFS(fromProfile.image_medium) || ""
+                  : getAvatarUrl(tx.from)
+              }
+              alt="from avatar"
+              width={60}
+              height={60}
+              className="rounded-full mr-4"
+            />
+          </a>
           <div
             className="  "
             style={{ position: "absolute", bottom: -5, right: -5 }}
           >
-            <Image
-              src={
-                toProfile?.image_medium
-                  ? getUrlFromIPFS(toProfile.image_medium) || ""
-                  : getAvatarUrl(tx.to)
-              }
-              width={30}
-              height={30}
-              alt="to avatar"
-              className="rounded-full mr-1"
-            />
+            <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
+              <Image
+                src={
+                  toProfile?.image_medium
+                    ? getUrlFromIPFS(toProfile.image_medium) || ""
+                    : getAvatarUrl(tx.to)
+                }
+                width={30}
+                height={30}
+                alt="to avatar"
+                className="rounded-full mr-1"
+              />
+            </a>
           </div>
         </div>
         <div className="flex flex-col justify-between w-full">
           <div className="flex flex-row align-left w-full">
             <div className="flex flex-row text-sm  text-gray-500">
               <label className="block mr-1 float-left">From:</label>{" "}
-              <Link href={`?accountAddress=${tx.from}`}>
+              <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
                 {fromProfile?.name ? (
                   <div>
                     <span className="font-bold">{fromProfile.name}</span>
@@ -88,9 +94,9 @@ export default function TransactionRow({
                 ) : (
                   displayAddress(tx.from)
                 )}
-              </Link>
+              </a>
               <label className="block ml-2 mr-1 float-left">To:</label>{" "}
-              <Link href={`?accountAddress=${tx.to}`}>
+              <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
                 {toProfile?.name ? (
                   <div>
                     <span className="font-bold">{toProfile.name}</span>
@@ -99,7 +105,7 @@ export default function TransactionRow({
                 ) : (
                   displayAddress(tx.to)
                 )}{" "}
-              </Link>
+              </a>
             </div>
           </div>
           {tx.data && (

@@ -110,6 +110,9 @@ class TransferLogic {
       this.store.stopLoadingFromDate();
     }
   }
+  setAccount(account: string | null) {
+    this.store.setAccount(account);
+  }
 }
 
 export const useTransfers = (
