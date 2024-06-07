@@ -49,10 +49,11 @@ function MonitorPage({
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
   useSafeEffect(() => {
+    actions.setAccount(accountAddress);
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
-  }, [actions]);
+  }, [actions, accountAddress]);
 
   useEffect(() => {
     // @ts-ignore
@@ -94,11 +95,41 @@ function MonitorPage({
     [profilesActions]
   );
 
-  const transfers = store((state) => state.transfers);
+  const handleProfileClick = (accountAddress: string) => {
+    actions.setAccount(accountAddress);
+  };
+
+  const selectedAccount = store((state) => state.account);
+  const transfers = store((state) => {
+    if (state.account) {
+      return state.transfers.filter(
+        (t) => t.to === state.account || t.from === state.account
+      );
+    } else {
+      return state.transfers;
+    }
+  });
 
   // Compute totals
-  const totalTransfers = store((state) => state.totalTransfers);
-  const totalAmount = store((state) => state.totalAmount);
+  const totalTransfers = store((state) => {
+    if (state.account) {
+      return state.transfers.filter(
+        (t) => t.to === state.account || t.from === state.account
+      ).length;
+    } else {
+      return state.totalTransfers;
+    }
+  });
+
+  const totalAmount = store((state) => {
+    if (state.account) {
+      return state.transfers
+        .filter((t) => t.to === state.account || t.from === state.account)
+        .reduce((acc, transfer) => acc + transfer.value, 0);
+    } else {
+      return state.totalAmount;
+    }
+  });
 
   const date = store((state) => state.fromDate);
   const loading = store((state) => state.loading);
@@ -120,7 +151,8 @@ function MonitorPage({
         >
           <ol className="list-reset flex items-center ">
             <li>
-              <Link
+              <a
+                onClick={() => actions.setAccount(null)}
                 href="#"
                 className="text-blue-600 hover:text-blue-800 min-w-6 block"
               >
@@ -131,20 +163,21 @@ function MonitorPage({
                   height={64}
                   width={64}
                 />
-              </Link>
+              </a>
             </li>
             <li className="px-2">
-              <Link
-                href={`/${communitySlug}`}
+              <a
+                onClick={() => actions.setAccount(null)}
+                href="#"
                 className="text-blue-600 hover:text-blue-800"
               >
                 {communityConfig.token.symbol}
-              </Link>
+              </a>
             </li>
-            {accountAddress && (
+            {selectedAccount && (
               <li className="px-2">
                 <span className="text-gray-500">
-                  {displayAddress(accountAddress)}
+                  {displayAddress(selectedAccount, "medium")}
                 </span>
               </li>
             )}
@@ -248,6 +281,7 @@ function MonitorPage({
                         decimals={communityConfig.token.decimals}
                         profiles={profilesStore}
                         onProfileFetch={handleProfileFetch}
+                        onProfileClick={handleProfileClick}
                       />
                     </div>
                   )}
