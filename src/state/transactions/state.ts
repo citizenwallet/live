@@ -34,11 +34,6 @@ export const useTransferStore = create<TransferStore>((set) => ({
 
       return {
         transfers: newTransfers,
-        totalTransfers: newTransfers.length,
-        totalAmount: newTransfers.reduce(
-          (acc, transfer) => acc + transfer.value,
-          0
-        ),
       };
     }),
   putTransfers: (transfers: Transfer[]) =>

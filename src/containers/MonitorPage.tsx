@@ -120,7 +120,7 @@ function MonitorPage({
         (t) => t.to === state.account || t.from === state.account
       ).length;
     } else {
-      return state.totalTransfers;
+      return state.transfers.length;
     }
   });
 
@@ -130,7 +130,7 @@ function MonitorPage({
         .filter((t) => t.to === state.account || t.from === state.account)
         .reduce((acc, transfer) => acc + transfer.value, 0);
     } else {
-      return state.totalAmount;
+      return state.transfers.reduce((acc, transfer) => acc + transfer.value, 0);
     }
   });
 
