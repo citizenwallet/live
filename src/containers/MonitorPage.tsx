@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
 import TransactionRow from "@/components/TransactionRow";
@@ -11,9 +10,7 @@ import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
 import Image from "next/image";
-import { DatePicker } from "@/components/DatePicker";
-import { Button } from "@/components/ui/button";
-import { LightningBoltIcon, StopIcon, PlayIcon } from "@radix-ui/react-icons";
+import { PlayIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
 import { useProfiles } from "@/state/profiles/logic";
@@ -58,6 +55,12 @@ function MonitorPage({
     };
   }, [actions, accountAddress]);
 
+  useSafeEffect(() => {
+    return () => {
+      profilesActions.stopListeningProfiles();
+    };
+  }, [profilesActions]);
+
   useEffect(() => {
     // @ts-ignore
     window.playSound = () => {
@@ -69,6 +72,7 @@ function MonitorPage({
   function handleStartListening() {
     setListen(true);
     unsubscribeRef.current = actions.listen();
+    profilesActions.listenProfiles();
   }
 
   function handleStopListening() {
@@ -76,10 +80,7 @@ function MonitorPage({
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
-  }
-
-  function handleClearTransactions() {
-    actions.clearTransfers();
+    profilesActions.stopListeningProfiles();
   }
 
   function handleFetchFrom(date: Date | undefined) {
