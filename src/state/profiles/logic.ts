@@ -34,10 +34,31 @@ export class ProfilesLogic {
       this.lastProfileFetch[account] = Date.now();
 
       const profile = await this.profileService.getProfile(account);
+      if (profile === null) {
+        throw new Error("Profile not found");
+      }
 
       this.store.updateProfile(profile);
     } catch (_) {}
     this.profileFetching[account] = false;
+  }
+
+  async listenProfiles() {
+    try {
+      this.profileService.onProfileUpdate((profile) => {
+        this.store.updateProfile(profile);
+      });
+    } catch (e) {
+      console.log("error", e);
+    }
+  }
+
+  stopListeningProfiles() {
+    try {
+      this.profileService.stopProfileListener();
+    } catch (e) {
+      console.log("error", e);
+    }
   }
 }
 
