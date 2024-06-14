@@ -70,7 +70,7 @@ export default function TransactionRow({
               alt="from avatar"
               width={60}
               height={60}
-              className="rounded-full mr-4 max-h-[60px] max-w-[60px]"
+              className="rounded-full object-cover mr-4 max-h-[60px] max-w-[60px]"
               onError={handleFromImageError}
             />
           </a>
@@ -88,7 +88,7 @@ export default function TransactionRow({
                 width={30}
                 height={30}
                 alt="to avatar"
-                className="rounded-full mr-1 max-h-[30px] max-w-[30px]"
+                className="rounded-full object-cover mr-1 max-h-[30px] max-w-[30px]"
                 onError={handleToImageError}
               />
             </a>
