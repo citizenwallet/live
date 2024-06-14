@@ -5,7 +5,7 @@ import HumanNumber from "./HumanNumber";
 import { getUrlFromIPFS } from "@/lib/ipfs";
 import { ConfigToken, Profile, Transfer } from "@citizenwallet/sdk";
 import { formatUnits } from "ethers";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ProfilesStore } from "@/state/profiles/state";
 import { StoreApi, UseBoundStore } from "zustand";
 export default function TransactionRow({
@@ -25,6 +25,9 @@ export default function TransactionRow({
   onProfileFetch: (account: string) => void;
   onProfileClick: (account: string) => void;
 }) {
+  const [fromImageError, setFromImageError] = useState<boolean>(false);
+  const [toImageError, setToImageError] = useState<boolean>(false);
+
   const fromProfile: Profile | undefined = profiles(
     (state) => state.profiles[tx.from]
   );
@@ -36,6 +39,14 @@ export default function TransactionRow({
     onProfileFetch(tx.from);
     onProfileFetch(tx.to);
   }, [onProfileFetch, tx.from, tx.to]);
+
+  const handleFromImageError = (event: any) => {
+    setFromImageError(true);
+  };
+
+  const handleToImageError = (event: any) => {
+    setToImageError(true);
+  };
 
   const backgroundColor =
     tx.status === "success" ? "highlight-animation" : "bg-yellow-200";
@@ -52,14 +63,15 @@ export default function TransactionRow({
           <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
             <Image
               src={
-                fromProfile?.image_medium
+                fromProfile?.image_medium && !fromImageError
                   ? getUrlFromIPFS(fromProfile.image_medium) || ""
                   : getAvatarUrl(tx.from)
               }
               alt="from avatar"
               width={60}
               height={60}
-              className="rounded-full mr-4"
+              className="rounded-full mr-4 max-h-[60px] max-w-[60px]"
+              onError={handleFromImageError}
             />
           </a>
           <div
@@ -69,14 +81,15 @@ export default function TransactionRow({
             <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
               <Image
                 src={
-                  toProfile?.image_medium
+                  toProfile?.image_medium && !toImageError
                     ? getUrlFromIPFS(toProfile.image_medium) || ""
                     : getAvatarUrl(tx.to)
                 }
                 width={30}
                 height={30}
                 alt="to avatar"
-                className="rounded-full mr-1"
+                className="rounded-full mr-1 max-h-[30px] max-w-[30px]"
+                onError={handleToImageError}
               />
             </a>
           </div>
