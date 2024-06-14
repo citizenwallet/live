@@ -19,7 +19,15 @@ export default async function Page({
 }: props) {
   const configService = new ConfigService();
 
-  const config = await configService.getBySlug(communitySlug);
+  const configs = await configService.get();
+
+  const config = configs.find(
+    (config) => config.community.alias === communitySlug
+  );
+
+  if (!config) {
+    return <div>Community not found</div>;
+  }
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
