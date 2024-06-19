@@ -8,6 +8,11 @@ const AnimatedNumber = ({
   decimals = 0,
   duration = 1000,
   className,
+}: {
+  value: number;
+  decimals?: number;
+  duration?: number;
+  className?: string;
 }) => {
   const [displayNumber, setDisplayNumber] = useState(value * 10 ** decimals);
 
@@ -43,7 +48,7 @@ const AnimatedNumber = ({
       } transition ease-in-out duration-150`}
     >
       <HumanNumber
-        value={parseFloat(displayNumber / 10 ** decimals).toFixed(decimals)}
+        value={Number(displayNumber / 10 ** decimals).toFixed(decimals)}
       />
     </div>
   );
