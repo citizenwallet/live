@@ -190,7 +190,7 @@ function FundraiserPage({
               </a>
             )}
           </div>
-          <h1 className="text-8xl font-bold">{title}</h1>
+          <h1 className="text-7xl font-bold">{title}</h1>
         </div>
 
         <div className="w-full flex flex-row h-full">
@@ -198,14 +198,14 @@ function FundraiserPage({
             <div className="w-full items-center grid grid-cols-2 gap-4 mb-4">
               <div className=" w-full bg-white shadow rounded-lg p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-5xl font-medium text-gray-500">
+                  <div className="text-4xl font-medium text-gray-500">
                     Total Amount Raised
                   </div>
                   <div className="font-bold flex items-baseline">
                     <div className="text-right mr-1">
                       <AnimatedNumber
-                        className="text-9xl font-bold text-right"
-                        value={totalAmountTransferred}
+                        className="text-8xl font-bold text-right"
+                        value={parseFloat(totalAmountTransferred)}
                         decimals={
                           parseInt(totalAmountTransferred) >= 10000 ? 0 : 2
                         }
@@ -220,12 +220,12 @@ function FundraiserPage({
               </div>
               <div className=" w-full bg-white shadow rounded-lg p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-5xl font-medium text-gray-500">
+                  <div className="text-4xl font-medium text-gray-500">
                     Number of contributors
                   </div>
                   <div className="font-bold">
                     <AnimatedNumber
-                      className="text-9xl"
+                      className="text-8xl"
                       value={stats.totalContributors}
                     />
                   </div>
@@ -236,7 +236,7 @@ function FundraiserPage({
             <div className="mb-4">
               <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-5xl font-medium text-gray-500 mb-8">
+                  <div className="text-4xl font-medium text-gray-500 mb-8">
                     Top contributors
                   </div>
                   <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0">
@@ -262,7 +262,6 @@ function FundraiserPage({
             />
           </div>
           <div className="w-2/3 h-full ml-12">
-            <h2 className="text-5xl mt-4">Latest contributions</h2>
             <div className="relative h-full">
               {transfers.length > 0 && (
                 <div className="w-full h-full">

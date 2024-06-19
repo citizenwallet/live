@@ -24,7 +24,7 @@ export default function TransactionRow({
   communitySlug: string;
   decimals: number;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
-  datetime: string;
+  datetime?: string;
   onProfileFetch: (account: string) => void;
   onProfileClick: (account: string) => void;
 }) {

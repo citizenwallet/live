@@ -33,7 +33,6 @@ export default function TransactionRow({
     profiles,
     communitySlug,
   });
-  if (!amount) return null;
   const [fromImageError, setFromImageError] = useState<boolean>(false);
 
   const fromProfile: Profile | undefined = profiles(
@@ -43,6 +42,8 @@ export default function TransactionRow({
   const handleFromImageError = (event: any) => {
     setFromImageError(true);
   };
+
+  if (!amount) return null;
 
   return (
     <div className="flex m-2">

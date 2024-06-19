@@ -237,7 +237,7 @@ function MonitorPage({
               <div className="font-bold flex items-baseline">
                 <div className="text-right mr-1">
                   <AnimatedNumber
-                    value={totalAmountTransferred}
+                    value={parseFloat(totalAmountTransferred)}
                     decimals={parseInt(totalAmountTransferred) >= 10000 ? 0 : 2}
                   />
                 </div>
