@@ -9,11 +9,17 @@ class TransferLogic {
   storeGetter: () => TransferStore;
   token: ConfigToken;
   indexer: IndexerService;
+  accountAddress: string | undefined;
 
-  constructor(config: Config, store: () => TransferStore) {
+  constructor(
+    config: Config,
+    accountAddress: string | undefined,
+    store: () => TransferStore
+  ) {
     this.store = store();
     this.storeGetter = store;
     this.token = config.token;
+    this.accountAddress = accountAddress;
     this.indexer = new IndexerService(config.indexer);
   }
 
@@ -29,11 +35,14 @@ class TransferLogic {
           limit: this.listenerFetchLimit,
           offset: 0,
         };
-
-        const { array: transfers = [] } = await this.indexer.getAllNewTransfers(
-          this.token.address,
-          params
-        );
+        console.log("listening for new transfers", this.accountAddress, params);
+        const { array: transfers = [] } = this.accountAddress
+          ? await this.indexer.getNewTransfers(
+              this.token.address,
+              this.accountAddress,
+              params
+            )
+          : await this.indexer.getAllNewTransfers(this.token.address, params);
 
         if (transfers.length > 0) {
           // new items, move the max date to the latest one
@@ -83,8 +92,13 @@ class TransferLogic {
         offset,
       };
 
-      const { array: transfers = [], meta } =
-        await this.indexer.getAllNewTransfers(this.token.address, params);
+      const { array: transfers = [], meta } = this.accountAddress
+        ? await this.indexer.getNewTransfers(
+            this.token.address,
+            this.accountAddress,
+            params
+          )
+        : await this.indexer.getAllNewTransfers(this.token.address, params);
 
       if (transfers.length === 0) {
         this.store.stopLoadingFromDate();
@@ -116,12 +130,14 @@ class TransferLogic {
 }
 
 export const useTransfers = (
-  config: Config
+  config: Config,
+  accountAddress?: string
 ): [UseBoundStore<StoreApi<TransferStore>>, TransferLogic] => {
   const transferStore = useTransferStore;
 
   const transferLogic = useMemo(
-    () => new TransferLogic(config, () => transferStore.getState()),
+    () =>
+      new TransferLogic(config, accountAddress, () => transferStore.getState()),
     [config, transferStore]
   );
 

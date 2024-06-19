@@ -3,7 +3,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import HumanNumber from "./HumanNumber";
 
-const AnimatedNumber = ({ value, decimals = 0, duration = 1000 }) => {
+const AnimatedNumber = ({
+  value,
+  decimals = 0,
+  duration = 1000,
+  className,
+}) => {
   const [displayNumber, setDisplayNumber] = useState(value * 10 ** decimals);
 
   const currentValue = useRef(value * 10 ** decimals);
@@ -32,7 +37,11 @@ const AnimatedNumber = ({ value, decimals = 0, duration = 1000 }) => {
   }, [value, decimals, duration]);
 
   return (
-    <div className="text-3xl sm:text-4xl md:text-5xl font-bold transition ease-in-out duration-150">
+    <div
+      className={`${
+        className ? className : "text-3xl sm:text-4xl md:text-5xl font-bold"
+      } transition ease-in-out duration-150`}
+    >
       <HumanNumber
         value={parseFloat(displayNumber / 10 ** decimals).toFixed(decimals)}
       />
