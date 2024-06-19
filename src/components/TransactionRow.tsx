@@ -7,6 +7,7 @@ import { ConfigToken, Profile, Transfer } from "@citizenwallet/sdk";
 import { formatUnits } from "ethers";
 import { useEffect, useState } from "react";
 import { ProfilesStore } from "@/state/profiles/state";
+import moment from "moment";
 import { StoreApi, UseBoundStore } from "zustand";
 export default function TransactionRow({
   token,
@@ -14,6 +15,7 @@ export default function TransactionRow({
   communitySlug,
   decimals,
   profiles,
+  datetime,
   onProfileFetch,
   onProfileClick,
 }: {
@@ -22,6 +24,7 @@ export default function TransactionRow({
   communitySlug: string;
   decimals: number;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
+  datetime: string;
   onProfileFetch: (account: string) => void;
   onProfileClick: (account: string) => void;
 }) {
@@ -49,12 +52,14 @@ export default function TransactionRow({
   };
 
   const backgroundColor =
-    tx.status === "success" ? "highlight-animation" : "bg-yellow-200";
+    tx.status === "success" ? "highlight-animation bg-white" : "bg-yellow-200";
 
   return (
-    <div className="my-3 mr-3 w-full flex flex-col">
+    <div className="my-3 mr-3 w-full flex flex-col ">
       <div className="text-xs text-gray-500">
-        {new Date(tx.created_at).toLocaleString()}
+        {datetime === "relative"
+          ? moment(tx.created_at).fromNow()
+          : new Date(tx.created_at).toLocaleString()}
       </div>
       <div
         className={`relative flex flex-1 items-center p-4 border border-gray-200 rounded-lg ${backgroundColor} transition-colors`}
