@@ -2,11 +2,12 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import HumanNumber from "./HumanNumber";
+import CountUp from "react-countup";
 
 const AnimatedNumber = ({
   value,
   decimals = 0,
-  duration = 1000,
+  duration = 10,
   className,
 }: {
   value: number;
@@ -14,41 +15,17 @@ const AnimatedNumber = ({
   duration?: number;
   className?: string;
 }) => {
-  const [displayNumber, setDisplayNumber] = useState(value * 10 ** decimals);
-
-  const currentValue = useRef(value * 10 ** decimals);
-  const interval = 20;
-
-  useEffect(() => {
-    const totalChange = value * 10 ** decimals - currentValue.current;
-    if (totalChange === 0) {
-      return;
-    }
-    const increment = Math.ceil(totalChange / (duration / interval));
-
-    const intervalId = setInterval(() => {
-      currentValue.current += increment;
-      if (
-        (increment > 0 && currentValue.current >= value * 10 ** decimals) ||
-        (increment < 0 && currentValue.current <= value * 10 ** decimals)
-      ) {
-        currentValue.current = value * 10 ** decimals;
-        clearInterval(intervalId);
-      }
-      setDisplayNumber(currentValue.current);
-    }, interval);
-
-    return () => clearInterval(intervalId);
-  }, [value, decimals, duration]);
-
   return (
     <div
       className={`${
         className ? className : "text-3xl sm:text-4xl md:text-5xl font-bold"
       } transition ease-in-out duration-150`}
     >
-      <HumanNumber
-        value={Number(displayNumber / 10 ** decimals).toFixed(decimals)}
+      <CountUp
+        duration={duration}
+        className="counter"
+        end={value}
+        preserveValue={true}
       />
     </div>
   );

@@ -16,6 +16,9 @@ import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
 import { useProfiles } from "@/state/profiles/logic";
 import DonateQRCode from "@/components/DonateQRCode";
+import useWindowSize from "react-use/lib/useWindowSize";
+import Confetti from "react-confetti";
+import { Transfer } from "@citizenwallet/sdk";
 
 const dingSound = "/cashing.mp3";
 
@@ -43,13 +46,32 @@ function FundraiserPage({
   accountAddress: string;
   title: string;
 }) {
+  const { width, height } = useWindowSize();
+
   const [listen, setListen] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const communitySlug = communityConfig.community.alias;
 
   const unsubscribeRef = useRef<() => void | undefined>();
 
-  const [store, actions] = useTransfers(communityConfig, accountAddress);
+  const handleNewTransactions = useCallback((transactions: Transfer[]) => {
+    console.log(">>> handleNewTransactions", transactions);
+    if (transactions.length > 0) {
+      // @ts-ignore
+      window.playSound();
+      setShowConfetti(true);
+      setTimeout(() => {
+        setShowConfetti(false);
+      }, 3000);
+    }
+  }, []);
+
+  const [store, actions] = useTransfers(
+    communityConfig,
+    accountAddress,
+    handleNewTransactions
+  );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
   useSafeEffect(() => {
@@ -72,7 +94,11 @@ function FundraiserPage({
       // @ts-ignore
       window.audio.audioEl.current.play();
     };
-  }, []);
+    // @ts-ignore
+    window.triggerNewTransaction = (tx) => {
+      actions.triggerNewTransaction(tx);
+    };
+  }, [actions]);
 
   function handleStartListening() {
     setListen(true);
@@ -160,13 +186,14 @@ function FundraiserPage({
   );
   return (
     <>
+      {showConfetti && <Confetti width={width} height={height} />}
       <div className="flex flex-col flex-1 w-full mx-auto p-8 bg-gray-100 h-full overflow-hidden">
         <AudioPlayer
           src={dingSound}
           // @ts-ignore
           ref={(element) => (window.audio = element)}
         />
-        <div className="w-full flex flex-row mt-6 mb-12">
+        <div className="w-full flex flex-row mt-4 mb-12">
           <div className="flex items-center mr-2 w-8">
             {loading && (
               <LoaderCircleIcon className="animate-spin flex items-center w-6 h-6 text-blue-500" />
@@ -234,12 +261,12 @@ function FundraiserPage({
             </div>
 
             <div className="mb-4">
-              <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
+              <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between h-96 overflow-hidden">
                 <div>
-                  <div className="text-4xl font-medium text-gray-500 mb-8">
+                  <div className="text-4xl font-medium text-gray-500 mb-4">
                     Top contributors
                   </div>
-                  <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0">
+                  <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-[300px] ">
                     {stats.leaderboard.map((entry, index) => (
                       <ContributorRow
                         key={entry.from}

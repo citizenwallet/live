@@ -1,4 +1,9 @@
-import { Config, ConfigToken, IndexerService } from "@citizenwallet/sdk";
+import {
+  Config,
+  ConfigToken,
+  IndexerService,
+  Transfer,
+} from "@citizenwallet/sdk";
 import { TransferStore, useTransferStore } from "./state";
 import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
@@ -10,16 +15,19 @@ class TransferLogic {
   token: ConfigToken;
   indexer: IndexerService;
   accountAddress: string | undefined;
+  onNewTransactions?: ([]) => void;
 
   constructor(
     config: Config,
     accountAddress: string | undefined,
-    store: () => TransferStore
+    store: () => TransferStore,
+    onNewTransactions?: ([]) => void
   ) {
     this.store = store();
     this.storeGetter = store;
     this.token = config.token;
     this.accountAddress = accountAddress;
+    this.onNewTransactions = onNewTransactions;
     this.indexer = new IndexerService(config.indexer);
   }
 
@@ -47,6 +55,7 @@ class TransferLogic {
         if (transfers.length > 0) {
           // new items, move the max date to the latest one
           this.listenMaxDate = new Date();
+          this.onNewTransactions?.(transfers);
         }
 
         if (transfers.length === 0) {
@@ -56,14 +65,6 @@ class TransferLogic {
 
         // new items, add them to the store
         this.store.putTransfers(transfers);
-
-        const combinedTransfers = this.storeGetter().transfers;
-
-        // play sound if there are new transfers that are successful
-        if (transfers.some((t) => t.status === "pending")) {
-          // @ts-ignore
-          window.playSound();
-        }
       }, 1000);
 
       return () => {
@@ -71,6 +72,11 @@ class TransferLogic {
       };
     } catch (_) {}
     return () => {};
+  }
+
+  triggerNewTransaction(tx: Transfer) {
+    this.onNewTransactions?.([tx]);
+    this.store.putTransfers([tx]);
   }
 
   clearTransfers() {
@@ -131,14 +137,20 @@ class TransferLogic {
 
 export const useTransfers = (
   config: Config,
-  accountAddress?: string
+  accountAddress?: string,
+  onNewTransactions?: ([]) => void
 ): [UseBoundStore<StoreApi<TransferStore>>, TransferLogic] => {
   const transferStore = useTransferStore;
 
   const transferLogic = useMemo(
     () =>
-      new TransferLogic(config, accountAddress, () => transferStore.getState()),
-    [config, transferStore]
+      new TransferLogic(
+        config,
+        accountAddress,
+        () => transferStore.getState(),
+        onNewTransactions
+      ),
+    [config, transferStore, accountAddress, onNewTransactions]
   );
 
   return [transferStore, transferLogic];
