@@ -51,6 +51,8 @@ export default function TransactionRow({
     setToImageError(true);
   };
 
+  console.log(">>> tx", JSON.stringify(tx));
+
   const backgroundColor =
     tx.status === "success" ? "highlight-animation bg-white" : "bg-yellow-200";
 
@@ -127,7 +129,7 @@ export default function TransactionRow({
             </div>
           </div>
           {tx.data && (
-            <div className="text-sm text-gray-500 font-bold my-2">
+            <div className="text-2xl text-gray-500 font-bold my-2">
               {tx.data.description || "No description"}
             </div>
           )}

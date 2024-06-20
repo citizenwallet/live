@@ -26,13 +26,6 @@ export default function TransactionRow({
   showAmount?: boolean;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
 }) {
-  console.log(">> ContributorRow.tsx", {
-    token,
-    amount,
-    contributorAddress,
-    profiles,
-    communitySlug,
-  });
   const [fromImageError, setFromImageError] = useState<boolean>(false);
 
   const fromProfile: Profile | undefined = profiles(
