@@ -4,6 +4,7 @@ const nextConfig = {
     remotePatterns: [
       { hostname: "giveth.mypinata.cloud" },
       { hostname: "ipfs.io" },
+      { hostname: "localhost" },
       {
         hostname: "api.multiavatar.com",
       },

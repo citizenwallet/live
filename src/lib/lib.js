@@ -28,7 +28,9 @@ export function getTokenAddress(chain, symbol) {
 }
 
 export function getAvatarUrl(address) {
-  return `/api/getAvatar?accountAddress=${address}`;
+  return `${
+    process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+  }/api/getAvatar?accountAddress=${address}`;
 }
 
 export function displayAddress(address, format = "short") {
