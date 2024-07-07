@@ -36,8 +36,24 @@ export default function TransactionRow({
     setFromImageError(true);
   };
 
-  if (!amount) return null;
+  const extraProfiles = {
+    Superchain:
+      "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
+    Metagov:
+      "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
+    Gnosis:
+      "https://pbs.twimg.com/profile_images/1603829076346667022/6J-QZXPB_400x400.jpg",
+    "Kevin Owocki":
+      "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
+    Octant:
+      "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
+    "Blast.io":
+      "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
+    POV: "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
+  };
 
+  if (!amount) return null;
+  console.log(">>> ContributorRow", { contributorAddress, fromProfile });
   return (
     <div className="flex m-2">
       <div className="align-center text-center mb-2">
@@ -45,7 +61,9 @@ export default function TransactionRow({
           <Image
             unoptimized
             src={
-              fromProfile?.image_medium && !fromImageError
+              extraProfiles[contributorAddress]
+                ? extraProfiles[contributorAddress]
+                : fromProfile?.image_medium && !fromImageError
                 ? getUrlFromIPFS(fromProfile.image_medium) || ""
                 : getAvatarUrl(contributorAddress)
             }
