@@ -10,6 +10,20 @@ import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
 import { off } from "process";
 
+type ExtendedTransfer = Transfer & {
+  fromProfile?: {
+    name: string;
+    image_medium: string;
+  };
+  data: {
+    description: string;
+    value: number;
+    currency: string;
+    valueUsd: number;
+    via: string;
+  };
+};
+
 const getRandomNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -226,7 +240,8 @@ class TransferLogic {
 
         if (extraTransfers.length > 0 && offset === 0) {
           extraTransfers.map((tx) => {
-            transfers.push({
+            const transfer: ExtendedTransfer = {
+              nonce: 0,
               status: "success",
               hash: "0x" + Math.random().toString(16).substring(2, 64),
               tx_hash: "0x" + Math.random().toString(16).substring(2, 64),
@@ -234,8 +249,7 @@ class TransferLogic {
               value: tx.amount * 10 ** 6,
               created_at: new Date(tx.date),
               from: tx.name,
-              to: this.accountAddress,
-              networkId: 0,
+              to: this.accountAddress || "",
               fromProfile: {
                 name: tx.name,
                 image_medium: tx.avatar,
@@ -247,7 +261,8 @@ class TransferLogic {
                 valueUsd: Math.round(1.08 * tx.amount),
                 via: "IBAN",
               },
-            });
+            };
+            transfers.push(transfer);
           });
         }
       }
