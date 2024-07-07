@@ -5,6 +5,7 @@ const nextConfig = {
       { hostname: "giveth.mypinata.cloud" },
       { hostname: "ipfs.io" },
       { hostname: "localhost" },
+      { hostname: "pbs.twimg.com" },
       {
         hostname: "api.multiavatar.com",
       },

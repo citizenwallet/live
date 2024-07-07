@@ -8,6 +8,7 @@ import { TransferStore, useTransferStore } from "./state";
 import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
+import { off } from "process";
 
 const getRandomNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
@@ -169,6 +170,85 @@ class TransferLogic {
         const res = await data.json();
         if (res.transfers.length > 0) {
           transfers.push(...res.transfers);
+        }
+
+        const extraTransfers = [
+          {
+            name: "Superchain",
+            date: "2024-07-04",
+            amount: 5000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
+          },
+          {
+            name: "Metagov",
+            date: "2024-07-04",
+            amount: 5000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
+          },
+          {
+            name: "Gnosis",
+            date: "2024-07-04",
+            amount: 5000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1603829076346667022/6J-QZXPB_400x400.jpg",
+          },
+          {
+            name: "Kevin Owocki",
+            date: "2024-07-04",
+            amount: 5000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
+          },
+          {
+            name: "Octant",
+            date: "2024-07-04",
+            amount: 5000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
+          },
+          {
+            name: "Blast.io",
+            date: "2024-07-04",
+            amount: 6000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
+          },
+          {
+            name: "POV",
+            date: "2024-07-04",
+            amount: 1364,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
+          },
+        ];
+
+        if (extraTransfers.length > 0 && offset === 0) {
+          extraTransfers.map((tx) => {
+            transfers.push({
+              status: "success",
+              hash: "0x" + Math.random().toString(16).substring(2, 64),
+              tx_hash: "0x" + Math.random().toString(16).substring(2, 64),
+              token_id: 1,
+              value: tx.amount * 10 ** 6,
+              created_at: new Date(tx.date),
+              from: tx.name,
+              to: this.accountAddress,
+              networkId: 0,
+              fromProfile: {
+                name: tx.name,
+                image_medium: tx.avatar,
+              },
+              data: {
+                description: `Sponsorship of ${tx.amount} euros`,
+                value: tx.amount,
+                currency: "EUR",
+                valueUsd: Math.round(1.08 * tx.amount),
+                via: "IBAN",
+              },
+            });
+          });
         }
       }
 
