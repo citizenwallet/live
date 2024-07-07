@@ -75,6 +75,7 @@ export default function TransactionRow({
         <div className="relative mr-2">
           <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
             <Image
+              unoptimized
               src={fromProfileImage}
               alt="from avatar"
               width={60}
@@ -90,6 +91,7 @@ export default function TransactionRow({
             >
               <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
                 <Image
+                  unoptimized
                   src={
                     toProfile?.image_medium && !toImageError
                       ? getUrlFromIPFS(toProfile.image_medium) || ""

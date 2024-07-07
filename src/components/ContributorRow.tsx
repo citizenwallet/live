@@ -43,6 +43,7 @@ export default function TransactionRow({
       <div className="align-center text-center mb-2">
         <div className="flex w-[70px] h-[70px] items-center">
           <Image
+            unoptimized
             src={
               fromProfile?.image_medium && !fromImageError
                 ? getUrlFromIPFS(fromProfile.image_medium) || ""
