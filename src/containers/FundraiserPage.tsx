@@ -221,7 +221,7 @@ function FundraiserPage({
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex flex-row flex-1 p-8 bg-[#F8F7F3] w-full h-full overflow-hidden">
+      <div className="flex flex-row justify-center p-8 bg-[#F8F7F3] w-full h-full overflow-hidden">
         <AudioPlayer
           src={dingSound}
           // @ts-ignore
