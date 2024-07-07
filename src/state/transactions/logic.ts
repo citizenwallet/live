@@ -16,6 +16,7 @@ class TransferLogic {
   store: TransferStore;
   storeGetter: () => TransferStore;
   token: ConfigToken;
+  communitySlug: string;
   indexer: IndexerService;
   accountAddress: string | undefined;
   onNewTransactions?: ([]) => void;
@@ -29,6 +30,7 @@ class TransferLogic {
     this.store = store();
     this.storeGetter = store;
     this.token = config.token;
+    this.communitySlug = config.community.alias;
     this.accountAddress = accountAddress;
     this.onNewTransactions = onNewTransactions;
     this.indexer = new IndexerService(config.indexer);
@@ -38,13 +40,11 @@ class TransferLogic {
   private listenerIntervalGiveth: ReturnType<typeof setInterval> | undefined;
   private listenMaxDate = new Date();
   private listenerFetchLimit = 10;
-  private listenGivethLastId = 0;
 
   processNewTransfers(transfers: Transfer[]) {
     if (transfers.length > 0) {
       // new items, move the max date to the latest one
       this.listenMaxDate = new Date();
-      this.listenGivethLastId = transfers[0].token_id;
       this.onNewTransactions?.(transfers);
     }
 
@@ -82,33 +82,34 @@ class TransferLogic {
         }
       }, 1500);
 
-      this.listenerIntervalGiveth = setInterval(async () => {
-        console.log(
-          "listening for new transfers on giveth",
-          this.accountAddress
-        );
-        try {
-          const projectId = 1871;
-          const projectAddress = this.accountAddress;
-          const data = await fetch(
-            `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&sinceLastId=${
-              this.listenGivethLastId || 0
-            }`
+      if (this.communitySlug === "regenvillage.wallet.pay.brussels") {
+        this.listenerIntervalGiveth = setInterval(async () => {
+          console.log(
+            "listening for new transfers on giveth",
+            this.accountAddress
           );
-          const res = await data.json();
-          console.log(">>> response from /api/giveth", res);
-          if (res.transfers.length > 0) {
-            this.processNewTransfers(res.transfers);
+          try {
+            const projectId = 1871;
+            const projectAddress = this.accountAddress;
+            const data = await fetch(
+              `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&fromDate=${this.listenMaxDate}`
+            );
+            const res = await data.json();
+            console.log(">>> response from /api/giveth", res);
+            if (res.transfers.length > 0) {
+              this.processNewTransfers(res.transfers);
+            }
+          } catch (e) {
+            console.error("Error fetching transactions from giveth", e);
+            return;
           }
-        } catch (e) {
-          console.error("Error fetching transactions from giveth", e);
-          return;
-        }
-      }, 5000);
+        }, 5000);
+      }
 
       return () => {
         clearInterval(this.listenerInterval);
-        clearInterval(this.listenerIntervalGiveth);
+        this.listenerIntervalGiveth &&
+          clearInterval(this.listenerIntervalGiveth);
       };
     } catch (_) {}
     return () => {};
@@ -146,13 +147,14 @@ class TransferLogic {
           )
         : await this.indexer.getAllNewTransfers(this.token.address, params);
 
-      if (this.accountAddress) {
+      if (
+        this.communitySlug === "regenvillage.wallet.pay.brussels" &&
+        this.accountAddress
+      ) {
         const projectId = 1871;
         const projectAddress = this.accountAddress;
         const data = await fetch(
-          `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&take=${
-            this.loaderFetchLimit
-          }&skip=${offset}&sinceLastId=${this.listenGivethLastId || 0}`
+          `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&take=${this.loaderFetchLimit}&skip=${offset}&fromDate=${this.listenMaxDate}`
         );
         const res = await data.json();
         if (res.transfers.length > 0) {
