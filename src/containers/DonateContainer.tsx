@@ -56,9 +56,10 @@ export default function DonateContainer({
       ? "wallet.pay.brussels"
       : communitySlug
   );
-  const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${communitySlug}/${accountAddress}/donate`;
+  const redirectUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/${communitySlug}/${accountAddress}/donate`;
   const givethPlugin = getPlugin(config, "giveth");
   const topupPlugin = getPlugin(config, "Top Up");
+  const title = "Contribute to the Regen Village";
 
   return (
     <div className="w-full h-full relative">
@@ -106,7 +107,9 @@ export default function DonateContainer({
                   description="via Stripe"
                   href={`${
                     topupPlugin.url
-                  }?account=${accountAddress}&redirectUrl=${encodeURIComponent(
+                  }?account=${accountAddress}&title=${encodeURIComponent(
+                    title
+                  )}&amounts=5,10,20,50,100,custom&redirectUrl=${encodeURIComponent(
                     redirectUrl
                   )}`}
                   icon={<CreditCardIcon width={22} height={16} />}
