@@ -309,6 +309,7 @@ function FundraiserPage({
                   <OpencollectiveData
                     collectiveSlug={collectiveSlug}
                     limit={10}
+                    showStatus={false}
                   />
                 </div>
               )}

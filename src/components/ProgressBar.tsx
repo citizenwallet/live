@@ -29,6 +29,7 @@ const ProgressBarComponent = ({
           filledBackground="#40D472"
           hasStepZero={false}
           unfilledBackground="#E6E6E6"
+          // @ts-ignore
           stepPositions={milestones && milestones.map((step) => step.position)}
         >
           {milestones &&

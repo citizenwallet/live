@@ -2,13 +2,17 @@ import { NextRequest } from "next/server";
 import { GraphQLClient, gql } from "graphql-request";
 import AbortController from "abort-controller";
 
-const USD_EUR_FXRATE = process.env.USD_EUR_FXRATE || 0.92;
+const USD_EUR_FXRATE = parseInt(process.env.USD_EUR_FXRATE || "0.92");
 
 export const dynamic = "force-dynamic";
 
 export type TransferStatus = "sending" | "pending" | "success" | "fail";
 export interface TransferData {
   description: string;
+  value: number;
+  currency: string;
+  valueUsd: number;
+  via: string;
 }
 export interface Transfer {
   hash: string;
@@ -16,8 +20,12 @@ export interface Transfer {
   token_id: number;
   created_at: Date;
   from: string;
+  fromProfile?: {
+    name: string;
+    avatar: string;
+  };
   to: string;
-  nonce: number;
+  nonce?: number;
   value: number;
   data: TransferData | null;
   status: TransferStatus;
@@ -85,10 +93,14 @@ const getGivethData = async (
   const timeoutId = setTimeout(() => {
     controller.abort();
   }, 3000);
-  const graphQLClient = new GraphQLClient(process.env.GIVETH_GRAPHQL_API, {
-    signal: controller.signal,
-  });
-  const data = await graphQLClient.request(query, {
+  const graphQLClient = new GraphQLClient(
+    process.env.GIVETH_GRAPHQL_API || "",
+    {
+      // @ts-ignore
+      signal: controller.signal,
+    }
+  );
+  const data: any = await graphQLClient.request(query, {
     projectId,
     take,
     skip,
@@ -96,25 +108,19 @@ const getGivethData = async (
     status: "verified",
   });
   const transfers: Transfer[] = [];
-  const profiles = {};
   const donations =
     sinceLastId > 0
       ? data.donationsByProjectId.donations.filter(
-          (donation) => donation.id > sinceLastId
+          (donation: any) => donation.id > sinceLastId
         )
       : data.donationsByProjectId.donations;
-  donations.map((donation) => {
-    profiles[donation.user.walletAddress] = {
-      name: donation.user.name,
-      avatar: donation.user.avatar,
-      address: donation.user.walletAddress,
-    };
-
+  donations.map((donation: any) => {
     transfers.push({
+      status: "success",
       hash: donation.transactionId,
       tx_hash: donation.transactionId,
       token_id: parseInt(donation.id),
-      value: parseInt(donation.valueUsd * USD_EUR_FXRATE * 10 ** 6),
+      value: donation.valueUsd * USD_EUR_FXRATE * 10 ** 6,
       created_at: new Date(donation.createdAt),
       from: donation.user.walletAddress,
       to: projectAddress,
@@ -145,19 +151,21 @@ const getGivethData = async (
 export async function GET(request: NextRequest) {
   const projectId = request.nextUrl.searchParams.get("projectId");
   const projectAddress = request.nextUrl.searchParams.get("projectAddress");
-  const take = request.nextUrl.searchParams.get("take");
-  const skip = request.nextUrl.searchParams.get("skip");
-  const sinceLastId = request.nextUrl.searchParams.get("sinceLastId");
+  const take = parseInt(request.nextUrl.searchParams.get("take") || "10");
+  const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0");
+  const sinceLastId = parseInt(
+    request.nextUrl.searchParams.get("sinceLastId") || "0"
+  );
+  if (!projectId) {
+    return Response.json({ error: "projectId is required" }, { status: 400 });
+  }
   const data = await getGivethData(
     parseInt(projectId),
-    projectAddress,
-    parseInt(take) || 10,
-    parseInt(skip) || 0,
-    parseInt(sinceLastId) || 0
+    projectAddress || "",
+    take,
+    skip,
+    sinceLastId
   );
 
-  if (!projectId) {
-    return Response.error("projectId is required", { status: 400 });
-  }
   return Response.json(data);
 }
