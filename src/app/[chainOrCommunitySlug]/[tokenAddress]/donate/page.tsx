@@ -8,15 +8,16 @@ import { getTextColor } from "@/lib/colors";
 interface props {
   params: {
     chainOrCommunitySlug: string;
+    tokenAddress: string;
   };
   searchParams: {
-    accountAddress: string;
+    success: string;
   };
 }
 
 export default async function Page({
-  params: { chainOrCommunitySlug: communitySlug },
-  searchParams: { accountAddress },
+  params: { chainOrCommunitySlug: communitySlug, tokenAddress: accountAddress },
+  searchParams: { success },
 }: props) {
   const configService = new ConfigService();
 
@@ -33,12 +34,16 @@ export default async function Page({
     <div
       className="w-full h-full"
       style={{
-        backgroundColor: config.community.theme.secondary,
-        color: getTextColor(config.community.theme.secondary),
+        backgroundColor: config.community?.theme?.secondary,
+        color: getTextColor(config.community?.theme?.secondary || "#ffffff"),
       }}
     >
       <Suspense fallback={<div>Loading...</div>}>
-        <DonateContainer config={config} accountAddress={accountAddress} />
+        <DonateContainer
+          success={Boolean(success)}
+          config={config}
+          accountAddress={accountAddress}
+        />
       </Suspense>
     </div>
   );

@@ -181,11 +181,13 @@ export default class CitizenWalletCommunity {
   };
 }
 
-export const getPlugin = (config, pluginName) => {
-  const plugin = config.plugins.find((plugin) => plugin.name === pluginName);
+export const getPlugin = (config: any, pluginName: string) => {
+  const plugin = config.plugins.find(
+    (plugin: any) => plugin.name === pluginName
+  );
   return plugin;
 };
 
-export const hasPlugin = (config, pluginName) => {
+export const hasPlugin = (config: any, pluginName: string) => {
   return !!getPlugin(config, pluginName);
 };
