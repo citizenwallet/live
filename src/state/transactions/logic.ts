@@ -82,7 +82,9 @@ class TransferLogic {
         }
       }, 1500);
 
-      if (this.communitySlug === "regenvillage.wallet.pay.brussels") {
+      if (
+        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
+      ) {
         this.listenerIntervalGiveth = setInterval(async () => {
           console.log(
             "listening for new transfers on giveth",
@@ -155,8 +157,7 @@ class TransferLogic {
         this.accountAddress
       );
       if (
-        this.communitySlug === "regenvillage.wallet.pay.brussels" &&
-        this.accountAddress
+        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
       ) {
         const projectId = 1871;
         const projectAddress = this.accountAddress;

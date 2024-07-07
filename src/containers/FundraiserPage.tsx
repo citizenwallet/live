@@ -36,39 +36,37 @@ function FundraiserPage({
   goal: number;
   collectiveSlug: string;
 }) {
-  const settings = [
-    "regenvillage.wallet.pay.brussels",
-    "wallet.regenvillage.brussels",
-  ].includes(communityConfig.community.alias)
-    ? {
-        milestones: [
-          {
-            index: 1,
-            title: "space secured",
-            emoji: "🎉",
-            position: 20,
-          },
-          {
-            index: 2,
-            emoji: "🎉",
-            title: "food & drinks",
-            position: 40,
-          },
-          {
-            index: 3,
-            emoji: "🎉",
-            title: "core contributors",
-            position: 60,
-          },
-          {
-            index: 4,
-            emoji: "🎉",
-            title: "contributors",
-            position: 80,
-          },
-        ],
-      }
-    : {};
+  const settings =
+    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
+      ? {
+          milestones: [
+            {
+              index: 1,
+              title: "space secured",
+              emoji: "🎉",
+              position: 20,
+            },
+            {
+              index: 2,
+              emoji: "🎉",
+              title: "food & drinks",
+              position: 40,
+            },
+            {
+              index: 3,
+              emoji: "🎉",
+              title: "core contributors",
+              position: 60,
+            },
+            {
+              index: 4,
+              emoji: "🎉",
+              title: "contributors",
+              position: 80,
+            },
+          ],
+        }
+      : {};
 
   const { width, height } = useWindowSize();
 
