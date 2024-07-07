@@ -22,7 +22,7 @@ export default function TransactionRow({
 }: {
   token: ConfigToken;
   tx: Transfer & {
-    fromProfile: {
+    fromProfile?: {
       name: string;
       avatar: string;
     };
