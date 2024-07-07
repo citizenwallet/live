@@ -36,7 +36,7 @@ export default function TransactionRow({
     setFromImageError(true);
   };
 
-  const extraProfiles = {
+  const extraProfiles: any = {
     Superchain:
       "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
     Metagov:
