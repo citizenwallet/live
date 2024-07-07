@@ -343,7 +343,7 @@ function FundraiserPage({
           </div>
         </div>
 
-        <div className="w-1/3 flex flex-col ml-5">
+        <div className="flex flex-col ml-5 w-[480px]">
           <DonateQRCode
             communitySlug={communitySlug}
             accountAddress={accountAddress}
@@ -351,7 +351,7 @@ function FundraiserPage({
               process.env.NEXT_PUBLIC_WEBAPP_URL || ""
             }/${communitySlug}/${accountAddress}/donate`}
           />
-          <div className="relative h-full bg-white rounded-3xl px-2 w-[520px] mx-auto mt-5">
+          <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
             <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
               Latest contributions
             </h3>
