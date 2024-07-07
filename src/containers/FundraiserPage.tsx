@@ -37,7 +37,7 @@ function FundraiserPage({
   collectiveSlug: string;
 }) {
   const settings = [
-    "wallet.pay.brussels",
+    "regenvillage.wallet.pay.brussels",
     "wallet.regenvillage.brussels",
   ].includes(communityConfig.community.alias)
     ? {

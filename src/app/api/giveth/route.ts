@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { GraphQLClient, gql } from "graphql-request";
 import AbortController from "abort-controller";
 
-const USD_EUR_FXRATE = parseInt(process.env.USD_EUR_FXRATE || "0.92");
+const USD_EUR_FXRATE = parseFloat(process.env.USD_EUR_FXRATE || "0.92");
 
 export const dynamic = "force-dynamic";
 
@@ -87,8 +87,10 @@ const getGivethData = async (
   projectAddress: string,
   take: number = 10,
   skip: number = 0,
-  sinceLastId: number = 0
+  fromDate: string,
+  sinceLastId?: number
 ) => {
+  const fromDateTime = new Date(fromDate).getTime();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -107,20 +109,27 @@ const getGivethData = async (
     orderBy: { field: "CreationDate", direction: "DESC" },
     status: "verified",
   });
+
+  console.log(">>> filter", fromDate, fromDateTime);
+
+  let filterCondition = (donation: any) => true;
+  if (sinceLastId && sinceLastId > 0) {
+    filterCondition = (donation: any) => donation.id > sinceLastId;
+  }
+  if (fromDate) {
+    filterCondition = (donation: any) =>
+      new Date(donation.createdAt).getTime() > fromDateTime;
+  }
   const transfers: Transfer[] = [];
-  const donations =
-    sinceLastId > 0
-      ? data.donationsByProjectId.donations.filter(
-          (donation: any) => donation.id > sinceLastId
-        )
-      : data.donationsByProjectId.donations;
+  const donations = data.donationsByProjectId.donations.filter(filterCondition);
+
   donations.map((donation: any) => {
     transfers.push({
       status: "success",
       hash: donation.transactionId,
       tx_hash: donation.transactionId,
       token_id: parseInt(donation.id),
-      value: donation.valueUsd * USD_EUR_FXRATE * 10 ** 6,
+      value: Math.round(donation.valueUsd * USD_EUR_FXRATE * 10 ** 6),
       created_at: new Date(donation.createdAt),
       from: donation.user.walletAddress,
       to: projectAddress,
@@ -153,6 +162,7 @@ export async function GET(request: NextRequest) {
   const projectAddress = request.nextUrl.searchParams.get("projectAddress");
   const take = parseInt(request.nextUrl.searchParams.get("take") || "10");
   const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0");
+  const fromDate = request.nextUrl.searchParams.get("fromDate") || "";
   const sinceLastId = parseInt(
     request.nextUrl.searchParams.get("sinceLastId") || "0"
   );
@@ -164,6 +174,7 @@ export async function GET(request: NextRequest) {
     projectAddress || "",
     take,
     skip,
+    fromDate,
     sinceLastId
   );
 
