@@ -11,12 +11,14 @@ interface props {
   };
   searchParams: {
     title: string;
+    goal: number;
+    collectiveSlug: string;
   };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
-  searchParams: { title },
+  searchParams: { title, goal, collectiveSlug },
 }: props) {
   const configService = new ConfigService();
 
@@ -36,6 +38,8 @@ export default async function Page({
         communityConfig={config}
         accountAddress={accountAddress}
         title={title}
+        goal={goal}
+        collectiveSlug={collectiveSlug}
       />
     </Suspense>
   );

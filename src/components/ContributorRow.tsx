@@ -40,8 +40,8 @@ export default function TransactionRow({
 
   return (
     <div className="flex m-2">
-      <div className="align-center text-center">
-        <div className="flex w-[90px] h-[90px] mb-2 items-center">
+      <div className="align-center text-center mb-2">
+        <div className="flex w-[70px] h-[70px] items-center">
           <Image
             src={
               fromProfile?.image_medium && !fromImageError
@@ -49,9 +49,9 @@ export default function TransactionRow({
                 : getAvatarUrl(contributorAddress)
             }
             alt="from avatar"
-            width={90}
-            height={90}
-            className="rounded-full object-cover mb-2 max-h-[90px] max-w-[90px]"
+            width={70}
+            height={70}
+            className="rounded-full object-cover mb-2 max-h-[70px] max-w-[70px]"
             onError={handleFromImageError}
           />
         </div>

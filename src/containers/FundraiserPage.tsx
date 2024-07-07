@@ -7,6 +7,7 @@ import TransactionRow from "@/components/TransactionRow";
 import ContributorRow from "@/components/ContributorRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
+import ProgressBar from "@/components/ProgressBar";
 import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
@@ -19,33 +20,54 @@ import DonateQRCode from "@/components/DonateQRCode";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import { Transfer } from "@citizenwallet/sdk";
-
+import OpencollectiveData from "@/components/OpencollectiveData";
 const dingSound = "/cashing.mp3";
-
-function formatDateToISO(date: Date) {
-  // Extract the year, month, and day from the date
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const day = String(date.getDate()).padStart(2, "0");
-
-  // Extract the hours and minutes from the date
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  // Combine the parts into the desired format
-  const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-  return formattedDate;
-}
 
 function FundraiserPage({
   communityConfig,
   accountAddress,
   title,
+  goal,
+  collectiveSlug,
 }: {
   communityConfig: Config;
   accountAddress: string;
   title: string;
+  goal: number;
+  collectiveSlug: string;
 }) {
+  const settings =
+    communityConfig.community.alias === "wallet.regenvillage.brussels"
+      ? {
+          milestones: [
+            {
+              index: 1,
+              title: "space secured",
+              emoji: "🎉",
+              position: 20,
+            },
+            {
+              index: 2,
+              emoji: "🎉",
+              title: "food & drinks",
+              position: 40,
+            },
+            {
+              index: 3,
+              emoji: "🎉",
+              title: "core contributors",
+              position: 60,
+            },
+            {
+              index: 4,
+              emoji: "🎉",
+              title: "contributors",
+              position: 80,
+            },
+          ],
+        }
+      : {};
+
   const { width, height } = useWindowSize();
 
   const [listen, setListen] = useState(false);
@@ -63,7 +85,7 @@ function FundraiserPage({
       setShowConfetti(true);
       setTimeout(() => {
         setShowConfetti(false);
-      }, 3000);
+      }, 4000);
     }
   }, []);
 
@@ -74,15 +96,42 @@ function FundraiserPage({
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
+  const handleStartListening = useCallback(() => {
+    setListen(true);
+    unsubscribeRef.current = actions.listen();
+    profilesActions.listenProfiles();
+  }, [profilesActions, actions]);
+
+  const handleStopListening = useCallback(() => {
+    setListen(false);
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
+    profilesActions.stopListeningProfiles();
+  }, [profilesActions]);
+
+  const handleProfileFetch = useCallback(
+    (account: string) => {
+      profilesActions.fetchProfile(account);
+    },
+    [profilesActions]
+  );
+
+  const handleProfileClick = (accountAddress: string) => {
+    actions.setAccount(accountAddress);
+  };
+
   useSafeEffect(() => {
     actions.setAccount(accountAddress);
-    actions.loadFrom(new Date("2024-01-01T00:00:00Z"));
+    actions.loadFrom(new Date("2024-07-01T00:00:00Z"));
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
   }, [actions, accountAddress]);
 
   useSafeEffect(() => {
+    // automatically start listening
+    handleStartListening();
     return () => {
       profilesActions.stopListeningProfiles();
     };
@@ -98,32 +147,7 @@ function FundraiserPage({
     window.triggerNewTransaction = (tx) => {
       actions.triggerNewTransaction(tx);
     };
-  }, [actions]);
-
-  function handleStartListening() {
-    setListen(true);
-    unsubscribeRef.current = actions.listen();
-    profilesActions.listenProfiles();
-  }
-
-  function handleStopListening() {
-    setListen(false);
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-    }
-    profilesActions.stopListeningProfiles();
-  }
-
-  const handleProfileFetch = useCallback(
-    (account: string) => {
-      profilesActions.fetchProfile(account);
-    },
-    [profilesActions]
-  );
-
-  const handleProfileClick = (accountAddress: string) => {
-    actions.setAccount(accountAddress);
-  };
+  }, [actions, handleStartListening]);
 
   const selectedAccount = store((state) => state.account);
   const transfers = store((state) => {
@@ -184,54 +208,68 @@ function FundraiserPage({
     BigInt(totalAmount),
     communityConfig.token.decimals
   );
+  const progress = goal && Math.round((totalAmount / goal) * 1000) / 10;
+  console.log(
+    ">>> totalAmount",
+    totalAmount,
+    "goal",
+    goal,
+    "progress",
+    progress
+  );
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex flex-col flex-1 w-full mx-auto p-8 bg-gray-100 h-full overflow-hidden">
+      <div className="flex flex-row flex-1 p-8 bg-[#F8F7F3] w-full h-full overflow-hidden">
         <AudioPlayer
           src={dingSound}
           // @ts-ignore
           ref={(element) => (window.audio = element)}
         />
-        <div className="w-full flex flex-row mt-4 mb-12">
-          <div className="flex items-center mr-2 w-8">
-            {loading && (
-              <LoaderCircleIcon className="animate-spin flex items-center w-6 h-6 text-blue-500" />
-            )}
-            {!loading && !listen && (
-              <a
-                onClick={handleStartListening}
-                title="Start listening"
-                className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-              >
-                <PlayIcon />
-              </a>
-            )}
-            {!loading && listen && (
-              <a
-                onClick={handleStopListening}
-                title="Stop listening"
-                className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-              >
-                <Loading />
-              </a>
-            )}
+        <div className="flex flex-col w-2/3">
+          <div className="w-full flex flex-row mt-4 mb-12">
+            <h1 className="text-7xl font-bold">{title}</h1>
+            <div className="flex items-center mr-2 w-8">
+              {loading && (
+                <LoaderCircleIcon className="animate-spin flex items-center w-6 h-6 text-blue-500" />
+              )}
+              {!loading && !listen && (
+                <a
+                  onClick={handleStartListening}
+                  title="Start listening"
+                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+                >
+                  <PlayIcon />
+                </a>
+              )}
+              {!loading && listen && (
+                <a
+                  onClick={handleStopListening}
+                  title="Stop listening"
+                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+                >
+                  <Loading />
+                </a>
+              )}
+            </div>
           </div>
-          <h1 className="text-7xl font-bold">{title}</h1>
-        </div>
+          {goal && (
+            <ProgressBar
+              percent={progress}
+              goal={goal}
+              tokenSymbol={communityConfig.token.symbol}
+              milestones={settings.milestones}
+            />
+          )}
 
-        <div className="w-full flex flex-row h-full">
-          <div className="w-2/3 flex flex-col">
-            <div className="w-full items-center grid grid-cols-2 gap-4 mb-4">
-              <div className=" w-full bg-white shadow rounded-lg p-4 flex items-center justify-between">
-                <div>
-                  <div className="text-4xl font-medium text-gray-500">
-                    Total Amount Raised
-                  </div>
-                  <div className="font-bold flex items-baseline">
-                    <div className="text-right mr-1">
+          <div className="w-full flex flex-row h-full">
+            <div className="w-1/2 flex flex-col">
+              <div className="w-full flex flex-row justify-between items-center mb-4">
+                <div className="w-full p-1 flex items-center flex-col text-left">
+                  <div className="w-full text-left font-bold flex items-baseline">
+                    <div className=" mr-1">
                       <AnimatedNumber
-                        className="text-8xl font-bold text-right"
+                        className="text-7xl font-bold text-right"
                         value={parseFloat(totalAmountTransferred)}
                         decimals={
                           parseInt(totalAmountTransferred) >= 10000 ? 0 : 2
@@ -239,100 +277,120 @@ function FundraiserPage({
                       />
                     </div>
                     {}{" "}
-                    <span className="font-normal text-6xl">
+                    <span className="font-normal text-3xl">
                       {communityConfig.token.symbol}
                     </span>
                   </div>
-                </div>
-              </div>
-              <div className=" w-full bg-white shadow rounded-lg p-4 flex items-center justify-between">
-                <div>
-                  <div className="text-4xl font-medium text-gray-500">
-                    Number of contributors
-                  </div>
-                  <div className="font-bold">
-                    <AnimatedNumber
-                      className="text-8xl"
-                      value={stats.totalContributors}
-                    />
+                  <div className="w-full text-3xl text-left font-medium text-gray-500">
+                    total raised
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="mb-4">
-              <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between h-96 overflow-hidden">
-                <div>
-                  <div className="text-4xl font-medium text-gray-500 mb-4">
-                    Top contributors
-                  </div>
-                  <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-[300px] ">
-                    {stats.leaderboard.map((entry, index) => (
-                      <ContributorRow
-                        key={entry.from}
-                        communitySlug={communitySlug}
-                        contributorAddress={entry.from}
-                        profiles={profilesStore}
-                        showAmount={false}
-                        amount={entry.total}
-                        token={communityConfig.token}
-                        decimals={communityConfig.token.decimals}
+                <div className=" w-full p-1 flex items-center text-right justify-end">
+                  <div>
+                    <div className="font-bold">
+                      <AnimatedNumber
+                        className="text-7xl"
+                        value={stats.totalContributors}
                       />
-                    ))}
+                    </div>
+                    <div className="text-3xl font-medium text-gray-500 text-right">
+                      contributors
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <DonateQRCode
-              token={communityConfig.token}
-              accountAddress={accountAddress}
-            />
-          </div>
-          <div className="w-2/3 h-full ml-12">
-            <div className="relative h-full">
-              {transfers.length > 0 && (
-                <div className="w-full h-full">
-                  <AutoSizer>
-                    {({ height, width }) => (
-                      <List
-                        width={width}
-                        height={height - 40}
-                        rowHeight={130}
-                        className=" rounded-lg"
-                        rowRenderer={({
-                          index,
-                          key,
-                          style,
-                        }: {
-                          index: number;
-                          key: string;
-                          style: any;
-                        }) => (
-                          <div
-                            key={key}
-                            style={style}
-                            className="flex flex-row"
-                          >
-                            <TransactionRow
-                              tx={transfers[index]}
-                              token={communityConfig.token}
-                              communitySlug={communitySlug}
-                              decimals={communityConfig.token.decimals}
-                              profiles={profilesStore}
-                              datetime="relative"
-                              onProfileFetch={handleProfileFetch}
-                              onProfileClick={handleProfileClick}
-                            />
-                          </div>
-                        )}
-                        rowCount={transfers.length}
-                        overscanRowCount={3}
-                      />
-                    )}
-                  </AutoSizer>
+
+              {collectiveSlug && (
+                <div className="bg-white rounded-3xl ">
+                  <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
+                    Expenses tracker
+                  </h3>
+                  <OpencollectiveData
+                    collectiveSlug={collectiveSlug}
+                    limit={10}
+                  />
                 </div>
               )}
             </div>
+            <div className="w-1/2 ml-5">
+              <div className="mb-4">
+                <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden">
+                  <div>
+                    <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
+                      Top contributors
+                    </h3>
+                    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full ">
+                      {stats.leaderboard.slice(0, 30).map((entry, index) => (
+                        <ContributorRow
+                          key={entry.from}
+                          communitySlug={communitySlug}
+                          contributorAddress={entry.from}
+                          profiles={profilesStore}
+                          showAmount={false}
+                          amount={entry.total}
+                          token={communityConfig.token}
+                          decimals={communityConfig.token.decimals}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-1/3 flex flex-col ml-5">
+          <DonateQRCode
+            communitySlug={communityConfig.community.alias}
+            token={communityConfig.token}
+            accountAddress={accountAddress}
+          />
+          <div className="relative h-full bg-white rounded-3xl px-2 w-[520px] mx-auto mt-5">
+            <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
+              Latest contributions
+            </h3>
+
+            {transfers.length > 0 && (
+              <div className="w-full h-full">
+                <AutoSizer>
+                  {({ height, width }) => (
+                    <List
+                      width={width}
+                      height={height - 60}
+                      rowHeight={96}
+                      className=" rounded-lg"
+                      rowRenderer={({
+                        index,
+                        key,
+                        style,
+                      }: {
+                        index: number;
+                        key: string;
+                        style: any;
+                      }) => (
+                        <div key={key} style={style} className="flex flex-row">
+                          <TransactionRow
+                            tx={transfers[index]}
+                            token={communityConfig.token}
+                            communitySlug={communitySlug}
+                            decimals={communityConfig.token.decimals}
+                            profiles={profilesStore}
+                            showRecipient={false}
+                            datetime="relative"
+                            onProfileFetch={handleProfileFetch}
+                            onProfileClick={handleProfileClick}
+                          />
+                        </div>
+                      )}
+                      rowCount={transfers.length}
+                      overscanRowCount={3}
+                    />
+                  )}
+                </AutoSizer>
+              </div>
+            )}
           </div>
         </div>
       </div>

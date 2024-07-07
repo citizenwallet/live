@@ -13,3 +13,32 @@ h2 {
 code {
   @apply bg-gray-100 p-1 border-2 border-gray-200 rounded text-sm;
 }
+
+.indexedStep {
+  color: white;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  background-color: rgba(211, 211, 211, 0.8);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.indexedStep.accomplished {
+  background-color: rgba(0, 116, 217, 1);
+}
+
+.highlight-animation {
+  animation: highlightAnimation 2s ease-in-out;
+}
+@keyframes highlightAnimation {
+  0%,
+  100% {
+    background-color: white;
+  }
+  50% {
+    background-color: yellow;
+  }
+}
