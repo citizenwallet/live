@@ -9,6 +9,9 @@ import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
 
+const getRandomNumber = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
 class TransferLogic {
   store: TransferStore;
   storeGetter: () => TransferStore;
@@ -32,8 +35,27 @@ class TransferLogic {
   }
 
   private listenerInterval: ReturnType<typeof setInterval> | undefined;
+  private listenerIntervalGiveth: ReturnType<typeof setInterval> | undefined;
   private listenMaxDate = new Date();
   private listenerFetchLimit = 10;
+  private listenGivethLastId = 0;
+
+  processNewTransfers(transfers: Transfer[]) {
+    if (transfers.length > 0) {
+      // new items, move the max date to the latest one
+      this.listenMaxDate = new Date();
+      this.listenGivethLastId = transfers[0].token_id;
+      this.onNewTransactions?.(transfers);
+    }
+
+    if (transfers.length === 0) {
+      // nothing new to add
+      return;
+    }
+
+    // new items, add them to the store
+    this.store.putTransfers(transfers);
+  }
 
   listen() {
     try {
@@ -44,31 +66,49 @@ class TransferLogic {
           offset: 0,
         };
         console.log("listening for new transfers", this.accountAddress, params);
-        const { array: transfers = [] } = this.accountAddress
-          ? await this.indexer.getNewTransfers(
-              this.token.address,
-              this.accountAddress,
-              params
-            )
-          : await this.indexer.getAllNewTransfers(this.token.address, params);
+        try {
+          const { array: transfers = [] } = this.accountAddress
+            ? await this.indexer.getNewTransfers(
+                this.token.address,
+                this.accountAddress,
+                params
+              )
+            : await this.indexer.getAllNewTransfers(this.token.address, params);
 
-        if (transfers.length > 0) {
-          // new items, move the max date to the latest one
-          this.listenMaxDate = new Date();
-          this.onNewTransactions?.(transfers);
-        }
-
-        if (transfers.length === 0) {
-          // nothing new to add
+          this.processNewTransfers(transfers);
+        } catch (e) {
+          console.error("Error fetching transactions", e);
           return;
         }
+      }, 1500);
 
-        // new items, add them to the store
-        this.store.putTransfers(transfers);
-      }, 1000);
+      this.listenerIntervalGiveth = setInterval(async () => {
+        console.log(
+          "listening for new transfers on giveth",
+          this.accountAddress
+        );
+        try {
+          const projectId = 1871;
+          const projectAddress = this.accountAddress;
+          const data = await fetch(
+            `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&sinceLastId=${
+              this.listenGivethLastId || 0
+            }`
+          );
+          const res = await data.json();
+          console.log(">>> response from /api/giveth", res);
+          if (res.transfers.length > 0) {
+            this.processNewTransfers(res.transfers);
+          }
+        } catch (e) {
+          console.error("Error fetching transactions from giveth", e);
+          return;
+        }
+      }, 5000);
 
       return () => {
         clearInterval(this.listenerInterval);
+        clearInterval(this.listenerIntervalGiveth);
       };
     } catch (_) {}
     return () => {};
@@ -106,6 +146,20 @@ class TransferLogic {
           )
         : await this.indexer.getAllNewTransfers(this.token.address, params);
 
+      if (this.accountAddress) {
+        const projectId = 1871;
+        const projectAddress = this.accountAddress;
+        const data = await fetch(
+          `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&take=${
+            this.loaderFetchLimit
+          }&skip=${offset}&sinceLastId=${this.listenGivethLastId || 0}`
+        );
+        const res = await data.json();
+        if (res.transfers.length > 0) {
+          transfers.push(...res.transfers);
+        }
+      }
+
       if (transfers.length === 0) {
         this.store.stopLoadingFromDate();
         return;
@@ -120,7 +174,8 @@ class TransferLogic {
         return;
       }
 
-      await delay(250);
+      const randomNumber = getRandomNumber(500, 2000);
+      await delay(randomNumber);
 
       const nextOffset = offset + this.loaderFetchLimit;
 

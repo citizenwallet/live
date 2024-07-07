@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import HumanNumber from "./HumanNumber";
 import CountUp from "react-countup";
 
 const AnimatedNumber = ({

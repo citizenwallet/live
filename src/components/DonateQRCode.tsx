@@ -1,20 +1,25 @@
 import React from "react";
 import QRCode from "react-qr-code";
-
+import { generateReceiveLink } from "@citizenwallet/sdk";
 type propsType = {
+  communitySlug: string;
   token: {
     symbol: string;
   };
   accountAddress: string;
 };
 
-const DonateBox = ({ token, accountAddress }: propsType) => {
+const DonateBox = ({ communitySlug, accountAddress }: propsType) => {
+  const url = generateReceiveLink(
+    "https://app.citizenwallet.xyz",
+    accountAddress,
+    communitySlug
+  );
   return (
     <div className="text-center">
-      <div className="bg-white rounded-xl p-4 flex flex-row items-center justify-around">
-        <h2 className="text-4xl">Donate {token.symbol} to</h2>
+      <div className=" p-2 flex flex-col items-center justify-around">
         <div className="flex bg-white rounded-lg p-2 items-center align-center text-center">
-          <QRCode value={accountAddress} size={256} />
+          <QRCode value={url} size={500} className="w-full" />
         </div>
       </div>
     </div>

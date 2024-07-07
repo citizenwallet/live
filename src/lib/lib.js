@@ -28,7 +28,7 @@ export function getTokenAddress(chain, symbol) {
 }
 
 export function getAvatarUrl(address) {
-  return `https://api.multiavatar.com/${address}.png`;
+  return `/api/getAvatar?accountAddress=${address}`;
 }
 
 export function displayAddress(address, format = "short") {
