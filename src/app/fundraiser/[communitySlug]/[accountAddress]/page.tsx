@@ -22,7 +22,7 @@ export default async function Page({
 }: props) {
   const configService = new ConfigService();
 
-  const configs = await configService.get();
+  const configs = await configService.get(true);
 
   const config = configs.find(
     (config) => config.community.alias === communitySlug

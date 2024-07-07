@@ -92,7 +92,7 @@ class TransferLogic {
             const projectId = 1871;
             const projectAddress = this.accountAddress;
             const data = await fetch(
-              `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&fromDate=${this.listenMaxDate}`
+              `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&fromDate=${this.listenMaxDate.toISOString()}`
             );
             const res = await data.json();
             console.log(">>> response from /api/giveth", res);
@@ -147,15 +147,24 @@ class TransferLogic {
           )
         : await this.indexer.getAllNewTransfers(this.token.address, params);
 
+      console.log(
+        ">>> loadFrom",
+        date,
+        offset,
+        this.communitySlug,
+        this.accountAddress
+      );
       if (
         this.communitySlug === "regenvillage.wallet.pay.brussels" &&
         this.accountAddress
       ) {
         const projectId = 1871;
         const projectAddress = this.accountAddress;
-        const data = await fetch(
-          `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&take=${this.loaderFetchLimit}&skip=${offset}&fromDate=${this.listenMaxDate}`
-        );
+        const apiCall = `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&take=${
+          this.loaderFetchLimit
+        }&skip=${offset}&fromDate=${date.toISOString()}`;
+        console.log(">>> apiCall", apiCall);
+        const data = await fetch(apiCall);
         const res = await data.json();
         if (res.transfers.length > 0) {
           transfers.push(...res.transfers);

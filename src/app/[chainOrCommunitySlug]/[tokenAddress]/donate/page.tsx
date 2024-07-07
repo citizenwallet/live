@@ -1,9 +1,10 @@
 "use server";
 
-import MonitorPage from "@/containers/MonitorPage";
+import { generateReceiveLink } from "@citizenwallet/sdk";
+import DonateContainer from "@/containers/DonateContainer";
 import { ConfigService } from "@citizenwallet/sdk";
 import { Suspense } from "react";
-import Footer from "@/components/Footer";
+import { getTextColor } from "@/lib/colors";
 interface props {
   params: {
     chainOrCommunitySlug: string;
@@ -21,7 +22,7 @@ export default async function Page({
 
   const configs = await configService.get(true);
   const config = configs.find(
-    (config) => config.community.alias === communitySlug
+    (config: any) => config.community.alias === communitySlug
   );
 
   if (!config) {
@@ -29,9 +30,16 @@ export default async function Page({
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <MonitorPage communityConfig={config} accountAddress={accountAddress} />
-      <Footer />
-    </Suspense>
+    <div
+      className="w-full h-full"
+      style={{
+        backgroundColor: config.community.theme.secondary,
+        color: getTextColor(config.community.theme.secondary),
+      }}
+    >
+      <Suspense fallback={<div>Loading...</div>}>
+        <DonateContainer config={config} accountAddress={accountAddress} />
+      </Suspense>
+    </div>
   );
 }
