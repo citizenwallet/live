@@ -58,7 +58,9 @@ export default function DonateContainer({
   const cwDonateLink = generateReceiveLink(
     "https://app.citizenwallet.xyz",
     accountAddress,
-    communitySlug
+    communitySlug === "regenvillage.wallet.pay.brussels"
+      ? "wallet.pay.brussels"
+      : communitySlug
   );
   const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${communitySlug}/${accountAddress}/donate`;
   const givethPlugin = getPlugin(config, "giveth");
