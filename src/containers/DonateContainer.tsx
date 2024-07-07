@@ -1,9 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { generateReceiveLink } from "@citizenwallet/sdk";
-import { useProfile } from "@/hooks/citizenwallet";
 import { getPlugin } from "@/lib/citizenwallet";
 import RegenVillageLogo from "@/public/regenvillage.svg";
 import CreditCardIcon from "@/public/creditcard.svg";
@@ -50,10 +47,7 @@ export default function DonateContainer({
   success?: boolean;
 }) {
   const communitySlug = config?.community.alias;
-  const [profile] = useProfile(communitySlug, accountAddress);
   const { width, height } = useWindowSize();
-  console.log(">>> profile", profile, accountAddress, communitySlug);
-  console.log(">>> width, height", width, height);
   if (!config) return null;
   const cwDonateLink = generateReceiveLink(
     "https://app.citizenwallet.xyz",
@@ -65,7 +59,6 @@ export default function DonateContainer({
   const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${communitySlug}/${accountAddress}/donate`;
   const givethPlugin = getPlugin(config, "giveth");
   const topupPlugin = getPlugin(config, "Top Up");
-  console.log(">>> givethPlugin", givethPlugin);
 
   return (
     <div className="w-full h-full relative">
@@ -87,17 +80,19 @@ export default function DonateContainer({
           {!success && (
             <div className="mx-auto w-full max-w-xs p-4">
               {givethPlugin && (
-                <DonateButton
-                  title="Donate crypto"
-                  description="via Giveth"
-                  href={givethPlugin.url}
-                  icon={givethPlugin.icon}
-                />
+                <div>
+                  <DonateButton
+                    title="Donate crypto"
+                    description="via Giveth"
+                    href={givethPlugin.url}
+                    icon={givethPlugin.icon}
+                  />
+                  <div className="flex justify-center w-full text-center mx-auto">
+                    <OrSeparator className="" />
+                  </div>
+                </div>
               )}
 
-              <div className="flex justify-center w-full text-center mx-auto">
-                <OrSeparator className="" />
-              </div>
               <DonateButton
                 title="Donate EURb"
                 description="via Citizen Wallet"
