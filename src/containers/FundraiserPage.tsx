@@ -210,7 +210,8 @@ function FundraiserPage({
     BigInt(totalAmount),
     communityConfig.token.decimals
   );
-  const progress = goal && Math.round((totalAmount / goal) * 1000) / 10;
+  const progress =
+    goal && Math.round((parseFloat(totalAmountTransferred) / goal) * 1000) / 10;
   console.log(
     ">>> totalAmount",
     totalAmount,
@@ -346,9 +347,11 @@ function FundraiserPage({
 
         <div className="w-1/3 flex flex-col ml-5">
           <DonateQRCode
-            communitySlug={communityConfig.community.alias}
-            token={communityConfig.token}
+            communitySlug={communitySlug}
             accountAddress={accountAddress}
+            donateUrl={`${
+              process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+            }/${communitySlug}/${accountAddress}/donate`}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[520px] mx-auto mt-5">
             <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">

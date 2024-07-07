@@ -180,3 +180,12 @@ export default class CitizenWalletCommunity {
     return ipfsUrl;
   };
 }
+
+export const getPlugin = (config, pluginName) => {
+  const plugin = config.plugins.find((plugin) => plugin.name === pluginName);
+  return plugin;
+};
+
+export const hasPlugin = (config, pluginName) => {
+  return !!getPlugin(config, pluginName);
+};
