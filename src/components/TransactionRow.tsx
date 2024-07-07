@@ -68,7 +68,7 @@ export default function TransactionRow({
     : getAvatarUrl(tx.from);
 
   return (
-    <div className="mr-3 w-full flex flex-col h-24 py-4 ">
+    <div className="mr-3 w-full flex flex-col h-24 content-center">
       <div
         className={`relative flex flex-1 items-center p-2 border-b ${backgroundColor} transition-colors`}
       >

@@ -266,7 +266,7 @@ function MonitorPage({
                 <List
                   width={width}
                   height={height}
-                  rowHeight={130}
+                  rowHeight={96}
                   className="bg-white rounded-lg"
                   rowRenderer={({
                     index,
