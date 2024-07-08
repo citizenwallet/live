@@ -80,7 +80,7 @@ export default function DonateContainer({
       ? "5,10,20,50,100,custom"
       : "1, 2, 5, 10, 20, 50, custom";
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-screen">
       {success && <Confetti width={width} height={height} />}
       <div className="max-w-xl mx-auto flex justify-center flex-col">
         <RegenVillageLogo className="my-8 mx-auto" />

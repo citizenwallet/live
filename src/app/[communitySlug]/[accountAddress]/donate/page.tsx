@@ -34,7 +34,7 @@ export default async function Page({
       className="w-full h-full"
       style={{
         backgroundColor: config.community?.theme?.secondary || "#333",
-        color: getTextColor(config.community?.theme?.secondary || "#ffffff"),
+        color: getTextColor(config.community?.theme?.secondary || "#333"),
       }}
     >
       <Suspense fallback={<div>Loading...</div>}>
