@@ -266,7 +266,7 @@ function MonitorPage({
       </div>
       <div className="w-full pl-3 pr-1 h-full max-w-screen-lg flex flex-row items-start">
         {accountAddress && (
-          <div>
+          <div className="w-1/2">
             <DonateQRCode
               communitySlug={communitySlug}
               accountAddress={accountAddress}
@@ -278,7 +278,7 @@ function MonitorPage({
         )}
 
         {transfers.length > 0 && (
-          <div className="w-full h-full">
+          <div className="w-1/2 h-full">
             <AutoSizer>
               {({ height, width }) => (
                 <List
