@@ -280,6 +280,7 @@ function MonitorPage({
                     <div key={key} style={style} className="flex flex-row">
                       <TransactionRow
                         tx={transfers[index]}
+                        showRecipient={true}
                         token={communityConfig.token}
                         communitySlug={communitySlug}
                         decimals={communityConfig.token.decimals}
