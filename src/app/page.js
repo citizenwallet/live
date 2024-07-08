@@ -13,6 +13,23 @@ async function HomePage(request) {
           <Loading />
           <h1 className="ml-2">Transactions monitor</h1>
         </div>
+
+        <div>
+          <h2>Trending</h2>
+          <ul>
+            <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
+              <Link href="/fundraiser/wallet.regenvillage.brussels/0x01A0F9C8cFBf1b76C53Ba1483dcB3fD3477F148C?title=Support the Regen Village&goal=100000&collectiveSlug=regen-village">
+                Regen Village Fundraising
+              </Link>
+            </li>
+            <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
+              <Link href="/wallet.pay.brussels/0x84FdEfF8a5bdC8Cd22f8FBd3A4308166F419a773">
+                133wav at the Regen Village
+              </Link>
+            </li>
+          </ul>
+        </div>
+
         <div>
           <h2 className="mb-2">Citizen Wallet Commmunities</h2>
           <ul>
