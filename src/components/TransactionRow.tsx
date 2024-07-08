@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { ProfilesStore } from "@/state/profiles/state";
 import moment from "moment";
 import { StoreApi, UseBoundStore } from "zustand";
+import { on } from "events";
 export default function TransactionRow({
   token,
   tx,
@@ -33,7 +34,7 @@ export default function TransactionRow({
   datetime?: string;
   showRecipient?: boolean;
   onProfileFetch: (account: string) => void;
-  onProfileClick: (account: string) => void;
+  onProfileClick?: (account: string) => void;
 }) {
   const [fromImageError, setFromImageError] = useState<boolean>(false);
   const [toImageError, setToImageError] = useState<boolean>(false);
@@ -73,7 +74,20 @@ export default function TransactionRow({
         className={`relative flex flex-1 items-center p-2 border-b ${backgroundColor} transition-colors`}
       >
         <div className="relative mr-2">
-          <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
+          {onProfileClick && (
+            <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
+              <Image
+                unoptimized
+                src={fromProfileImage}
+                alt="from avatar"
+                width={60}
+                height={60}
+                className="rounded-full object-cover mr-4 max-h-[60px] max-w-[60px]"
+                onError={handleFromImageError}
+              />
+            </a>
+          )}
+          {!onProfileClick && (
             <Image
               unoptimized
               src={fromProfileImage}
@@ -83,13 +97,30 @@ export default function TransactionRow({
               className="rounded-full object-cover mr-4 max-h-[60px] max-w-[60px]"
               onError={handleFromImageError}
             />
-          </a>
+          )}
           {showRecipient && (
             <div
               className="  "
               style={{ position: "absolute", bottom: -5, right: -5 }}
             >
-              <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
+              {onProfileClick && (
+                <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
+                  <Image
+                    unoptimized
+                    src={
+                      toProfile?.image_medium && !toImageError
+                        ? getUrlFromIPFS(toProfile.image_medium) || ""
+                        : getAvatarUrl(tx.to)
+                    }
+                    width={30}
+                    height={30}
+                    alt="to avatar"
+                    className="rounded-full object-cover mr-1 max-h-[30px] max-w-[30px]"
+                    onError={handleToImageError}
+                  />
+                </a>
+              )}
+              {!onProfileClick && (
                 <Image
                   unoptimized
                   src={
@@ -103,7 +134,7 @@ export default function TransactionRow({
                   className="rounded-full object-cover mr-1 max-h-[30px] max-w-[30px]"
                   onError={handleToImageError}
                 />
-              </a>
+              )}
             </div>
           )}
         </div>

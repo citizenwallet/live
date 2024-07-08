@@ -7,8 +7,8 @@ import { Suspense } from "react";
 import { getTextColor } from "@/lib/colors";
 interface props {
   params: {
-    chainOrCommunitySlug: string;
-    tokenAddress: string;
+    communitySlug: string;
+    accountAddress: string;
   };
   searchParams: {
     success: string;
@@ -16,11 +16,10 @@ interface props {
 }
 
 export default async function Page({
-  params: { chainOrCommunitySlug: communitySlug, tokenAddress: accountAddress },
+  params: { communitySlug, accountAddress },
   searchParams: { success },
 }: props) {
   const configService = new ConfigService();
-
   const configs = await configService.get(true);
   const config = configs.find(
     (config: any) => config.community.alias === communitySlug
@@ -34,7 +33,7 @@ export default async function Page({
     <div
       className="w-full h-full"
       style={{
-        backgroundColor: config.community?.theme?.secondary,
+        backgroundColor: config.community?.theme?.secondary || "#333",
         color: getTextColor(config.community?.theme?.secondary || "#ffffff"),
       }}
     >
