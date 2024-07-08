@@ -14,8 +14,10 @@ import { PlayIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
 import { useProfiles } from "@/state/profiles/logic";
-
+import DonateQRCode from "@/components/DonateQRCode";
 const dingSound = "/cashing.mp3";
+import Confetti from "react-confetti";
+import useWindowSize from "react-use/lib/useWindowSize";
 
 function formatDateToISO(date: Date) {
   // Extract the year, month, and day from the date
@@ -40,20 +42,28 @@ function MonitorPage({
   accountAddress: string;
 }) {
   const [listen, setListen] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { width, height } = useWindowSize();
 
   const communitySlug = communityConfig.community.alias;
 
   const unsubscribeRef = useRef<() => void | undefined>();
 
-  const [store, actions] = useTransfers(communityConfig);
-  const [profilesStore, profilesActions] = useProfiles(communityConfig);
+  function handleNewTransfers() {
+    // @ts-ignore
+    window.audio.audioEl.current.play();
+    setShowConfetti(true);
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 5000);
+  }
 
-  useSafeEffect(() => {
-    actions.setAccount(accountAddress);
-    return () => {
-      if (unsubscribeRef.current) unsubscribeRef.current();
-    };
-  }, [actions, accountAddress]);
+  const [store, actions] = useTransfers(
+    communityConfig,
+    accountAddress,
+    handleNewTransfers
+  );
+  const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
   useSafeEffect(() => {
     return () => {
@@ -99,11 +109,6 @@ function MonitorPage({
     [profilesActions]
   );
 
-  const handleProfileClick = (accountAddress: string) => {
-    actions.setAccount(accountAddress);
-  };
-
-  const selectedAccount = store((state) => state.account);
   const transfers = store((state) => {
     if (state.account) {
       return state.transfers.filter(
@@ -143,6 +148,7 @@ function MonitorPage({
   );
   return (
     <>
+      {showConfetti && <Confetti width={width} height={height} />}
       <div className="flex flex-col flex-1 w-full max-w-screen-lg mx-auto px-3">
         <AudioPlayer
           src={dingSound}
@@ -178,10 +184,10 @@ function MonitorPage({
                 {communityConfig.token.symbol}
               </a>
             </li>
-            {selectedAccount && (
+            {accountAddress && (
               <li className="px-2">
                 <span className="text-gray-500">
-                  {displayAddress(selectedAccount, "medium")}
+                  {displayAddress(accountAddress, "medium")}
                 </span>
               </li>
             )}
@@ -258,7 +264,19 @@ function MonitorPage({
           </div>
         )}
       </div>
-      <div className="w-full pl-3 pr-1 h-full max-w-screen-lg">
+      <div className="w-full pl-3 pr-1 h-full max-w-screen-lg flex flex-row items-start">
+        {accountAddress && (
+          <div>
+            <DonateQRCode
+              communitySlug={communitySlug}
+              accountAddress={accountAddress}
+              donateUrl={`${
+                process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+              }/${communitySlug}/${accountAddress}/donate`}
+            />
+          </div>
+        )}
+
         {transfers.length > 0 && (
           <div className="w-full h-full">
             <AutoSizer>
@@ -286,7 +304,6 @@ function MonitorPage({
                         decimals={communityConfig.token.decimals}
                         profiles={profilesStore}
                         onProfileFetch={handleProfileFetch}
-                        onProfileClick={handleProfileClick}
                       />
                     </div>
                   )}

@@ -59,8 +59,26 @@ export default function DonateContainer({
   const redirectUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/${communitySlug}/${accountAddress}/donate`;
   const givethPlugin = getPlugin(config, "giveth");
   const topupPlugin = getPlugin(config, "Top Up");
-  const title = "Contribute to the Regen Village";
+  let title = "";
+  switch (accountAddress) {
+    case "0x32330e05494177CF452F4093290306c4598ddA98":
+      title = "Contribute to the Regen Village";
+      break;
+    case "0x84FdEfF8a5bdC8Cd22f8FBd3A4308166F419a773":
+      title = "Contribute to local artists";
+      break;
+    default:
+      title = "Top up";
+      break;
+  }
+  const showGivethPlugin =
+    givethPlugin &&
+    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98";
 
+  const amounts =
+    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
+      ? "5,10,20,50,100,custom"
+      : "1, 2, 5, 10, 20, 50, custom";
   return (
     <div className="w-full h-full relative">
       {success && <Confetti width={width} height={height} />}
@@ -80,7 +98,7 @@ export default function DonateContainer({
           )}
           {!success && (
             <div className="mx-auto w-full max-w-xs p-4">
-              {givethPlugin && (
+              {showGivethPlugin && (
                 <div>
                   <DonateButton
                     title="Donate crypto"
@@ -102,18 +120,25 @@ export default function DonateContainer({
               />
 
               {topupPlugin && (
-                <DonateButton
-                  title="Donate with credit card"
-                  description="via Stripe"
-                  href={`${
-                    topupPlugin.url
-                  }?account=${accountAddress}&title=${encodeURIComponent(
-                    title
-                  )}&amounts=5,10,20,50,100,custom&redirectUrl=${encodeURIComponent(
-                    redirectUrl
-                  )}`}
-                  icon={<CreditCardIcon width={22} height={16} />}
-                />
+                <div>
+                  {!showGivethPlugin && (
+                    <div className="flex justify-center w-full text-center mx-auto">
+                      <OrSeparator className="" />
+                    </div>
+                  )}
+                  <DonateButton
+                    title="Donate with credit card"
+                    description="via Stripe"
+                    href={`${
+                      topupPlugin.url
+                    }?account=${accountAddress}&title=${encodeURIComponent(
+                      title
+                    )}&amounts=${amounts}&redirectUrl=${encodeURIComponent(
+                      redirectUrl
+                    )}`}
+                    icon={<CreditCardIcon width={22} height={16} />}
+                  />
+                </div>
               )}
             </div>
           )}
