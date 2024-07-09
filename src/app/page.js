@@ -23,6 +23,11 @@ async function HomePage(request) {
               </Link>
             </li>
             <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
+              <Link href="/regenvillage.wallet.pay.brussels/0x32330e05494177CF452F4093290306c4598ddA98">
+                Regen Village Donate EURb
+              </Link>
+            </li>
+            <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
               <Link href="/wallet.pay.brussels/0x84FdEfF8a5bdC8Cd22f8FBd3A4308166F419a773">
                 133wav at the Regen Village
               </Link>
