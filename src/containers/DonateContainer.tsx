@@ -67,6 +67,9 @@ export default function DonateContainer({
     case "0x84FdEfF8a5bdC8Cd22f8FBd3A4308166F419a773":
       title = "Contribute to local artists";
       break;
+    case "0xb03C13759C30d899d2452e9565cEac2aC537611A":
+      title = "Contribute to Crypto Kastaar";
+      break;
     default:
       title = "Top up";
       break;
@@ -75,10 +78,19 @@ export default function DonateContainer({
     givethPlugin &&
     accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98";
 
-  const amounts =
-    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
-      ? "5,10,20,50,100,custom"
-      : "1, 2, 5, 10, 20, 50, custom";
+  let amounts = "1, 2, 5, 10, 20, 50, custom";
+  switch (accountAddress) {
+    case "0x32330e05494177CF452F4093290306c4598ddA98":
+      amounts = "5,10,20,50,100,custom";
+      break;
+    case "0xb03C13759C30d899d2452e9565cEac2aC537611A":
+      amounts = "6,20,5";
+      break;
+    default:
+      amounts = "1, 2, 5, 10, 20, 50, custom";
+      break;
+  }
+
   return (
     <div className="w-full h-screen">
       {success && <Confetti width={width} height={height} />}
