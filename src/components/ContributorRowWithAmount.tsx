@@ -15,7 +15,6 @@ export default function TransactionRow({
   contributorAddress,
   amount,
   profiles,
-  showAmount = true,
   communitySlug,
 }: {
   token: ConfigToken;
@@ -23,7 +22,6 @@ export default function TransactionRow({
   amount: number;
   decimals: number;
   communitySlug: string;
-  showAmount?: boolean;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
 }) {
   const [fromImageError, setFromImageError] = useState<boolean>(false);
@@ -56,8 +54,8 @@ export default function TransactionRow({
   console.log(">>> ContributorRow", { contributorAddress, fromProfile });
 
   return (
-    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full ">
-      <div className="flex m-2">
+    <div className="flex flex-row w-full mt-4 mb-0 h-full ">
+      <div className="flex m-2 w-full">
         <div className="align-center text-center mb-2">
           <div className="flex w-[70px] h-[70px] items-center">
             <Image
@@ -76,25 +74,23 @@ export default function TransactionRow({
               onError={handleFromImageError}
             />
           </div>
-          <div className="flex w-full align-center flex-row text-sm  text-gray-500">
-            {fromProfile?.name ? (
-              <div className="w-full">
-                <div className="text-center font-bold h-5 overflow-hidden">
-                  {fromProfile.name}
-                </div>
-                <div className="text-center">@{fromProfile.username}</div>
-              </div>
-            ) : (
-              displayAddress(contributorAddress)
-            )}
-          </div>
         </div>
-        {showAmount && (
-          <div className="flex flex-col text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 text-right">
-            <HumanNumber value={formatUnits(BigInt(amount), decimals)} />{" "}
-            <span className="text-sm font-normal">{token.symbol}</span>
-          </div>
-        )}
+        <div className="flex w-full align-center flex-row text-gray-500 text-2xl ml-3">
+          {fromProfile?.name ? (
+            <div className="w-full text-3xl ">
+              <div className="text-center font-bold h-5">
+                {fromProfile.name}
+              </div>
+              <div className="text-center">@{fromProfile.username}</div>
+            </div>
+          ) : (
+            displayAddress(contributorAddress)
+          )}
+        </div>
+        <div className="flex flex-col text-xl sm:text-xl md:text-2xl font-bold text-gray-600 text-right w-full">
+          <HumanNumber value={formatUnits(BigInt(amount), decimals)} />{" "}
+          <span className="text-sm font-normal">{token.symbol}</span>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
 import TransactionRow from "@/components/TransactionRow";
-import ContributorRow from "@/components/ContributorRow";
+import ContributorRowWithAmount from "@/components/ContributorRowWithAmount";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
 import ProgressBar from "@/components/ProgressBar";
@@ -305,7 +305,7 @@ function FundraiserPage({
               {collectiveSlug && (
                 <div className="bg-white rounded-3xl ">
                   <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
-                    Expenses tracker
+                    Expense tracker
                   </h3>
                   <OpencollectiveData
                     collectiveSlug={collectiveSlug}
@@ -316,26 +316,23 @@ function FundraiserPage({
               )}
             </div>
             <div className="w-1/2 ml-5">
-              <div className="mb-4">
-                <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden">
-                  <div>
+              <div className="mb-4 w-full">
+                <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden w-full">
+                  <div className="w-full">
                     <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
                       Top contributors
                     </h3>
-                    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full ">
-                      {stats.leaderboard.slice(0, 30).map((entry, index) => (
-                        <ContributorRow
-                          key={entry.from}
-                          communitySlug={communitySlug}
-                          contributorAddress={entry.from}
-                          profiles={profilesStore}
-                          showAmount={false}
-                          amount={entry.total}
-                          token={communityConfig.token}
-                          decimals={communityConfig.token.decimals}
-                        />
-                      ))}
-                    </div>
+                    {stats.leaderboard.slice(0, 30).map((entry, index) => (
+                      <ContributorRowWithAmount
+                        key={entry.from}
+                        communitySlug={communitySlug}
+                        contributorAddress={entry.from}
+                        profiles={profilesStore}
+                        amount={entry.total}
+                        token={communityConfig.token}
+                        decimals={communityConfig.token.decimals}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
