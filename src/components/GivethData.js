@@ -65,13 +65,19 @@ const getGivethData = async (collectiveSlug, take, skip) => {
   const graphQLClient = new GraphQLClient(process.env.GIVETH_GRAPHQL_API, {
     signal: controller.signal,
   });
-  const data = await graphQLClient.request(query, {
-    projectId: 1871,
-    take: take || 100,
-    skip: skip || 0,
-    orderBy: { field: "CreationDate", direction: "DESC" },
-    status: "verified",
-  });
+  const data = await graphQLClient.request(
+    query,
+    {
+      projectId: 1871,
+      take: take || 100,
+      skip: skip || 0,
+      orderBy: { field: "CreationDate", direction: "DESC" },
+      status: "verified",
+    },
+    {
+      "cache-control": "no-cache",
+    }
+  );
   const result = data.donationsByProjectId;
   return result;
 };
