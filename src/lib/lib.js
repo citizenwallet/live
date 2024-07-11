@@ -34,6 +34,8 @@ export function getAvatarUrl(address) {
 }
 
 export function displayAddress(address, format = "short") {
+  if (!address) return "";
+  if (!address.startsWith("0x")) return address;
   return (
     <div className="">
       <span>{`${address.substr(0, 6)}`}&hellip;</span>

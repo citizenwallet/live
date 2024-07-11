@@ -149,7 +149,7 @@ function MonitorPage({
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex flex-col flex-1 w-full max-w-screen-lg mx-auto px-3">
+      <div className="flex flex-col flex-1 w-full mx-auto px-3">
         <AudioPlayer
           src={dingSound}
           // @ts-ignore
@@ -264,9 +264,9 @@ function MonitorPage({
           </div>
         )}
       </div>
-      <div className="w-full pl-3 pr-1 h-full max-w-screen-lg flex flex-row items-start">
+      <div className="w-full pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
         {accountAddress && (
-          <div className="w-full">
+          <div className="w-1/3 h-1/3 mx-auto xl:w-full xl:h-full">
             <DonateQRCode
               communitySlug={communitySlug}
               accountAddress={accountAddress}

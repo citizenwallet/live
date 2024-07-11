@@ -145,63 +145,73 @@ export default function TransactionRow({
             </div>
           )}
           <div className="flex flex-row align-left w-full">
-            <div className="flex flex-row text-sm  text-gray-500 font-bold">
-              <label className="block mr-1 float-left">from:</label>{" "}
-              {onProfileClick && (
-                <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
-                  {tx.fromProfile?.name ? tx.fromProfile?.name : ""}
-                  {!tx.fromProfile?.name && fromProfile?.name ? (
-                    <div>
-                      <span className="font-bold">{fromProfile.name}</span>
-                      <span>&nbsp;(@{fromProfile.username})</span>
-                    </div>
-                  ) : (
-                    !tx.fromProfile?.name && displayAddress(tx.from)
-                  )}
-                </a>
-              )}
-              {!onProfileClick && (
-                <>
-                  {tx.fromProfile?.name ? tx.fromProfile?.name : ""}
-                  {!tx.fromProfile?.name && fromProfile?.name ? (
-                    <div>
-                      <span className="font-bold">{fromProfile.name}</span>
-                      <span>&nbsp;(@{fromProfile.username})</span>
-                    </div>
-                  ) : (
-                    !tx.fromProfile?.name && displayAddress(tx.from)
-                  )}
-                </>
-              )}
-              {showRecipient && (
-                <>
-                  <label className="block ml-2 mr-1 float-left">To:</label>{" "}
-                  {onProfileClick && (
-                    <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
-                      {toProfile?.name ? (
-                        <div>
-                          <span className="font-bold">{toProfile.name}</span>
-                          <span>&nbsp;(@{toProfile.username})</span>
-                        </div>
-                      ) : (
-                        displayAddress(tx.to)
-                      )}{" "}
-                    </a>
-                  )}
-                  {!onProfileClick && (
-                    <>
-                      {toProfile?.name ? (
-                        <div>
-                          <span className="font-bold">{toProfile.name}</span>
-                          <span>&nbsp;(@{toProfile.username})</span>
-                        </div>
-                      ) : (
-                        displayAddress(tx.to)
-                      )}{" "}
-                    </>
-                  )}
-                </>
-              )}
+            <div className="flex flex-row flex-wrap text-sm  text-gray-500 font-bold">
+              <div className="flex flex-nowrap mr-2">
+                <label className="block mr-1 float-left">from:</label>{" "}
+                {onProfileClick && (
+                  <a
+                    href={`#${tx.from}`}
+                    onClick={() => onProfileClick(tx.from)}
+                  >
+                    {tx.fromProfile?.name ? tx.fromProfile?.name : ""}
+                    {!tx.fromProfile?.name && fromProfile?.name ? (
+                      <div>
+                        <span className="font-bold">{fromProfile.name}</span>
+                        <span>&nbsp;(@{fromProfile.username})</span>
+                      </div>
+                    ) : (
+                      !tx.fromProfile?.name && displayAddress(tx.from)
+                    )}
+                  </a>
+                )}
+                {!onProfileClick && (
+                  <>
+                    {tx.fromProfile?.name ? tx.fromProfile?.name : ""}
+                    {!tx.fromProfile?.name && fromProfile?.name ? (
+                      <div>
+                        <span className="font-bold">{fromProfile.name}</span>
+                        <span>&nbsp;(@{fromProfile.username})</span>
+                      </div>
+                    ) : (
+                      !tx.fromProfile?.name && displayAddress(tx.from)
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="flex flex-nowrap">
+                {showRecipient && (
+                  <>
+                    <label className="block mr-1 float-left">to:</label>{" "}
+                    {onProfileClick && (
+                      <a
+                        href={`#${tx.to}`}
+                        onClick={() => onProfileClick(tx.to)}
+                      >
+                        {toProfile?.name ? (
+                          <div>
+                            <span className="font-bold">{toProfile.name}</span>
+                            <span>&nbsp;(@{toProfile.username})</span>
+                          </div>
+                        ) : (
+                          displayAddress(tx.to)
+                        )}{" "}
+                      </a>
+                    )}
+                    {!onProfileClick && (
+                      <>
+                        {toProfile?.name ? (
+                          <div>
+                            <span className="font-bold">{toProfile.name}</span>
+                            <span>&nbsp;(@{toProfile.username})</span>
+                          </div>
+                        ) : (
+                          displayAddress(tx.to)
+                        )}{" "}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

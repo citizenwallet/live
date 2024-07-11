@@ -190,9 +190,16 @@ class TransferLogic {
           {
             name: "Superchain",
             date: "2024-07-04",
-            amount: 5000,
+            amount: 10000,
             avatar:
               "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
+          },
+          {
+            name: "Tickets via lu.ma",
+            date: "2024-07-11",
+            amount: 6055,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
           },
           {
             name: "Metagov",
@@ -230,9 +237,9 @@ class TransferLogic {
               "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
           },
           {
-            name: "POV",
+            name: "Proof of Vibe",
             date: "2024-07-04",
-            amount: 1364,
+            amount: 2286,
             avatar:
               "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
           },
