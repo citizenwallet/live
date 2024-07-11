@@ -195,6 +195,13 @@ class TransferLogic {
               "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
           },
           {
+            name: "Tickets via lu.ma",
+            date: "2024-07-11",
+            amount: 6055,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
+          },
+          {
             name: "Metagov",
             date: "2024-07-04",
             amount: 5000,
