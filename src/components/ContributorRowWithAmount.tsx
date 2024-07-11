@@ -37,6 +37,8 @@ export default function TransactionRow({
   const extraProfiles: any = {
     Superchain:
       "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
+    "Tickets via lu.ma":
+      "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
     Metagov:
       "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
     Gnosis:
