@@ -3,6 +3,7 @@
 import { generateReceiveLink } from "@citizenwallet/sdk";
 import { getPlugin } from "@/lib/citizenwallet";
 import RegenVillageLogo from "@/public/regenvillage.svg";
+import OpenCollectiveIcon from "@/public/opencollective.svg";
 import CreditCardIcon from "@/public/creditcard.svg";
 import OrSeparator from "@/public/or-separator.svg";
 import Confetti from "react-confetti";
@@ -41,10 +42,12 @@ export default function DonateContainer({
   accountAddress,
   config,
   success,
+  collectiveSlug,
 }: {
   accountAddress: string;
   config: any;
   success?: boolean;
+  collectiveSlug: string;
 }) {
   const communitySlug = config?.community.alias;
   const { width, height } = useWindowSize();
@@ -151,6 +154,14 @@ export default function DonateContainer({
                     icon={<CreditCardIcon width={22} height={16} />}
                   />
                 </div>
+              )}
+              {collectiveSlug && (
+                <DonateButton
+                  title="Donate euros"
+                  description="via Open Collective"
+                  href={`https://opencollective.com/${collectiveSlug}/donate`}
+                  icon={<OpenCollectiveIcon width={22} height={22} />}
+                />
               )}
             </div>
           )}

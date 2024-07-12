@@ -1,6 +1,7 @@
 "use server";
 
 import FundraiserPage from "@/containers/FundraiserPage";
+import ThankYouPage from "@/containers/ThankYouPage";
 import { ConfigService } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 
@@ -13,12 +14,13 @@ interface props {
     title: string;
     goal: number;
     collectiveSlug: string;
+    template: string;
   };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
-  searchParams: { title, goal, collectiveSlug },
+  searchParams: { title, goal, collectiveSlug, template },
 }: props) {
   const configService = new ConfigService();
 
@@ -34,13 +36,23 @@ export default async function Page({
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <FundraiserPage
-        communityConfig={config}
-        accountAddress={accountAddress}
-        title={title}
-        goal={goal}
-        collectiveSlug={collectiveSlug}
-      />
+      {template === "thankyou" && (
+        <ThankYouPage
+          communityConfig={config}
+          accountAddress={accountAddress}
+          title={title}
+          collectiveSlug={collectiveSlug}
+        />
+      )}
+      {template !== "thankyou" && (
+        <FundraiserPage
+          communityConfig={config}
+          accountAddress={accountAddress}
+          title={title}
+          goal={goal}
+          collectiveSlug={collectiveSlug}
+        />
+      )}
     </Suspense>
   );
 }

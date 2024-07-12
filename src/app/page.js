@@ -18,6 +18,11 @@ async function HomePage(request) {
           <h2>Trending</h2>
           <ul>
             <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
+              <Link href="/fundraiser/regenvillage.wallet.pay.brussels/0x32330e05494177CF452F4093290306c4598ddA98?collectiveSlug=regen-village&template=thankyou">
+                Regen Village Thank You
+              </Link>
+            </li>
+            <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
               <Link href="/fundraiser/regenvillage.wallet.pay.brussels/0x32330e05494177CF452F4093290306c4598ddA98?title=Support%20the%20Regen%20Village&goal=100000&collectiveSlug=regen-village">
                 Regen Village Fundraising
               </Link>

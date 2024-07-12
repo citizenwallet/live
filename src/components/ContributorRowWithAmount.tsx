@@ -47,6 +47,8 @@ export default function TransactionRow({
       "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
     Octant:
       "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
+    "Proof of Vibe":
+      "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
     "Blast.io":
       "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
     POV: "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
