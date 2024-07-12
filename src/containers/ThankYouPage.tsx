@@ -26,14 +26,10 @@ const dingSound = "/cashing.mp3";
 function ThankYouPage({
   communityConfig,
   accountAddress,
-  title,
-  goal,
   collectiveSlug,
 }: {
   communityConfig: Config;
   accountAddress: string;
-  title: string;
-  goal: number;
   collectiveSlug: string;
 }) {
   const settings =
@@ -207,16 +203,6 @@ function ThankYouPage({
   const totalAmountTransferred = formatUnits(
     BigInt(totalAmount),
     communityConfig.token.decimals
-  );
-  const progress =
-    goal && Math.round((parseFloat(totalAmountTransferred) / goal) * 1000) / 10;
-  console.log(
-    ">>> totalAmount",
-    totalAmount,
-    "goal",
-    goal,
-    "progress",
-    progress
   );
   return (
     <>
