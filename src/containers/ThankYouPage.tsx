@@ -23,7 +23,7 @@ import { Transfer } from "@citizenwallet/sdk";
 import OpencollectiveData from "@/components/OpencollectiveData";
 const dingSound = "/cashing.mp3";
 
-function FundraiserPage({
+function ThankYouPage({
   communityConfig,
   accountAddress,
   title,
@@ -228,8 +228,12 @@ function FundraiserPage({
           ref={(element) => (window.audio = element)}
         />
         <div className="flex flex-col w-2/3">
-          <div className="w-full flex flex-row mt-4 mb-12">
-            <h1 className="text-7xl font-bold">{title}</h1>
+          <div className="w-full flex flex-row mt-4 mb-8">
+            <h1 className="text-5xl font-bold leading-tight">
+              Thank you to all the {stats.totalContributors} financial
+              contributors and dozens of volunteers that made this event
+              possible 🙏
+            </h1>
             <div className="flex items-center mr-2 w-8">
               {loading && (
                 <LoaderCircleIcon className="animate-spin flex items-center w-6 h-6 text-blue-500" />
@@ -254,76 +258,14 @@ function FundraiserPage({
               )}
             </div>
           </div>
-          {goal && (
-            <ProgressBar
-              percent={progress}
-              goal={goal}
-              tokenSymbol={communityConfig.token.symbol}
-              milestones={settings.milestones}
-            />
-          )}
 
           <div className="w-full flex flex-row h-full">
-            <div className="w-1/2 flex flex-col">
-              <div className="w-full flex flex-row justify-between items-center mb-4">
-                <div className="w-full p-1 flex items-center flex-col text-left">
-                  <div className="w-full text-left font-bold flex items-baseline">
-                    <div className=" mr-1">
-                      <AnimatedNumber
-                        className="text-7xl font-bold text-right"
-                        value={parseFloat(totalAmountTransferred)}
-                        decimals={
-                          parseInt(totalAmountTransferred) >= 10000 ? 0 : 2
-                        }
-                      />
-                    </div>
-                    {}{" "}
-                    <span className="font-normal text-3xl">
-                      {communityConfig.token.symbol}
-                    </span>
-                  </div>
-                  <div className="w-full text-3xl text-left font-medium text-gray-500">
-                    total raised
-                  </div>
-                </div>
-
-                <div className=" w-full p-1 flex items-center text-right justify-end">
-                  <div>
-                    <div className="font-bold">
-                      <AnimatedNumber
-                        className="text-7xl"
-                        value={stats.totalContributors}
-                      />
-                    </div>
-                    <div className="text-3xl font-medium text-gray-500 text-right">
-                      contributors
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {collectiveSlug && (
-                <div className="bg-white rounded-3xl ">
-                  <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
-                    Expense tracker
-                  </h3>
-                  <OpencollectiveData
-                    collectiveSlug={collectiveSlug}
-                    limit={10}
-                    showStatus={false}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="w-1/2 ml-5">
+            <div className="w-full">
               <div className="mb-4 w-full">
                 <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden w-full">
                   <div className="w-full">
-                    <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
-                      Top contributors
-                    </h3>
-                    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full w-full">
-                      {stats.leaderboard.slice(0, 30).map((entry, index) => (
+                    <div className="flex flex-wrap flex-row overflow-hidden mt-4 mb-0 h-full w-full">
+                      {stats.leaderboard.slice(0, 60).map((entry, index) => (
                         <ContributorRow
                           key={entry.from}
                           communitySlug={communitySlug}
@@ -349,7 +291,7 @@ function FundraiserPage({
             accountAddress={accountAddress}
             donateUrl={`${
               process.env.NEXT_PUBLIC_WEBAPP_URL || ""
-            }/${communitySlug}/${accountAddress}/donate`}
+            }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
             <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
@@ -402,4 +344,4 @@ function FundraiserPage({
   );
 }
 
-export default FundraiserPage;
+export default ThankYouPage;

@@ -49,6 +49,8 @@ export default function TransactionRow({
       "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
     Octant:
       "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
+    "Proof of Vibe":
+      "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
     "Blast.io":
       "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
     POV: "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
@@ -58,46 +60,44 @@ export default function TransactionRow({
   console.log(">>> ContributorRow", { contributorAddress, fromProfile });
 
   return (
-    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full ">
-      <div className="flex m-2">
-        <div className="align-center text-center mb-2">
-          <div className="flex w-[70px] h-[70px] items-center">
-            <Image
-              unoptimized
-              src={
-                extraProfiles[contributorAddress]
-                  ? extraProfiles[contributorAddress]
-                  : fromProfile?.image_medium && !fromImageError
-                  ? getUrlFromIPFS(fromProfile.image_medium) || ""
-                  : getAvatarUrl(contributorAddress)
-              }
-              alt="from avatar"
-              width={70}
-              height={70}
-              className="rounded-full object-cover mb-2 max-h-[70px] max-w-[70px]"
-              onError={handleFromImageError}
-            />
-          </div>
-          <div className="flex w-full align-center flex-row text-sm  text-gray-500">
-            {fromProfile?.name ? (
-              <div className="w-full">
-                <div className="text-center font-bold h-5 overflow-hidden">
-                  {fromProfile.name}
-                </div>
-                <div className="text-center">@{fromProfile.username}</div>
-              </div>
-            ) : (
-              displayAddress(contributorAddress)
-            )}
-          </div>
+    <div className="flex m-2">
+      <div className="align-center text-center mb-2">
+        <div className="flex w-[70px] h-[70px] items-center">
+          <Image
+            unoptimized
+            src={
+              extraProfiles[contributorAddress]
+                ? extraProfiles[contributorAddress]
+                : fromProfile?.image_medium && !fromImageError
+                ? getUrlFromIPFS(fromProfile.image_medium) || ""
+                : getAvatarUrl(contributorAddress)
+            }
+            alt="from avatar"
+            width={70}
+            height={70}
+            className="rounded-full object-cover mb-2 max-h-[70px] max-w-[70px]"
+            onError={handleFromImageError}
+          />
         </div>
-        {showAmount && (
-          <div className="flex flex-col text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 text-right">
-            <HumanNumber value={formatUnits(BigInt(amount), decimals)} />{" "}
-            <span className="text-sm font-normal">{token.symbol}</span>
-          </div>
-        )}
+        <div className="flex w-full align-center flex-row text-sm  text-gray-500">
+          {fromProfile?.name ? (
+            <div className="w-full">
+              <div className="text-center font-bold h-5 overflow-hidden">
+                {fromProfile.name}
+              </div>
+              <div className="text-center">@{fromProfile.username}</div>
+            </div>
+          ) : (
+            displayAddress(contributorAddress)
+          )}
+        </div>
       </div>
+      {showAmount && (
+        <div className="flex flex-col text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 text-right">
+          <HumanNumber value={formatUnits(BigInt(amount), decimals)} />{" "}
+          <span className="text-sm font-normal">{token.symbol}</span>
+        </div>
+      )}
     </div>
   );
 }
