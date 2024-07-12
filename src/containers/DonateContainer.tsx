@@ -52,14 +52,13 @@ export default function DonateContainer({
   const communitySlug = config?.community.alias;
   const { width, height } = useWindowSize();
   if (!config) return null;
-  // const cwDonateLink = generateReceiveLink(
-  //   "https://app.citizenwallet.xyz",
-  //   accountAddress,
-  //   communitySlug === "regenvillage.wallet.pay.brussels"
-  //     ? "wallet.pay.brussels"
-  //     : communitySlug
-  // );
-  const cwDonateLink = "https://app.citizenwallet.xyz";
+  const cwDonateLink = generateReceiveLink(
+    "https://app.citizenwallet.xyz",
+    accountAddress,
+    communitySlug === "regenvillage.wallet.pay.brussels"
+      ? "wallet.pay.brussels"
+      : communitySlug
+  );
   const redirectUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/${communitySlug}/${accountAddress}/donate`;
   const givethPlugin = getPlugin(config, "giveth");
   const topupPlugin = getPlugin(config, "Top Up");
