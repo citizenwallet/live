@@ -207,7 +207,7 @@ function ThankYouPage({
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex flex-row justify-center p-8 bg-[#F8F7F3] w-full h-full overflow-hidden">
+      <div className="flex flex-row justify-center p-4 bg-[#F8F7F3] w-full h-full overflow-hidden">
         <AudioPlayer
           src={dingSound}
           // @ts-ignore
@@ -216,9 +216,8 @@ function ThankYouPage({
         <div className="flex flex-col w-2/3">
           <div className="w-full flex flex-row mt-4 mb-8">
             <h1 className="text-5xl font-bold leading-tight">
-              Thank you to all the {stats.totalContributors} financial
-              contributors and dozens of volunteers that made this event
-              possible 🙏
+              Thank you to the {stats.totalContributors} financial contributors
+              and all the volunteers that made this event possible 🙏
             </h1>
             <div className="flex items-center mr-2 w-8">
               {loading && (
@@ -251,7 +250,7 @@ function ThankYouPage({
                 <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden w-full">
                   <div className="w-full">
                     <div className="flex flex-wrap flex-row overflow-hidden mt-4 mb-0 h-full w-full">
-                      {stats.leaderboard.slice(0, 60).map((entry, index) => (
+                      {stats.leaderboard.slice(0, 200).map((entry, index) => (
                         <ContributorRow
                           key={entry.from}
                           communitySlug={communitySlug}
