@@ -40,7 +40,6 @@ export default async function Page({
         <ThankYouPage
           communityConfig={config}
           accountAddress={accountAddress}
-          title={title}
           collectiveSlug={collectiveSlug}
         />
       )}
