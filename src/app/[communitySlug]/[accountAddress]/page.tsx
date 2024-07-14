@@ -10,10 +10,15 @@ interface props {
     communitySlug: string;
     accountAddress: string;
   };
+  searchParams: {
+    collectiveSlug: string;
+    from: string;
+  };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
+  searchParams: { collectiveSlug, from },
 }: props) {
   console.log(
     ">>> communitySlug",
@@ -33,7 +38,12 @@ export default async function Page({
   }
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <MonitorPage communityConfig={config} accountAddress={accountAddress} />
+      <MonitorPage
+        communityConfig={config}
+        accountAddress={accountAddress}
+        collectiveSlug={collectiveSlug}
+        from={from}
+      />
       <Footer />
     </Suspense>
   );
