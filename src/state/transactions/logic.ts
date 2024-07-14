@@ -197,9 +197,16 @@ class TransferLogic {
           {
             name: "Tickets via lu.ma",
             date: "2024-07-11",
-            amount: 6055,
+            amount: 6105.78,
             avatar:
               "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
+          },
+          {
+            name: "Blast.io",
+            date: "2024-07-04",
+            amount: 6000,
+            avatar:
+              "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
           },
           {
             name: "Metagov",
@@ -230,18 +237,18 @@ class TransferLogic {
               "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
           },
           {
-            name: "Blast.io",
-            date: "2024-07-04",
-            amount: 6000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
-          },
-          {
             name: "Proof of Vibe",
             date: "2024-07-04",
             amount: 2286,
             avatar:
               "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
+          },
+          {
+            name: "Grants Funding Forum tickets",
+            date: "2024-07-04",
+            amount: 1500.21,
+            avatar:
+              "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/h2/c185b44c-c323-484b-94ff-3ded0f6e586b",
           },
         ];
 
