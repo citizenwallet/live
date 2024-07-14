@@ -39,6 +39,8 @@ export default function TransactionRow({
       "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
     "Tickets via lu.ma":
       "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
+    "Grants Funding Forum tickets":
+      "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/h2/c185b44c-c323-484b-94ff-3ded0f6e586b",
     Metagov:
       "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
     Gnosis:

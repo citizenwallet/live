@@ -41,6 +41,8 @@ export default function TransactionRow({
       "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
     "Tickets via lu.ma":
       "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
+    "Grants Funding Forum tickets":
+      "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/h2/c185b44c-c323-484b-94ff-3ded0f6e586b",
     Metagov:
       "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
     Gnosis:
@@ -61,8 +63,8 @@ export default function TransactionRow({
 
   return (
     <div className="flex m-2">
-      <div className="align-center text-center mb-2">
-        <div className="flex w-[70px] h-[70px] items-center">
+      <div className="align-center text-center mb-2 w-[80px]">
+        <div className="mx-auto w-[70px] h-[70px]">
           <Image
             unoptimized
             src={
@@ -79,10 +81,10 @@ export default function TransactionRow({
             onError={handleFromImageError}
           />
         </div>
-        <div className="flex w-full align-center flex-row text-sm  text-gray-500">
+        <div className="text-center text-sm text-gray-500 max-h-3 text-ellipsis">
           {fromProfile?.name ? (
-            <div className="w-full">
-              <div className="text-center font-bold h-5 overflow-hidden">
+            <div className="w-full justify-center max-h-8">
+              <div className="text-center font-bold h-5 overflow-hidden ">
                 {fromProfile.name}
               </div>
               <div className="text-center">@{fromProfile.username}</div>

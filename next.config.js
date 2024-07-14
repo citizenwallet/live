@@ -6,6 +6,7 @@ const nextConfig = {
       { hostname: "ipfs.io" },
       { hostname: "localhost" },
       { hostname: "pbs.twimg.com" },
+      { hostname: "images.lumacdn.com" },
       {
         hostname: "api.multiavatar.com",
       },
