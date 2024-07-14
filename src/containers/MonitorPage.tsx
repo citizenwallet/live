@@ -37,9 +37,13 @@ function formatDateToISO(date: Date) {
 function MonitorPage({
   communityConfig,
   accountAddress,
+  collectiveSlug,
+  from,
 }: {
   communityConfig: Config;
   accountAddress: string;
+  collectiveSlug: string;
+  from: string;
 }) {
   const [listen, setListen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -72,6 +76,10 @@ function MonitorPage({
   }, [profilesActions]);
 
   useEffect(() => {
+    if (from) {
+      actions.loadFrom(new Date(from));
+    }
+
     // @ts-ignore
     window.playSound = () => {
       // @ts-ignore
@@ -272,7 +280,7 @@ function MonitorPage({
               accountAddress={accountAddress}
               donateUrl={`${
                 process.env.NEXT_PUBLIC_WEBAPP_URL || ""
-              }/${communitySlug}/${accountAddress}/donate`}
+              }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
             />
           </div>
         )}
