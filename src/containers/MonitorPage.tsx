@@ -42,8 +42,8 @@ function MonitorPage({
 }: {
   communityConfig: Config;
   accountAddress: string;
-  collectiveSlug: string;
-  from: string;
+  collectiveSlug?: string;
+  from?: string;
 }) {
   const [listen, setListen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
