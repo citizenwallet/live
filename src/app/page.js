@@ -18,7 +18,7 @@ async function HomePage(request) {
           <h2>Trending</h2>
           <ul>
             <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
-              <Link href="/wallet.pay.brussels/0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E?collectiveSlug=commonshub-brussels&from=2024-07-14">
+              <Link href="/wallet.pay.brussels/0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E?collectiveSlug=commonshub-brussels&from=2024-07-14&title=Contribute%20to%20the%20Commons%20Hub">
                 Commons Hub Brussels Donate EURb
               </Link>
             </li>

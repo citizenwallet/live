@@ -11,14 +11,15 @@ interface props {
     accountAddress: string;
   };
   searchParams: {
-    collectiveSlug: string;
-    from: string;
+    collectiveSlug?: string;
+    from?: string;
+    title?: string;
   };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
-  searchParams: { collectiveSlug, from },
+  searchParams: { collectiveSlug, from, title },
 }: props) {
   console.log(
     ">>> communitySlug",
@@ -28,7 +29,6 @@ export default async function Page({
   );
   const configService = new ConfigService();
   const configs = await configService.get(true);
-  console.log(">>> configs", configs);
   const config = configs.find(
     (config) => config.community.alias === communitySlug
   );
@@ -38,11 +38,13 @@ export default async function Page({
   }
   return (
     <Suspense fallback={<div>Loading...</div>}>
+      {title && <h1 className="text-4xl font-bold my-4">{title}</h1>}
       <MonitorPage
         communityConfig={config}
         accountAddress={accountAddress}
         collectiveSlug={collectiveSlug}
         from={from}
+        showHeader={false}
       />
       <Footer />
     </Suspense>

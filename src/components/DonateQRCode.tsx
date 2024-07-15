@@ -20,9 +20,12 @@ const DonateBox = ({ communitySlug, accountAddress, donateUrl }: propsType) => {
       <div className="flex flex-col items-start justify-around w-full">
         <div
           className="flex bg-white rounded-lg p-4 w-full h-full items-center align-center text-center"
-          style={{ height: "70vh" }}
+          style={{ maxHeight: "70vh" }}
         >
-          <QRCode value={url} className="w-full h-full" />
+          <QRCode
+            value={url}
+            className="w-full h-full max-w-96 max-h-96 mx-auto"
+          />
         </div>
       </div>
     </div>
