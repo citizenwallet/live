@@ -39,11 +39,13 @@ function MonitorPage({
   accountAddress,
   collectiveSlug,
   from,
+  showHeader,
 }: {
   communityConfig: Config;
   accountAddress: string;
   collectiveSlug?: string;
   from?: string;
+  showHeader?: boolean;
 }) {
   const [listen, setListen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -163,74 +165,76 @@ function MonitorPage({
           // @ts-ignore
           ref={(element) => (window.audio = element)}
         />
-        <nav
-          aria-label="breadcrumb"
-          className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
-        >
-          <ol className="list-reset flex items-center ">
-            <li>
-              <a
-                onClick={() => actions.setAccount(null)}
-                href="#"
-                className="text-blue-600 hover:text-blue-800 min-w-6 block"
-              >
-                <Image
-                  src={communityConfig.community.logo}
-                  alt="Token Icon"
-                  className="rounded-full mr-1 h-16"
-                  height={64}
-                  width={64}
-                />
-              </a>
-            </li>
-            <li className="px-2">
-              <a
-                onClick={() => actions.setAccount(null)}
-                href="#"
-                className="text-blue-600 hover:text-blue-800"
-              >
-                {communityConfig.token.symbol}
-              </a>
-            </li>
-            {accountAddress && (
-              <li className="px-2">
-                <span className="text-gray-500">
-                  {displayAddress(accountAddress, "medium")}
-                </span>
+        {showHeader && (
+          <nav
+            aria-label="breadcrumb"
+            className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
+          >
+            <ol className="list-reset flex items-center ">
+              <li>
+                <a
+                  onClick={() => actions.setAccount(null)}
+                  href="#"
+                  className="text-blue-600 hover:text-blue-800 min-w-6 block"
+                >
+                  <Image
+                    src={communityConfig.community.logo}
+                    alt="Token Icon"
+                    className="rounded-full mr-1 h-16"
+                    height={64}
+                    width={64}
+                  />
+                </a>
               </li>
-            )}
-          </ol>
-          <div className="flex items-center">
-            <div className="text-sm font-medium text-gray-500 p-2">from</div>
-            <input
-              className="h-6"
-              type="datetime-local"
-              value={formatDateToISO(date)}
-              min="2020-01-01T00:00"
-              max={formatDateToISO(new Date())}
-              onChange={(e) => handleFetchFrom(new Date(e.target.value))}
-              disabled={loading}
-            />
-            {!listen && (
-              <a
-                onClick={handleStartListening}
-                title="Start listening"
-                className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-              >
-                <PlayIcon />
-              </a>
-            )}
-            {listen && (
-              <a
-                onClick={handleStopListening}
-                title="Stop listening"
-                className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-              >
-                <Loading />
-              </a>
-            )}
-          </div>
-        </nav>
+              <li className="px-2">
+                <a
+                  onClick={() => actions.setAccount(null)}
+                  href="#"
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  {communityConfig.token.symbol}
+                </a>
+              </li>
+              {accountAddress && (
+                <li className="px-2">
+                  <span className="text-gray-500">
+                    {displayAddress(accountAddress, "medium")}
+                  </span>
+                </li>
+              )}
+            </ol>
+            <div className="flex items-center">
+              <div className="text-sm font-medium text-gray-500 p-2">from</div>
+              <input
+                className="h-6"
+                type="datetime-local"
+                value={formatDateToISO(date)}
+                min="2020-01-01T00:00"
+                max={formatDateToISO(new Date())}
+                onChange={(e) => handleFetchFrom(new Date(e.target.value))}
+                disabled={loading}
+              />
+              {!listen && (
+                <a
+                  onClick={handleStartListening}
+                  title="Start listening"
+                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+                >
+                  <PlayIcon />
+                </a>
+              )}
+              {listen && (
+                <a
+                  onClick={handleStopListening}
+                  title="Stop listening"
+                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+                >
+                  <Loading />
+                </a>
+              )}
+            </div>
+          </nav>
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
@@ -274,7 +278,7 @@ function MonitorPage({
       </div>
       <div className="w-full pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
         {accountAddress && (
-          <div className="w-1/3 h-1/3 mx-auto xl:w-full xl:h-full">
+          <div className="w-1/3 h-[50vh] xl-h-1/3 mx-auto xl:w-full xl:h-full">
             <DonateQRCode
               communitySlug={communitySlug}
               accountAddress={accountAddress}
@@ -306,7 +310,7 @@ function MonitorPage({
                     <div key={key} style={style} className="flex flex-row">
                       <TransactionRow
                         tx={transfers[index]}
-                        showRecipient={true}
+                        showRecipient={accountAddress ? false : true}
                         token={communityConfig.token}
                         communitySlug={communitySlug}
                         decimals={communityConfig.token.decimals}
