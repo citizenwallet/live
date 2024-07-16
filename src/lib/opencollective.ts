@@ -66,38 +66,43 @@ export const getTransactions = async (
       signal: controller.signal,
     }
   );
-  const res: any = await graphQLClient.request(transactionsQuery, {
-    collectiveSlug: slug,
-    dateFrom,
-    limit,
-  });
-  console.log(">>> result since", dateFrom, res);
-  if (!res.allTransactions) return [];
-  const transactions = res.allTransactions || [];
-  const transfers: ExtendedTransfer[] = [];
-  transactions.map((transaction: any) => {
-    transfers.push({
-      hash: transaction.id,
-      tx_hash: transaction.uuid,
-      to: `https://opencollective.com/${slug}`,
-      nonce: 0,
-      token_id: transaction.id,
-      status: "success",
-      created_at: transaction.createdAt,
-      from: `https://opencollective.com/${transaction.fromCollective.slug}`,
-      fromProfile: {
-        name: transaction.fromCollective.name,
-        imgsrc: transaction.fromCollective.imageUrl,
-      },
-      value: (transaction.amount / 100) * 10 ** 6,
-      data: {
-        description: transaction.description,
-        currency: transaction.hostCurrency,
-        value: transaction.amount,
-        via: "Open Collective",
-      },
+  try {
+    const res: any = await graphQLClient.request(transactionsQuery, {
+      collectiveSlug: slug,
+      dateFrom,
+      limit,
     });
-  });
-  console.log(">>> transfers", transfers);
-  return transfers;
+    console.log(">>> result since", dateFrom, res);
+    if (!res.allTransactions) return [];
+    const transactions = res.allTransactions || [];
+    const transfers: ExtendedTransfer[] = [];
+    transactions.map((transaction: any) => {
+      transfers.push({
+        hash: `oc#${transaction.id}`,
+        tx_hash: transaction.uuid,
+        to: `https://opencollective.com/${slug}`,
+        nonce: 0,
+        token_id: 0,
+        status: "success",
+        created_at: new Date(transaction.createdAt),
+        from: `https://opencollective.com/${transaction.fromCollective.slug}`,
+        fromProfile: {
+          name: transaction.fromCollective.name,
+          imgsrc: transaction.fromCollective.imageUrl,
+        },
+        value: (transaction.amount / 100) * 10 ** 6,
+        data: {
+          description: transaction.description,
+          currency: transaction.hostCurrency,
+          value: transaction.amount,
+          via: "Open Collective",
+        },
+      });
+    });
+    console.log(">>> transfers", transfers);
+    return transfers;
+  } catch (e) {
+    console.error(">>> error", e);
+    return [];
+  }
 };

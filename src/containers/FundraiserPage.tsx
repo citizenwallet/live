@@ -20,7 +20,7 @@ import DonateQRCode from "@/components/DonateQRCode";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import { Transfer } from "@citizenwallet/sdk";
-import OpencollectiveData from "@/components/OpencollectiveData";
+import ExpenseTracker from "@/components/ExpenseTracker";
 const dingSound = "/cashing.mp3";
 
 type Settings = {
@@ -357,7 +357,7 @@ function FundraiserPage({
                   <p className="text-center text-sm mb-4 text-gray-600">
                     opencollective.com/{collectiveSlug}
                   </p>
-                  <OpencollectiveData
+                  <ExpenseTracker
                     collectiveSlug={collectiveSlug}
                     limit={10}
                     showStatus={false}

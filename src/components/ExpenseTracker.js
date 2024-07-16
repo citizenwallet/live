@@ -3,31 +3,6 @@ import AbortController from "abort-controller";
 import useSWR from "swr";
 import HumanNumber from "./HumanNumber";
 
-const transactionsQuery = gql`
-  query getTransactions(
-    $collectiveSlug: String!
-    $dateFrom: String
-    $dateTo: String
-  ) {
-    allTransactions(
-      collectiveSlug: $collectiveSlug
-      type: "CREDIT"
-      dateFrom: $dateFrom
-      limit: $limit
-    ) {
-      id
-      createdAt
-      hostCurrency
-      amount
-      fromCollective {
-        slug
-        name
-        imageUrl
-      }
-    }
-  }
-`;
-
 const query = gql`
   query getCollectiveStats($collectiveSlug: String!, $limit: Int!) {
     Collective(slug: $collectiveSlug) {
@@ -88,33 +63,18 @@ const getOpenCollectiveData = async (collectiveSlug, limit) => {
   };
   return result;
 };
-const getTransactions = async (collectiveSlug, dateFrom, dateTo) => {
-  if (!collectiveSlug) throw new Error("Missing collectiveSlug");
-
-  const slugParts = collectiveSlug.split("/");
-  const slug = slugParts[slugParts.length - 1];
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, 3000);
-  const graphQLClient = new GraphQLClient(
-    process.env.NEXT_PUBLIC_OC_GRAPHQL_API,
-    {
-      signal: controller.signal,
-    }
-  );
-  const res = await graphQLClient.request(transactionsQuery, {
-    collectiveSlug: slug,
-    dateFrom,
-    dateTo,
-  });
-  console.log(">>> result", res);
-  return res.data.allTransactions;
-};
 
 const CollectiveExpenses = ({ collectiveSlug, limit, showStatus }) => {
-  const { data, error } = useSWR(collectiveSlug, (collectiveSlug) =>
-    getOpenCollectiveData(collectiveSlug, limit)
+  const { data, error } = useSWR(
+    collectiveSlug,
+    (collectiveSlug) => getOpenCollectiveData(collectiveSlug, limit),
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 60000, // 1 minute
+      refreshInterval: 60000, // 1 minute
+      errorRetryCount: 3,
+      errorRetryInterval: 5000, // 5 seconds
+    }
   );
 
   // console.log(">>> error received", error);

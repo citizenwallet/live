@@ -13,7 +13,7 @@ import { getTransactions } from "@/lib/opencollective";
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
     name: string;
-    image_medium: string;
+    imgsrc: string;
   };
   data: {
     description: string;
@@ -112,7 +112,11 @@ class TransferLogic {
           );
           console.log(">>> logic: data from opencollective", data);
           if (data.length > 0) {
-            this.processNewTransfers(data);
+            this.processNewTransfers(
+              data.map((transfer: any) => {
+                transfer.to = "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E";
+              })
+            );
           }
         }, 5000);
       }
@@ -185,27 +189,25 @@ class TransferLogic {
           )
         : await this.indexer.getAllNewTransfers(this.token.address, params);
 
-      console.log(
-        ">>> loadFrom",
-        this.accountAddress,
-        date,
-        offset,
-        this.communitySlug,
-        this.accountAddress
-      );
-
       if (
         this.accountAddress === "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E" // commons hub
       ) {
-        const data = await getTransactions(
-          "commonshub-brussels",
-          date,
-          undefined,
-          this.loaderFetchLimit
-        );
-        console.log(">>> logic: data from opencollective", data);
-        if (data.length > 0) {
-          transfers.push(...data);
+        try {
+          const data = await getTransactions(
+            "commonshub-brussels",
+            date,
+            undefined,
+            this.loaderFetchLimit
+          );
+          console.log(">>> logic: data from opencollective", data);
+          if (data.length > 0) {
+            data.map((transfer: any) => {
+              transfer.to = "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E";
+              transfers.push(transfer);
+            });
+          }
+        } catch (e) {
+          console.error("Unable to fetch transactions from open collective", e);
         }
       }
       if (
@@ -303,7 +305,7 @@ class TransferLogic {
               to: this.accountAddress || "",
               fromProfile: {
                 name: tx.name,
-                image_medium: tx.avatar,
+                imgsrc: tx.avatar,
               },
               data: {
                 description: `Sponsorship of ${tx.amount} euros`,
@@ -324,6 +326,7 @@ class TransferLogic {
       }
 
       // new items, add them to the store
+      console.log(">>> putTransfers", transfers);
       this.store.putTransfers(transfers);
 
       const isLastPage = transfers.length < this.loaderFetchLimit;

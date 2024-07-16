@@ -5,13 +5,9 @@ import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
 import TransactionRow from "@/components/TransactionRow";
 import ContributorRow from "@/components/ContributorRow";
-import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
-import ProgressBar from "@/components/ProgressBar";
-import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
-import Image from "next/image";
 import { PlayIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
@@ -20,7 +16,6 @@ import DonateQRCode from "@/components/DonateQRCode";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import { Transfer } from "@citizenwallet/sdk";
-import OpencollectiveData from "@/components/OpencollectiveData";
 const dingSound = "/cashing.mp3";
 
 function ThankYouPage({
