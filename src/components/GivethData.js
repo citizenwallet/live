@@ -92,6 +92,7 @@ const Donations = ({ projectId, take, skip, showStatus }) => {
       refreshInterval: 20000, // 20s
       errorRetryCount: 3,
       errorRetryInterval: 15000, // 15 seconds
+      keepPreviousData: true,
     }
   );
 
