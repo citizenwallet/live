@@ -15,6 +15,7 @@ export default function TransactionRow({
   contributorAddress,
   amount,
   profiles,
+  fromProfiles,
   showAmount = true,
   showUsernames = false,
   communitySlug,
@@ -24,6 +25,7 @@ export default function TransactionRow({
   amount: number;
   decimals: number;
   communitySlug: string;
+  fromProfiles: any[];
   showAmount?: boolean;
   showUsernames?: boolean;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
@@ -61,21 +63,28 @@ export default function TransactionRow({
   };
 
   if (!amount) return null;
-  console.log(">>> ContributorRow", { contributorAddress, fromProfile });
-
+  const profile = fromProfiles[contributorAddress] || fromProfile;
+  const avatar = profile?.imgsrc
+    ? profile.imgsrc
+    : extraProfiles[contributorAddress]
+    ? extraProfiles[contributorAddress]
+    : profile?.image_medium && !fromImageError
+    ? getUrlFromIPFS(profile.image_medium) || ""
+    : getAvatarUrl(contributorAddress);
+  console.log(
+    ">>> profile for ",
+    contributorAddress,
+    profile,
+    "avatar",
+    avatar
+  );
   return (
     <div className="flex m-2">
       <div className="align-center text-center mb-2 w-[80px]">
         <div className="mx-auto w-[70px] h-[70px]">
           <Image
             unoptimized
-            src={
-              extraProfiles[contributorAddress]
-                ? extraProfiles[contributorAddress]
-                : fromProfile?.image_medium && !fromImageError
-                ? getUrlFromIPFS(fromProfile.image_medium) || ""
-                : getAvatarUrl(contributorAddress)
-            }
+            src={avatar}
             alt="from avatar"
             width={70}
             height={70}
@@ -84,13 +93,13 @@ export default function TransactionRow({
           />
         </div>
         <div className="text-center text-sm text-gray-500 max-h-3 text-ellipsis">
-          {fromProfile?.name ? (
+          {profile?.name ? (
             <div className="w-full justify-center max-h-8">
               <div className="text-center font-bold h-5 overflow-hidden ">
-                {fromProfile.name}
+                {profile.name}
               </div>
               {showUsernames && (
-                <div className="text-center">@{fromProfile.username}</div>
+                <div className="text-center">@{profile.username}</div>
               )}
             </div>
           ) : (

@@ -57,8 +57,12 @@ export default function TransactionRow({
   };
 
   if (!amount) return null;
-  console.log(">>> ContributorRow", { contributorAddress, fromProfile });
-
+  const avatar =
+    fromProfile?.imgsrc || extraProfiles[contributorAddress]
+      ? extraProfiles[contributorAddress]
+      : fromProfile?.image_medium && !fromImageError
+      ? getUrlFromIPFS(fromProfile.image_medium) || ""
+      : getAvatarUrl(contributorAddress);
   return (
     <div className="flex flex-row w-full mt-4 mb-0 h-full ">
       <div className="flex m-2 w-full">
@@ -66,13 +70,7 @@ export default function TransactionRow({
           <div className="flex w-[70px] h-[70px] items-center">
             <Image
               unoptimized
-              src={
-                extraProfiles[contributorAddress]
-                  ? extraProfiles[contributorAddress]
-                  : fromProfile?.image_medium && !fromImageError
-                  ? getUrlFromIPFS(fromProfile.image_medium) || ""
-                  : getAvatarUrl(contributorAddress)
-              }
+              src={avatar}
               alt="from avatar"
               width={70}
               height={70}

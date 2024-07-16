@@ -7,6 +7,7 @@ const nextConfig = {
       { hostname: "localhost" },
       { hostname: "pbs.twimg.com" },
       { hostname: "images.lumacdn.com" },
+      { hostname: "images.opencollective.com" },
       {
         hostname: "api.multiavatar.com",
       },

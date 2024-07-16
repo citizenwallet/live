@@ -163,7 +163,7 @@ function FundraiserPage({
 
   useSafeEffect(() => {
     actions.setAccount(accountAddress);
-    actions.loadFrom(new Date("2024-07-01T00:00:00Z"));
+    actions.loadFrom(new Date("2024-01-01T00:00:00Z"));
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
@@ -208,9 +208,13 @@ function FundraiserPage({
   //   return uniqueFromCount;
   // });
 
+  const fromProfiles: any[] = [];
   const stats = store((state) => {
     const totalContributedBySender: Record<string, number> =
       state.transfers.reduce((acc, transfer) => {
+        if (transfer.fromProfile) {
+          fromProfiles[transfer.from] = transfer.fromProfile;
+        }
         acc[transfer.from] = (acc[transfer.from] || 0) + transfer.value;
         return acc;
       }, {} as Record<string, number>);
@@ -231,6 +235,7 @@ function FundraiserPage({
     };
     return res;
   });
+  console.log(">>> fromProfiles", fromProfiles);
 
   const totalAmount = store((state) => {
     if (state.account) {
@@ -372,6 +377,7 @@ function FundraiserPage({
                           communitySlug={communitySlug}
                           contributorAddress={entry.from}
                           profiles={profilesStore}
+                          fromProfiles={fromProfiles}
                           showAmount={false}
                           amount={entry.total}
                           token={communityConfig.token}

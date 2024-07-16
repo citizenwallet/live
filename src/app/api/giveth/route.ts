@@ -22,7 +22,7 @@ export interface Transfer {
   from: string;
   fromProfile?: {
     name: string;
-    avatar: string;
+    imgsrc: string;
   };
   to: string;
   nonce?: number;
@@ -136,7 +136,7 @@ const getGivethData = async (
       networkId: donation.transactionNetworkId,
       fromProfile: {
         name: donation.user.name,
-        avatar: donation.user.avatar,
+        imgsrc: donation.user.avatar,
       },
       data: {
         description: `Donation of ${donation.amount} ${donation.currency} via Giveth`,
