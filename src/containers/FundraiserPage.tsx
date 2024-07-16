@@ -400,7 +400,7 @@ function FundraiserPage({
             accountAddress={accountAddress}
             donateUrl={`${
               process.env.NEXT_PUBLIC_WEBAPP_URL || ""
-            }/${communitySlug}/${accountAddress}/donate`}
+            }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
             <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
