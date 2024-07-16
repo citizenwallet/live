@@ -25,7 +25,7 @@ export default function TransactionRow({
   amount: number;
   decimals: number;
   communitySlug: string;
-  fromProfiles: any[];
+  fromProfiles?: any[];
   showAmount?: boolean;
   showUsernames?: boolean;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
@@ -63,7 +63,8 @@ export default function TransactionRow({
   };
 
   if (!amount) return null;
-  const profile = fromProfiles[contributorAddress] || fromProfile;
+  const profile: any =
+    (fromProfiles && fromProfiles[contributorAddress as any]) || fromProfile;
   const avatar = profile?.imgsrc
     ? profile.imgsrc
     : extraProfiles[contributorAddress]

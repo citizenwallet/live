@@ -60,12 +60,13 @@ export const getTransactions = async (
     controller.abort();
   }, 3000);
   const graphQLClient = new GraphQLClient(
-    process.env.NEXT_PUBLIC_OC_GRAPHQL_API,
+    process.env.NEXT_PUBLIC_OC_GRAPHQL_API || "",
     {
+      // @ts-ignore
       signal: controller.signal,
     }
   );
-  const res = await graphQLClient.request(transactionsQuery, {
+  const res: any = await graphQLClient.request(transactionsQuery, {
     collectiveSlug: slug,
     dateFrom,
     limit,
