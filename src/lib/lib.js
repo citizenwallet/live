@@ -27,10 +27,10 @@ export function getTokenAddress(chain, symbol) {
   return tokens[chain.toLowerCase()][symbol.toLowerCase()].tokenAddress;
 }
 
-export function getAvatarUrl(address) {
+export function getAvatarUrl(imgsrc) {
   return `${
     process.env.NEXT_PUBLIC_WEBAPP_URL || ""
-  }/api/getAvatar?accountAddress=${address}`;
+  }/api/getAvatar?imgsrc=${imgsrc}`;
 }
 
 export function displayAddress(address, format = "short") {

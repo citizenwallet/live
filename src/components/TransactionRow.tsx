@@ -25,7 +25,7 @@ export default function TransactionRow({
   tx: Transfer & {
     fromProfile?: {
       name: string;
-      avatar: string;
+      imgsrc: string;
     };
   };
   communitySlug: string;
@@ -62,11 +62,10 @@ export default function TransactionRow({
   const backgroundColor =
     tx.status === "success" ? "highlight-animation bg-white" : "bg-white";
 
-  const fromProfileImage = tx.fromProfile?.avatar
-    ? tx.fromProfile?.avatar
-    : fromProfile?.image_medium && !fromImageError
-    ? getUrlFromIPFS(fromProfile.image_medium) || ""
-    : getAvatarUrl(tx.from);
+  const fromProfileImage =
+    tx.fromProfile?.imgsrc || (fromProfile?.image_medium && !fromImageError)
+      ? getUrlFromIPFS(fromProfile.image_medium) || ""
+      : getAvatarUrl(tx.from);
 
   return (
     <div className="mr-3 w-full flex flex-col h-24 content-center">

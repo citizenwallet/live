@@ -9,7 +9,7 @@ import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
 import { off } from "process";
-
+import { getTransactions } from "@/lib/opencollective";
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
     name: string;
@@ -53,6 +53,9 @@ class TransferLogic {
 
   private listenerInterval: ReturnType<typeof setInterval> | undefined;
   private listenerIntervalGiveth: ReturnType<typeof setInterval> | undefined;
+  private listenerIntervalOpenCollective:
+    | ReturnType<typeof setInterval>
+    | undefined;
   private listenMaxDate = new Date();
   private listenerFetchLimit = 10;
 
@@ -98,7 +101,23 @@ class TransferLogic {
       }, 1500);
 
       if (
-        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
+        this.accountAddress === "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E" // commonshub
+      ) {
+        this.listenerIntervalOpenCollective = setInterval(async () => {
+          const data = await getTransactions(
+            "commonshub-brussels",
+            this.listenMaxDate,
+            null,
+            this.loaderFetchLimit
+          );
+          console.log(">>> logic: data from opencollective", data);
+          if (data.length > 0) {
+            this.processNewTransfers(data);
+          }
+        }, 5000);
+      }
+      if (
+        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" // regenvillage
       ) {
         this.listenerIntervalGiveth = setInterval(async () => {
           console.log(
@@ -127,6 +146,8 @@ class TransferLogic {
         clearInterval(this.listenerInterval);
         this.listenerIntervalGiveth &&
           clearInterval(this.listenerIntervalGiveth);
+        this.listenerIntervalOpenCollective &&
+          clearInterval(this.listenerIntervalOpenCollective);
       };
     } catch (_) {}
     return () => {};
@@ -166,13 +187,29 @@ class TransferLogic {
 
       console.log(
         ">>> loadFrom",
+        this.accountAddress,
         date,
         offset,
         this.communitySlug,
         this.accountAddress
       );
+
       if (
-        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
+        this.accountAddress === "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E" // commons hub
+      ) {
+        const data = await getTransactions(
+          "commonshub-brussels",
+          date,
+          null,
+          this.loaderFetchLimit
+        );
+        console.log(">>> logic: data from opencollective", data);
+        if (data.length > 0) {
+          transfers.push(...data);
+        }
+      }
+      if (
+        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" // regenvillage
       ) {
         const projectId = 1871;
         const projectAddress = this.accountAddress;

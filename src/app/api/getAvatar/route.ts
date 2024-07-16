@@ -1,19 +1,24 @@
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const accountAddress = request.nextUrl.searchParams.get("accountAddress");
+  const imgsrc = request.nextUrl.searchParams.get("imgsrc");
 
-  if (!accountAddress || accountAddress.length !== 42) {
+  if (!imgsrc) {
     return Response.json(
-      { error: "accountAddress is required and must be a char(42)" },
+      { error: "imgsrc is required and must be a char(42)" },
       { status: 400 }
     );
   }
 
+  const accountAddress =
+    imgsrc.length === 42 && imgsrc.startsWith("0x") ? imgsrc : null;
+
+  const imgsrc_url = accountAddress
+    ? `https://api.multiavatar.com/${accountAddress}.png`
+    : imgsrc;
+
   try {
-    const avatarResponse = await fetch(
-      `https://api.multiavatar.com/${accountAddress}.png`
-    );
+    const avatarResponse = await fetch(imgsrc_url);
     if (!avatarResponse.ok) {
       throw new Error(`Failed to fetch avatar for ${accountAddress}`);
     }
