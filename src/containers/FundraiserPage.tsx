@@ -7,7 +7,7 @@ import TransactionRow from "@/components/TransactionRow";
 import ContributorRow from "@/components/ContributorRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
-import ProgressBar from "@/components/ProgressBar";
+import ProgressBar, { Milestone } from "@/components/ProgressBar";
 import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
@@ -23,6 +23,10 @@ import { Transfer } from "@citizenwallet/sdk";
 import OpencollectiveData from "@/components/OpencollectiveData";
 const dingSound = "/cashing.mp3";
 
+type Settings = {
+  milestones: Milestone[];
+};
+
 function FundraiserPage({
   communityConfig,
   accountAddress,
@@ -36,37 +40,73 @@ function FundraiserPage({
   goal: number;
   collectiveSlug: string;
 }) {
-  const settings =
-    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
-      ? {
-          milestones: [
-            {
-              index: 1,
-              title: "space secured",
-              emoji: "🎉",
-              position: 20,
-            },
-            {
-              index: 2,
-              emoji: "🎉",
-              title: "food & drinks",
-              position: 40,
-            },
-            {
-              index: 3,
-              emoji: "🎉",
-              title: "core contributors",
-              position: 60,
-            },
-            {
-              index: 4,
-              emoji: "🎉",
-              title: "contributors",
-              position: 80,
-            },
-          ],
-        }
-      : {};
+  const settings: Settings = { milestones: [] };
+  switch (accountAddress) {
+    // Commons Hub
+    case "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E":
+      settings.milestones = [
+        {
+          index: 1,
+          title: "rent",
+          emoji: "🎉",
+          cost: 60000,
+        },
+        {
+          index: 2,
+          title: "furniture",
+          emoji: "🎉",
+          cost: 33000,
+        },
+        {
+          index: 3,
+          title: "city taxes",
+          emoji: "🎉",
+          cost: 30000,
+        },
+        {
+          index: 4,
+          emoji: "🎉",
+          title: "1 FTE",
+          cost: 50000,
+        },
+        {
+          index: 5,
+          emoji: "🎉",
+          title: "2 FTE",
+          cost: 50000,
+        },
+      ];
+      break;
+    // Regen Village
+    case "0x32330e05494177CF452F4093290306c4598ddA98":
+      settings.milestones = [
+        {
+          index: 1,
+          title: "space secured",
+          emoji: "🎉",
+          position: 20,
+        },
+        {
+          index: 2,
+          emoji: "🎉",
+          title: "food & drinks",
+          position: 40,
+        },
+        {
+          index: 3,
+          emoji: "🎉",
+          title: "core contributors",
+          position: 60,
+        },
+        {
+          index: 4,
+          emoji: "🎉",
+          title: "contributors",
+          position: 80,
+        },
+      ];
+      break;
+  }
 
   const { width, height } = useWindowSize();
 
@@ -304,9 +344,12 @@ function FundraiserPage({
 
               {collectiveSlug && (
                 <div className="bg-white rounded-3xl ">
-                  <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
+                  <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
                     Expense tracker
                   </h3>
+                  <p className="text-center text-sm mb-4 text-gray-600">
+                    opencollective.com/{collectiveSlug}
+                  </p>
                   <OpencollectiveData
                     collectiveSlug={collectiveSlug}
                     limit={10}
@@ -318,11 +361,11 @@ function FundraiserPage({
             <div className="w-1/2 ml-5">
               <div className="mb-4 w-full">
                 <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden w-full">
-                  <div className="w-full">
+                  <div className="w-full h-full">
                     <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
                       Top contributors
                     </h3>
-                    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full w-full">
+                    <div className="flex flex-wrap flex-row overflow-hidden mt-4 mb-0 h-full w-full">
                       {stats.leaderboard.slice(0, 30).map((entry, index) => (
                         <ContributorRow
                           key={entry.from}
@@ -352,9 +395,12 @@ function FundraiserPage({
             }/${communitySlug}/${accountAddress}/donate`}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
-            <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
-              Latest contributions
+            <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
+              Latest financial contributions
             </h3>
+            <p className="text-center text-sm mb-4 text-gray-600">
+              credit card or crypto donations
+            </p>
 
             {transfers.length > 0 && (
               <div className="w-full h-full">
