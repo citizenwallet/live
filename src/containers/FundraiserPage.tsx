@@ -212,8 +212,10 @@ function FundraiserPage({
   const stats = store((state) => {
     const totalContributedBySender: Record<string, number> =
       state.transfers.reduce((acc, transfer) => {
+        // @ts-ignore
         if (transfer.fromProfile) {
-          fromProfiles[transfer.from] = transfer.fromProfile;
+          // @ts-ignore
+          fromProfiles[transfer.from as any] = transfer.fromProfile;
         }
         acc[transfer.from] = (acc[transfer.from] || 0) + transfer.value;
         return acc;

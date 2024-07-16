@@ -107,7 +107,7 @@ class TransferLogic {
           const data = await getTransactions(
             "commonshub-brussels",
             this.listenMaxDate,
-            null,
+            undefined,
             this.loaderFetchLimit
           );
           console.log(">>> logic: data from opencollective", data);
