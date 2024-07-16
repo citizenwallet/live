@@ -73,6 +73,9 @@ export default function DonateContainer({
     case "0xb03C13759C30d899d2452e9565cEac2aC537611A":
       title = "Contribute to Crypto Kastaar";
       break;
+    case "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E":
+      title = "Contribute to the Commons Hub";
+      break;
     default:
       title = "Top up";
       break;
@@ -98,7 +101,9 @@ export default function DonateContainer({
     <div className="w-full h-screen">
       {success && <Confetti width={width} height={height} />}
       <div className="max-w-xl mx-auto flex justify-center flex-col">
-        <RegenVillageLogo className="my-8 mx-auto" />
+        {accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" && (
+          <RegenVillageLogo className="my-8 mx-auto" />
+        )}
 
         <div>
           {success && (
