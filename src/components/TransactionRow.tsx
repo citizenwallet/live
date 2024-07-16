@@ -71,7 +71,7 @@ export default function TransactionRow({
   return (
     <div className="mr-3 w-full flex flex-col h-24 content-center">
       <div
-        className={`relative flex flex-1 items-center p-2 border-b ${backgroundColor} transition-colors`}
+        className={`relative flex flex-1 items-start p-2 border-b ${backgroundColor} transition-colors`}
       >
         <div className="relative mr-2">
           {onProfileClick && (
