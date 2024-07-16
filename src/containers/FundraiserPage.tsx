@@ -235,9 +235,9 @@ function FundraiserPage({
       leaderboard: leaderboard.sort((a, b) => b.total - a.total),
       totalContributors: leaderboard.length,
     };
+    console.log(">>> stats", res);
     return res;
   });
-  console.log(">>> fromProfiles", fromProfiles);
 
   const totalAmount = store((state) => {
     if (state.account) {
@@ -257,14 +257,7 @@ function FundraiserPage({
   );
   const progress =
     goal && Math.round((parseFloat(totalAmountTransferred) / goal) * 1000) / 10;
-  console.log(
-    ">>> totalAmount",
-    totalAmount,
-    "goal",
-    goal,
-    "progress",
-    progress
-  );
+
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
