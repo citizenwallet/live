@@ -15,6 +15,7 @@ export default function TransactionRow({
   contributorAddress,
   amount,
   profiles,
+  fromProfiles,
   communitySlug,
 }: {
   token: ConfigToken;
@@ -23,6 +24,7 @@ export default function TransactionRow({
   decimals: number;
   communitySlug: string;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
+  fromProfiles?: any[];
 }) {
   const [fromImageError, setFromImageError] = useState<boolean>(false);
 
@@ -57,12 +59,15 @@ export default function TransactionRow({
   };
 
   if (!amount) return null;
-  const avatar =
-    fromProfile?.imgsrc || extraProfiles[contributorAddress]
-      ? extraProfiles[contributorAddress]
-      : fromProfile?.image_medium && !fromImageError
-      ? getUrlFromIPFS(fromProfile.image_medium) || ""
-      : getAvatarUrl(contributorAddress);
+  const profile: any =
+    (fromProfiles && fromProfiles[contributorAddress as any]) || fromProfile;
+  const avatar = profile?.imgsrc
+    ? profile.imgsrc
+    : extraProfiles[contributorAddress]
+    ? extraProfiles[contributorAddress]
+    : profile?.image_medium && !fromImageError
+    ? getUrlFromIPFS(profile.image_medium) || ""
+    : getAvatarUrl(contributorAddress);
   return (
     <div className="flex flex-row w-full mt-4 mb-0 h-full ">
       <div className="flex m-2 w-full">

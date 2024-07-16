@@ -72,13 +72,7 @@ export default function TransactionRow({
     : profile?.image_medium && !fromImageError
     ? getUrlFromIPFS(profile.image_medium) || ""
     : getAvatarUrl(contributorAddress);
-  console.log(
-    ">>> profile for ",
-    contributorAddress,
-    profile,
-    "avatar",
-    avatar
-  );
+
   return (
     <div className="flex m-2">
       <div className="align-center text-center mb-2 w-[80px]">
