@@ -83,8 +83,16 @@ const getGivethData = async (collectiveSlug, take, skip) => {
 };
 
 const Donations = ({ projectId, take, skip, showStatus }) => {
-  const { data, error } = useSWR(projectId, (collectiveSlug) =>
-    getGivethData(collectiveSlug, take, skip)
+  const { data, error } = useSWR(
+    projectId,
+    (collectiveSlug) => getGivethData(collectiveSlug, take, skip),
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 60000, // 1 minute
+      refreshInterval: 20000, // 20s
+      errorRetryCount: 3,
+      errorRetryInterval: 15000, // 15 seconds
+    }
   );
 
   // console.log(">>> error received", error);
