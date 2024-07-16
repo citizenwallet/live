@@ -16,6 +16,7 @@ export default function TransactionRow({
   amount,
   profiles,
   showAmount = true,
+  showUsernames = false,
   communitySlug,
 }: {
   token: ConfigToken;
@@ -24,6 +25,7 @@ export default function TransactionRow({
   decimals: number;
   communitySlug: string;
   showAmount?: boolean;
+  showUsernames?: boolean;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
 }) {
   const [fromImageError, setFromImageError] = useState<boolean>(false);
@@ -87,7 +89,9 @@ export default function TransactionRow({
               <div className="text-center font-bold h-5 overflow-hidden ">
                 {fromProfile.name}
               </div>
-              <div className="text-center">@{fromProfile.username}</div>
+              {showUsernames && (
+                <div className="text-center">@{fromProfile.username}</div>
+              )}
             </div>
           ) : (
             displayAddress(contributorAddress)

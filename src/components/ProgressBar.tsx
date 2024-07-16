@@ -6,7 +6,8 @@ export type Milestone = {
   index: number;
   title: string;
   emoji: string;
-  position: number;
+  position?: number;
+  cost?: number;
 };
 
 const ProgressBarComponent = ({
@@ -20,6 +21,31 @@ const ProgressBarComponent = ({
   tokenSymbol: string;
   milestones: Milestone[] | undefined;
 }) => {
+  const totalCosts =
+    milestones && milestones.reduce((acc, step) => acc + (step.cost || 0), 0);
+
+  const totalGoal = Math.max(goal, totalCosts || 0);
+  let previousPosition = 0;
+  const stepPositions =
+    milestones &&
+    milestones.map((step, index) => {
+      step.position =
+        step.position ||
+        (step.cost &&
+          previousPosition + Math.round((step.cost / totalGoal) * 100)) ||
+        0;
+      previousPosition = step.position;
+      return step.position;
+    });
+
+  console.log(
+    ">>> stepPositions",
+    stepPositions,
+    "totalCosts",
+    totalCosts,
+    "milestones",
+    milestones
+  );
   return (
     <div className="flex flex-row min-h-32 relative w-full mb-8">
       <div className="w-full pt-4">
@@ -30,7 +56,7 @@ const ProgressBarComponent = ({
           hasStepZero={false}
           unfilledBackground="#E6E6E6"
           // @ts-ignore
-          stepPositions={milestones && milestones.map((step) => step.position)}
+          stepPositions={stepPositions}
         >
           {milestones &&
             milestones.map((step, index) => (
