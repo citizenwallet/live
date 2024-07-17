@@ -14,12 +14,13 @@ interface props {
     collectiveSlug?: string;
     from?: string;
     title?: string;
+    showHeader: string;
   };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
-  searchParams: { collectiveSlug, from, title },
+  searchParams: { collectiveSlug, from, title, showHeader = "true" },
 }: props) {
   console.log(
     ">>> communitySlug",
@@ -44,7 +45,7 @@ export default async function Page({
         accountAddress={accountAddress}
         collectiveSlug={collectiveSlug}
         from={from}
-        showHeader={false}
+        showHeader={showHeader === "true"}
       />
       <Footer />
     </Suspense>
