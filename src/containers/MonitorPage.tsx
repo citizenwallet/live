@@ -52,8 +52,9 @@ function MonitorPage({
   const fromDate: Date = from
     ? new Date(from)
     : new Date(new Date().setHours(0, 0, 0, 0));
+
+  // @ts-ignore
   const settings = config[accountAddress];
-  const [listen, setListen] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const { width, height } = useWindowSize();
@@ -82,6 +83,7 @@ function MonitorPage({
 
   function handleToggleSound() {
     if (soundOn) {
+      // @ts-ignore
       window.audio.audioEl.current.muted = true;
       setSoundOn(false);
     } else {
@@ -94,13 +96,11 @@ function MonitorPage({
   }
 
   function handleStartListening() {
-    setListen(true);
     unsubscribeRef.current = actions.listen();
     profilesActions.listenProfiles();
   }
 
   function handleStopListening() {
-    setListen(false);
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }

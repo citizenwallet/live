@@ -28,6 +28,7 @@ function ThankYouPage({
   accountAddress: string;
   collectiveSlug: string;
 }) {
+  // @ts-ignore
   const settings = config[accountAddress];
 
   const { width, height } = useWindowSize();
