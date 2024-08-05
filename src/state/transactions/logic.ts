@@ -8,7 +8,6 @@ import { TransferStore, useTransferStore } from "./state";
 import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
-import { off } from "process";
 import { getTransactions } from "@/lib/opencollective";
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
@@ -34,11 +33,15 @@ class TransferLogic {
   communitySlug: string;
   indexer: IndexerService;
   accountAddress: string | undefined;
+  opencollectiveSlug: string | undefined;
+  givethProjectId: number | undefined;
   onNewTransactions?: ([]) => void;
 
   constructor(
     config: Config,
     accountAddress: string | undefined,
+    opencollectiveSlug: string | undefined,
+    givethProjectId: number | undefined,
     store: () => TransferStore,
     onNewTransactions?: ([]) => void
   ) {
@@ -47,6 +50,8 @@ class TransferLogic {
     this.token = config.token;
     this.communitySlug = config.community.alias;
     this.accountAddress = accountAddress;
+    this.givethProjectId = givethProjectId;
+    this.opencollectiveSlug = opencollectiveSlug;
     this.onNewTransactions = onNewTransactions;
     this.indexer = new IndexerService(config.indexer);
   }
@@ -100,12 +105,10 @@ class TransferLogic {
         }
       }, 1500);
 
-      if (
-        this.accountAddress === "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E" // commonshub
-      ) {
+      if (this.opencollectiveSlug) {
         this.listenerIntervalOpenCollective = setInterval(async () => {
           const data = await getTransactions(
-            "commonshub-brussels",
+            this.opencollectiveSlug || "",
             this.listenMaxDate,
             undefined,
             this.loaderFetchLimit
@@ -114,26 +117,24 @@ class TransferLogic {
           if (data.length > 0) {
             this.processNewTransfers(
               data.map((transfer: any) => {
-                transfer.to = "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E";
+                transfer.to = this.accountAddress;
                 return transfer;
               })
             );
           }
         }, 5000);
       }
-      if (
-        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" // regenvillage
-      ) {
+      if (this.givethProjectId) {
         this.listenerIntervalGiveth = setInterval(async () => {
           console.log(
             "listening for new transfers on giveth",
             this.accountAddress
           );
           try {
-            const projectId = 1871;
-            const projectAddress = this.accountAddress;
             const data = await fetch(
-              `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&fromDate=${this.listenMaxDate.toISOString()}`
+              `/api/giveth?projectId=${this.givethProjectId}&projectAddress=${
+                this.accountAddress
+              }&fromDate=${this.listenMaxDate.toISOString()}`
             );
             const res = await data.json();
             console.log(">>> response from /api/giveth", res);
@@ -190,20 +191,17 @@ class TransferLogic {
           )
         : await this.indexer.getAllNewTransfers(this.token.address, params);
 
-      if (
-        this.accountAddress === "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E" // commons hub
-      ) {
+      if (this.opencollectiveSlug) {
         try {
           const data = await getTransactions(
-            "commonshub-brussels",
+            this.opencollectiveSlug,
             date,
             undefined,
             this.loaderFetchLimit
           );
-          console.log(">>> logic: data from opencollective", data);
           if (data.length > 0) {
             data.map((transfer: any) => {
-              transfer.to = "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E";
+              transfer.to = this.accountAddress;
               transfers.push(transfer);
             });
           }
@@ -211,113 +209,16 @@ class TransferLogic {
           console.error("Unable to fetch transactions from open collective", e);
         }
       }
-      if (
-        this.accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" // regenvillage
-      ) {
-        const projectId = 1871;
-        const projectAddress = this.accountAddress;
-        const apiCall = `/api/giveth?projectId=${projectId}&projectAddress=${projectAddress}&take=${
+      if (this.givethProjectId) {
+        const apiCall = `/api/giveth?projectId=${
+          this.givethProjectId
+        }&projectAddress=${this.accountAddress}&take=${
           this.loaderFetchLimit
         }&skip=${offset}&fromDate=${date.toISOString()}`;
-        console.log(">>> apiCall", apiCall);
         const data = await fetch(apiCall);
         const res = await data.json();
         if (res.transfers.length > 0) {
           transfers.push(...res.transfers);
-        }
-
-        const extraTransfers = [
-          {
-            name: "Superchain",
-            date: "2024-07-04",
-            amount: 10000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
-          },
-          {
-            name: "Tickets via lu.ma",
-            date: "2024-07-11",
-            amount: 6105.78,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
-          },
-          {
-            name: "Blast.io",
-            date: "2024-07-04",
-            amount: 6000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
-          },
-          {
-            name: "Metagov",
-            date: "2024-07-04",
-            amount: 5000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
-          },
-          {
-            name: "Gnosis",
-            date: "2024-07-04",
-            amount: 5000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1603829076346667022/6J-QZXPB_400x400.jpg",
-          },
-          {
-            name: "Kevin Owocki",
-            date: "2024-07-04",
-            amount: 5000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
-          },
-          {
-            name: "Octant",
-            date: "2024-07-04",
-            amount: 5000,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
-          },
-          {
-            name: "Proof of Vibe",
-            date: "2024-07-04",
-            amount: 2286,
-            avatar:
-              "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
-          },
-          {
-            name: "Grants Funding Forum tickets",
-            date: "2024-07-04",
-            amount: 1500.21,
-            avatar:
-              "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/h2/c185b44c-c323-484b-94ff-3ded0f6e586b",
-          },
-        ];
-
-        if (extraTransfers.length > 0 && offset === 0) {
-          extraTransfers.map((tx) => {
-            const transfer: ExtendedTransfer = {
-              nonce: 0,
-              status: "success",
-              hash: "0x" + Math.random().toString(16).substring(2, 64),
-              tx_hash: "0x" + Math.random().toString(16).substring(2, 64),
-              token_id: 1,
-              value: tx.amount * 10 ** 6,
-              created_at: new Date(tx.date),
-              from: tx.name,
-              to: this.accountAddress || "",
-              fromProfile: {
-                name: tx.name,
-                imgsrc: tx.avatar,
-              },
-              data: {
-                description: `Sponsorship of ${tx.amount} euros`,
-                value: tx.amount,
-                currency: "EUR",
-                valueUsd: Math.round(1.08 * tx.amount),
-                via: "IBAN",
-              },
-            };
-            transfers.push(transfer);
-          });
         }
       }
 
@@ -327,7 +228,6 @@ class TransferLogic {
       }
 
       // new items, add them to the store
-      console.log(">>> putTransfers", transfers);
       this.store.putTransfers(transfers);
 
       const isLastPage = transfers.length < this.loaderFetchLimit;
@@ -350,11 +250,19 @@ class TransferLogic {
   setAccount(account: string | null) {
     this.store.setAccount(account);
   }
+  setOpencollectiveSlug(opencollectiveSlug: string | null) {
+    this.store.setOpencollectiveSlug(opencollectiveSlug);
+  }
+  setGivethProjectId(givethProjectId: number | null) {
+    this.store.setGivethProjectId(givethProjectId);
+  }
 }
 
 export const useTransfers = (
   config: Config,
   accountAddress?: string,
+  opencollectiveSlug?: string,
+  givethProjectId?: number,
   onNewTransactions?: ([]) => void
 ): [UseBoundStore<StoreApi<TransferStore>>, TransferLogic] => {
   const transferStore = useTransferStore;
@@ -364,10 +272,19 @@ export const useTransfers = (
       new TransferLogic(
         config,
         accountAddress,
+        opencollectiveSlug,
+        givethProjectId,
         () => transferStore.getState(),
         onNewTransactions
       ),
-    [config, transferStore, accountAddress, onNewTransactions]
+    [
+      config,
+      transferStore,
+      accountAddress,
+      opencollectiveSlug,
+      givethProjectId,
+      onNewTransactions,
+    ]
   );
 
   return [transferStore, transferLogic];

@@ -1,16 +1,16 @@
 "use client";
 
+import config from "../../config.json";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
 import TransactionRow from "@/components/TransactionRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
-import Loading from "@/components/Loading";
 import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
 import Image from "next/image";
-import { PlayIcon } from "@radix-ui/react-icons";
+import { SpeakerLoudIcon, SpeakerOffIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
 import { useProfiles } from "@/state/profiles/logic";
@@ -47,7 +47,14 @@ function MonitorPage({
   from?: string;
   showHeader?: boolean;
 }) {
+  showHeader = showHeader === undefined ? true : showHeader;
+
+  const fromDate: Date = from
+    ? new Date(from)
+    : new Date(new Date().setHours(0, 0, 0, 0));
+  const settings = config[accountAddress];
   const [listen, setListen] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const { width, height } = useWindowSize();
 
@@ -67,27 +74,24 @@ function MonitorPage({
   const [store, actions] = useTransfers(
     communityConfig,
     accountAddress,
+    settings?.opencollectiveSlug,
+    settings?.givethProjectId,
     handleNewTransfers
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
-  useSafeEffect(() => {
-    return () => {
-      profilesActions.stopListeningProfiles();
-    };
-  }, [profilesActions]);
-
-  useEffect(() => {
-    if (from) {
-      actions.loadFrom(new Date(from));
-    }
-
-    // @ts-ignore
-    window.playSound = () => {
+  function handleToggleSound() {
+    if (soundOn) {
+      window.audio.audioEl.current.muted = true;
+      setSoundOn(false);
+    } else {
+      // @ts-ignore
+      window.audio.audioEl.current.muted = false;
       // @ts-ignore
       window.audio.audioEl.current.play();
-    };
-  }, []);
+      setSoundOn(true);
+    }
+  }
 
   function handleStartListening() {
     setListen(true);
@@ -118,6 +122,21 @@ function MonitorPage({
     },
     [profilesActions]
   );
+
+  useSafeEffect(() => {
+    if (settings?.opencollectiveSlug) {
+      actions.setOpencollectiveSlug(settings?.opencollectiveSlug);
+    }
+    if (settings?.givethProjectId) {
+      actions.setGivethProjectId(settings?.givethProjectId);
+    }
+    actions.loadFrom(fromDate);
+    handleStartListening();
+    return () => {
+      profilesActions.stopListeningProfiles();
+      handleStopListening();
+    };
+  }, [settings, profilesActions]);
 
   const transfers = store((state) => {
     if (state.account) {
@@ -214,22 +233,22 @@ function MonitorPage({
                 onChange={(e) => handleFetchFrom(new Date(e.target.value))}
                 disabled={loading}
               />
-              {!listen && (
+              {!soundOn && (
                 <a
-                  onClick={handleStartListening}
-                  title="Start listening"
+                  onClick={handleToggleSound}
+                  title="Sound on"
                   className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
                 >
-                  <PlayIcon />
+                  <SpeakerOffIcon />
                 </a>
               )}
-              {listen && (
+              {soundOn && (
                 <a
-                  onClick={handleStopListening}
-                  title="Stop listening"
+                  onClick={handleToggleSound}
+                  title="Sound off"
                   className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
                 >
-                  <Loading />
+                  <SpeakerLoudIcon />
                 </a>
               )}
             </div>
@@ -311,7 +330,7 @@ function MonitorPage({
                       <TransactionRow
                         tx={transfers[index]}
                         showRecipient={accountAddress ? false : true}
-                        token={communityConfig.token}
+                        config={communityConfig}
                         communitySlug={communitySlug}
                         decimals={communityConfig.token.decimals}
                         profiles={profilesStore}

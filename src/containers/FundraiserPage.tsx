@@ -1,5 +1,6 @@
 "use client";
 
+import config from "../../config.json";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
@@ -8,10 +9,8 @@ import ContributorRow from "@/components/ContributorRow";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import Loading from "@/components/Loading";
 import ProgressBar, { Milestone } from "@/components/ProgressBar";
-import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
-import Image from "next/image";
 import { PlayIcon } from "@radix-ui/react-icons";
 import { LoaderCircleIcon } from "lucide-react";
 import { List, AutoSizer } from "react-virtualized";
@@ -24,6 +23,8 @@ import ExpenseTracker from "@/components/ExpenseTracker";
 const dingSound = "/cashing.mp3";
 
 type Settings = {
+  opencollectiveSlug?: string;
+  givethProjectId?: number;
   milestones: Milestone[];
 };
 
@@ -40,73 +41,7 @@ function FundraiserPage({
   goal: number;
   collectiveSlug: string;
 }) {
-  const settings: Settings = { milestones: [] };
-  switch (accountAddress) {
-    // Commons Hub
-    case "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E":
-      settings.milestones = [
-        {
-          index: 1,
-          title: "rent",
-          emoji: "🎉",
-          cost: 60000,
-        },
-        {
-          index: 2,
-          title: "furniture",
-          emoji: "🎉",
-          cost: 33000,
-        },
-        {
-          index: 3,
-          title: "city taxes",
-          emoji: "🎉",
-          cost: 30000,
-        },
-        {
-          index: 4,
-          emoji: "🎉",
-          title: "1 FTE",
-          cost: 50000,
-        },
-        {
-          index: 5,
-          emoji: "🎉",
-          title: "2 FTE",
-          cost: 50000,
-        },
-      ];
-      break;
-    // Regen Village
-    case "0x32330e05494177CF452F4093290306c4598ddA98":
-      settings.milestones = [
-        {
-          index: 1,
-          title: "space secured",
-          emoji: "🎉",
-          position: 20,
-        },
-        {
-          index: 2,
-          emoji: "🎉",
-          title: "food & drinks",
-          position: 40,
-        },
-        {
-          index: 3,
-          emoji: "🎉",
-          title: "core contributors",
-          position: 60,
-        },
-        {
-          index: 4,
-          emoji: "🎉",
-          title: "contributors",
-          position: 80,
-        },
-      ];
-      break;
-  }
+  const settings: Settings = config[accountAddress] as Settings;
 
   const { width, height } = useWindowSize();
 
@@ -132,6 +67,8 @@ function FundraiserPage({
   const [store, actions] = useTransfers(
     communityConfig,
     accountAddress,
+    settings?.opencollectiveSlug,
+    settings?.givethProjectId,
     handleNewTransactions
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
@@ -163,6 +100,13 @@ function FundraiserPage({
 
   useSafeEffect(() => {
     actions.setAccount(accountAddress);
+
+    if (settings?.opencollectiveSlug) {
+      actions.setOpencollectiveSlug(settings?.opencollectiveSlug);
+    }
+    if (settings?.givethProjectId) {
+      actions.setGivethProjectId(settings?.givethProjectId);
+    }
     actions.loadFrom(new Date("2024-01-01T00:00:00Z"));
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
@@ -235,7 +179,6 @@ function FundraiserPage({
       leaderboard: leaderboard.sort((a, b) => b.total - a.total),
       totalContributors: leaderboard.length,
     };
-    console.log(">>> stats", res);
     return res;
   });
 
@@ -299,7 +242,7 @@ function FundraiserPage({
               percent={progress}
               goal={goal}
               tokenSymbol={communityConfig.token.symbol}
-              milestones={settings.milestones}
+              milestones={settings?.milestones}
             />
           )}
 
@@ -424,7 +367,7 @@ function FundraiserPage({
                         <div key={key} style={style} className="flex flex-row">
                           <TransactionRow
                             tx={transfers[index]}
-                            token={communityConfig.token}
+                            config={communityConfig}
                             communitySlug={communitySlug}
                             decimals={communityConfig.token.decimals}
                             profiles={profilesStore}

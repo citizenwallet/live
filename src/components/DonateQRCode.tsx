@@ -16,7 +16,7 @@ const DonateBox = ({ communitySlug, accountAddress, donateUrl }: propsType) => {
         communitySlug
       );
   return (
-    <div className="text-center w-full h-full">
+    <div className="text-center w-full">
       <div className="flex flex-col items-start justify-around w-full">
         <div
           className="flex bg-white rounded-lg p-4 w-full h-full items-center align-center text-center"

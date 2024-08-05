@@ -1,5 +1,6 @@
 "use client";
 
+import config from "../../config.json";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
@@ -27,37 +28,7 @@ function ThankYouPage({
   accountAddress: string;
   collectiveSlug: string;
 }) {
-  const settings =
-    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98"
-      ? {
-          milestones: [
-            {
-              index: 1,
-              title: "space secured",
-              emoji: "🎉",
-              position: 20,
-            },
-            {
-              index: 2,
-              emoji: "🎉",
-              title: "food & drinks",
-              position: 40,
-            },
-            {
-              index: 3,
-              emoji: "🎉",
-              title: "core contributors",
-              position: 60,
-            },
-            {
-              index: 4,
-              emoji: "🎉",
-              title: "contributors",
-              position: 80,
-            },
-          ],
-        }
-      : {};
+  const settings = config[accountAddress];
 
   const { width, height } = useWindowSize();
 
@@ -83,6 +54,8 @@ function ThankYouPage({
   const [store, actions] = useTransfers(
     communityConfig,
     accountAddress,
+    settings?.opencollectiveSlug,
+    settings?.givethProjectId,
     handleNewTransactions
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
@@ -114,6 +87,12 @@ function ThankYouPage({
 
   useSafeEffect(() => {
     actions.setAccount(accountAddress);
+    if (settings?.opencollectiveSlug) {
+      actions.setOpencollectiveSlug(settings?.opencollectiveSlug);
+    }
+    if (settings?.givethProjectId) {
+      actions.setGivethProjectId(settings?.givethProjectId);
+    }
     actions.loadFrom(new Date("2024-07-01T00:00:00Z"));
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
@@ -299,7 +278,7 @@ function ThankYouPage({
                         <div key={key} style={style} className="flex flex-row">
                           <TransactionRow
                             tx={transfers[index]}
-                            token={communityConfig.token}
+                            config={communityConfig}
                             communitySlug={communitySlug}
                             decimals={communityConfig.token.decimals}
                             profiles={profilesStore}
