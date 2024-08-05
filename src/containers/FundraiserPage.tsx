@@ -41,7 +41,8 @@ function FundraiserPage({
   goal: number;
   collectiveSlug: string;
 }) {
-  const settings: Settings = config[accountAddress] as Settings;
+  // @ts-ignore
+  const settings: Settings = (config[accountAddress] as Settings) || {};
 
   const { width, height } = useWindowSize();
 
