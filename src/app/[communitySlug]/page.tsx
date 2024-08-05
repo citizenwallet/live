@@ -10,12 +10,13 @@ interface props {
   };
   searchParams: {
     accountAddress: string;
+    showHeader: string;
   };
 }
 
 export default async function Page({
   params: { communitySlug },
-  searchParams: { accountAddress },
+  searchParams: { accountAddress, showHeader },
 }: props) {
   const configService = new ConfigService();
 
@@ -30,7 +31,11 @@ export default async function Page({
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <MonitorPage communityConfig={config} accountAddress={accountAddress} />
+      <MonitorPage
+        communityConfig={config}
+        accountAddress={accountAddress}
+        showHeader={showHeader !== "false"}
+      />
       <Footer />
     </Suspense>
   );

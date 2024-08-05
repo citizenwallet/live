@@ -1,0 +1,67 @@
+{
+  "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E": {
+    "opencollectiveSlug": "commonshub-brussels",
+    "milestones": [
+      {
+        "index": 1,
+        "title": "rent",
+        "emoji": "🎉",
+        "cost": 60000
+      },
+      {
+        "index": 2,
+        "title": "furniture",
+        "emoji": "🎉",
+        "cost": 33000
+      },
+      {
+        "index": 3,
+        "title": "city taxes",
+        "emoji": "🎉",
+        "cost": 30000
+      },
+      {
+        "index": 4,
+        "emoji": "🎉",
+        "title": "1 FTE",
+        "cost": 50000
+      },
+      {
+        "index": 5,
+        "emoji": "🎉",
+        "title": "2 FTE",
+        "cost": 50000
+      }
+    ]
+  },
+  "0x32330e05494177CF452F4093290306c4598ddA98": {
+    "opencollectiveSlug": "regen-village",
+    "givethProjectId": 1871,
+    "milestones": [
+      {
+        "index": 1,
+        "title": "space secured",
+        "emoji": "🎉",
+        "position": 20
+      },
+      {
+        "index": 2,
+        "emoji": "🎉",
+        "title": "food & drinks",
+        "position": 40
+      },
+      {
+        "index": 3,
+        "emoji": "🎉",
+        "title": "core contributors",
+        "position": 60
+      },
+      {
+        "index": 4,
+        "emoji": "🎉",
+        "title": "contributors",
+        "position": 80
+      }
+    ]
+  }
+}

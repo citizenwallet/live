@@ -3,7 +3,7 @@ import { displayAddress, getAvatarUrl } from "@/lib/lib";
 import Link from "next/link";
 import HumanNumber from "./HumanNumber";
 import { getUrlFromIPFS } from "@/lib/ipfs";
-import { ConfigToken, Profile, Transfer } from "@citizenwallet/sdk";
+import { Config, Profile, Transfer } from "@citizenwallet/sdk";
 import { formatUnits } from "ethers";
 import { useEffect, useState } from "react";
 import { ProfilesStore } from "@/state/profiles/state";
@@ -11,7 +11,7 @@ import moment from "moment";
 import { StoreApi, UseBoundStore } from "zustand";
 import { on } from "events";
 export default function TransactionRow({
-  token,
+  config,
   tx,
   communitySlug,
   decimals,
@@ -21,7 +21,7 @@ export default function TransactionRow({
   onProfileFetch,
   onProfileClick,
 }: {
-  token: ConfigToken;
+  config: Config;
   tx: Transfer & {
     fromProfile?: {
       name: string;
@@ -39,6 +39,7 @@ export default function TransactionRow({
   const [fromImageError, setFromImageError] = useState<boolean>(false);
   const [toImageError, setToImageError] = useState<boolean>(false);
 
+  const token = config.token;
   const fromProfile: Profile | undefined = profiles(
     (state) => state.profiles[tx.from]
   );
@@ -62,11 +63,19 @@ export default function TransactionRow({
   const backgroundColor =
     tx.status === "success" ? "highlight-animation bg-white" : "bg-white";
 
-  const fromProfileImage = tx.fromProfile?.imgsrc
-    ? tx.fromProfile.imgsrc
-    : fromProfile?.image_medium && !fromImageError
-    ? getUrlFromIPFS(fromProfile?.image_medium) || ""
-    : getAvatarUrl(tx.from);
+  const fromProfileImage =
+    tx.from === "0x0000000000000000000000000000000000000000"
+      ? config.community.logo
+      : tx.fromProfile?.imgsrc
+      ? tx.fromProfile.imgsrc
+      : fromProfile?.image_medium && !fromImageError
+      ? getUrlFromIPFS(fromProfile?.image_medium) || ""
+      : getAvatarUrl(tx.from);
+
+  const txDescription =
+    tx.from === "0x0000000000000000000000000000000000000000"
+      ? "Minting"
+      : tx.data?.description || "No description";
 
   return (
     <div className="mr-3 w-full flex flex-col h-24 content-center">
@@ -100,8 +109,8 @@ export default function TransactionRow({
           )}
           {showRecipient && (
             <div
-              className="  "
-              style={{ position: "absolute", bottom: -5, right: -5 }}
+              className="w-[30px] h-[30px] rounded-full bg-white"
+              style={{ position: "absolute", bottom: -5, right: 0 }}
             >
               {onProfileClick && (
                 <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
@@ -114,8 +123,9 @@ export default function TransactionRow({
                     }
                     width={30}
                     height={30}
+                    fill={true}
                     alt="to avatar"
-                    className="rounded-full object-cover mr-1 max-h-[30px] max-w-[30px]"
+                    className="rounded-full object-fill object-center mr-1 w-full h-full max-h-[30px] max-w-[30px]"
                     onError={handleToImageError}
                   />
                 </a>
@@ -131,7 +141,7 @@ export default function TransactionRow({
                   width={30}
                   height={30}
                   alt="to avatar"
-                  className="rounded-full object-cover mr-1 max-h-[30px] max-w-[30px]"
+                  className="rounded-full object-cover mr-1 w-full h-full object-center max-h-[30px] max-w-[30px]"
                   onError={handleToImageError}
                 />
               )}
@@ -139,9 +149,9 @@ export default function TransactionRow({
           )}
         </div>
         <div className="flex flex-col justify-between w-full">
-          {tx.data && (
+          {txDescription && (
             <div className="text-xl text-[#14023F] font-bold">
-              {tx.data.description || "No description"}
+              {txDescription}
             </div>
           )}
           <div className="flex flex-row align-left w-full">

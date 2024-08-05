@@ -8,12 +8,16 @@ export type TransferStore = {
   fromDate: Date;
   loading: boolean;
   account: string | null;
+  opencollectiveSlug: string | null;
+  givethProjectId: number | null;
   addTransfers: (transfers: Transfer[]) => void;
   putTransfers: (transfers: Transfer[]) => void;
   clearTransfers: () => void;
   setDate: (date: Date) => void;
   startLoadingFromDate: (date: Date) => void;
   setAccount: (account: string | null) => void;
+  setOpencollectiveSlug: (opencollectiveSlug: string | null) => void;
+  setGivethProjectId: (givethProjectId: number | null) => void;
   stopLoadingFromDate: () => void;
 };
 
@@ -24,6 +28,8 @@ const getInitialState = () => ({
   fromDate: new Date(),
   loading: false,
   account: null,
+  opencollectiveSlug: null,
+  givethProjectId: null,
 });
 
 export const useTransferStore = create<TransferStore>((set) => ({
@@ -79,4 +85,8 @@ export const useTransferStore = create<TransferStore>((set) => ({
     }),
   stopLoadingFromDate: () => set({ loading: false }),
   setAccount: (account: string | null) => set({ account }),
+  setOpencollectiveSlug: (opencollectiveSlug: string | null) =>
+    set({ opencollectiveSlug }),
+  setGivethProjectId: (givethProjectId: number | null) =>
+    set({ givethProjectId }),
 }));
