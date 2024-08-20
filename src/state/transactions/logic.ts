@@ -88,7 +88,6 @@ class TransferLogic {
           limit: this.listenerFetchLimit,
           offset: 0,
         };
-        console.log("listening for new transfers", this.accountAddress, params);
         try {
           const { array: transfers = [] } = this.accountAddress
             ? await this.indexer.getNewTransfers(
@@ -126,10 +125,6 @@ class TransferLogic {
       }
       if (this.givethProjectId) {
         this.listenerIntervalGiveth = setInterval(async () => {
-          console.log(
-            "listening for new transfers on giveth",
-            this.accountAddress
-          );
           try {
             const data = await fetch(
               `/api/giveth?projectId=${this.givethProjectId}&projectAddress=${
@@ -229,6 +224,7 @@ class TransferLogic {
 
       // new items, add them to the store
       this.store.putTransfers(transfers);
+      console.log(">>> transfers", transfers);
 
       const isLastPage = transfers.length < this.loaderFetchLimit;
       if (isLastPage) {
