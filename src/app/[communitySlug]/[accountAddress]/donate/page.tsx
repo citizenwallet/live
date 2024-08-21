@@ -12,13 +12,12 @@ interface props {
   };
   searchParams: {
     success: string;
-    collectiveSlug: string;
   };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
-  searchParams: { success, collectiveSlug },
+  searchParams: { success },
 }: props) {
   const configService = new ConfigService();
   const configs = await configService.get(true);
@@ -43,7 +42,6 @@ export default async function Page({
           success={Boolean(success)}
           config={config}
           accountAddress={accountAddress}
-          collectiveSlug={collectiveSlug}
         />
       </Suspense>
     </div>
