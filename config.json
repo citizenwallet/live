@@ -1,6 +1,35 @@
 {
   "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E": {
     "opencollectiveSlug": "commonshub-brussels",
+    "givethProjectId": 3799,
+    "stripe": {
+      "products": [
+        {
+          "name": "Commons Hub Visitor Day Pass",
+          "description": "Visiting Brussels? Or commitment issues? Fear not, come and try the Commons Hub experience for a day.",
+          "amount": 25,
+          "id": "prod_QaSGmp0yf9eWEE"
+        },
+        {
+          "name": "Commons Hub Visitor Week Pass",
+          "description": "Visiting Brussels? Or commitment issues? Fear not, come and try the Commons Hub experience for a week.",
+          "amount": 100,
+          "id": "prod_QaSZ2hp9nfbXkM"
+        },
+        {
+          "name": "Commons Hub Coworker",
+          "description": "Join the community and cowork at the Commons Hub. Enjoy the fast internet, nice view with the trees, easy access from Central Station, free tea / coffee and your own locker.",
+          "amount": 1000,
+          "id": "prod_QaSFANyjA8xLv0"
+        },
+        {
+          "name": "Commons Hub Membership",
+          "description": "Get your membership card and join the Commons Hub Community. You will be part of the members directory, get exclusive access and discounts on all our events and you can enjoy the space with a pay-as-you-go.",
+          "amount": 10,
+          "id": "prod_QaSChjphKYLoVs"
+        }
+      ]
+    },
     "milestones": [
       {
         "index": 1,

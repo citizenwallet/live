@@ -17,6 +17,13 @@ export async function GET(request: NextRequest) {
     ? `https://api.multiavatar.com/${accountAddress}.png`
     : imgsrc;
 
+  if (!imgsrc.match(/https?:\/\//)) {
+    return Response.json(
+      { error: "imgsrc must be a valid URL or an Ethereum address" },
+      { status: 400 }
+    );
+  }
+
   try {
     const avatarResponse = await fetch(imgsrc_url);
     if (!avatarResponse.ok) {

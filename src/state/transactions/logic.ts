@@ -4,11 +4,12 @@ import {
   IndexerService,
   Transfer,
 } from "@citizenwallet/sdk";
-import { TransferStore, useTransferStore } from "./state";
+import { CommunitySettings, TransferStore, useTransferStore } from "./state";
 import { useMemo } from "react";
 import { StoreApi, UseBoundStore } from "zustand";
 import { delay } from "@/lib/delay";
 import { getTransactions } from "@/lib/opencollective";
+import { getTransactions as getStripeTransactions } from "@/lib/stripe";
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
     name: string;
@@ -33,15 +34,16 @@ class TransferLogic {
   communitySlug: string;
   indexer: IndexerService;
   accountAddress: string | undefined;
-  opencollectiveSlug: string | undefined;
+  communitySettings: CommunitySettings | undefined;
+  stripe: any;
   givethProjectId: number | undefined;
+  opencollectiveSlug: string | undefined;
   onNewTransactions?: ([]) => void;
 
   constructor(
     config: Config,
     accountAddress: string | undefined,
-    opencollectiveSlug: string | undefined,
-    givethProjectId: number | undefined,
+    communitySettings: CommunitySettings | undefined,
     store: () => TransferStore,
     onNewTransactions?: ([]) => void
   ) {
@@ -50,14 +52,16 @@ class TransferLogic {
     this.token = config.token;
     this.communitySlug = config.community.alias;
     this.accountAddress = accountAddress;
-    this.givethProjectId = givethProjectId;
-    this.opencollectiveSlug = opencollectiveSlug;
+    this.givethProjectId = communitySettings?.givethProjectId;
+    this.opencollectiveSlug = communitySettings?.opencollectiveSlug;
+    this.stripe = communitySettings?.stripe;
     this.onNewTransactions = onNewTransactions;
     this.indexer = new IndexerService(config.indexer);
   }
 
   private listenerInterval: ReturnType<typeof setInterval> | undefined;
   private listenerIntervalGiveth: ReturnType<typeof setInterval> | undefined;
+  private listenerIntervalStripe: ReturnType<typeof setInterval> | undefined;
   private listenerIntervalOpenCollective:
     | ReturnType<typeof setInterval>
     | undefined;
@@ -104,6 +108,29 @@ class TransferLogic {
         }
       }, 1500);
 
+      if (this.stripe?.products) {
+        this.listenerIntervalStripe = setInterval(async () => {
+          const productIds = this.stripe?.products.map((p) => p.id);
+          const apiCall = `/api/stripe?productIds=${productIds.join(
+            ","
+          )}&limit=${
+            this.loaderFetchLimit
+          }&fromDate=${this.listenMaxDate.toISOString()}`;
+          const res = await fetch(apiCall);
+          const data = await res.json();
+          console.log(">>> logic: data from stripe", data);
+          if (data.length > 0) {
+            this.processNewTransfers(
+              data.map((transfer: any) => {
+                transfer.to = this.accountAddress;
+                transfer.fromProfile.imgsrc =
+                  "https://ipfs.internal.citizenwallet.xyz/QmeTM1Xcssr2g6okS8SnQk9JLaCJcgNJuqH8oeLaMqMzjk";
+                return transfer;
+              })
+            );
+          }
+        }, 15000);
+      }
       if (this.opencollectiveSlug) {
         this.listenerIntervalOpenCollective = setInterval(async () => {
           const data = await getTransactions(
@@ -121,7 +148,7 @@ class TransferLogic {
               })
             );
           }
-        }, 5000);
+        }, 15000);
       }
       if (this.givethProjectId) {
         this.listenerIntervalGiveth = setInterval(async () => {
@@ -140,11 +167,13 @@ class TransferLogic {
             console.error("Error fetching transactions from giveth", e);
             return;
           }
-        }, 5000);
+        }, 7000);
       }
 
       return () => {
         clearInterval(this.listenerInterval);
+        this.listenerIntervalStripe &&
+          clearInterval(this.listenerIntervalStripe);
         this.listenerIntervalGiveth &&
           clearInterval(this.listenerIntervalGiveth);
         this.listenerIntervalOpenCollective &&
@@ -186,6 +215,28 @@ class TransferLogic {
           )
         : await this.indexer.getAllNewTransfers(this.token.address, params);
 
+      if (this.stripe?.products) {
+        try {
+          const productIds = this.stripe?.products.map((p) => p.id);
+          const apiCall = `/api/stripe?productIds=${productIds.join(
+            ","
+          )}&limit=${this.loaderFetchLimit}&fromDate=${date.toISOString()}`;
+          const res = await fetch(apiCall);
+          const data = await res.json();
+
+          if (data.length > 0) {
+            console.log(">>> logic: data from stripe", data);
+            data.map((transfer: any) => {
+              transfer.to = this.accountAddress;
+              transfer.fromProfile.imgsrc =
+                "https://ipfs.internal.citizenwallet.xyz/QmeTM1Xcssr2g6okS8SnQk9JLaCJcgNJuqH8oeLaMqMzjk";
+              transfers.push(transfer);
+            });
+          }
+        } catch (e) {
+          console.error("Unable to fetch transactions from stripe", e);
+        }
+      }
       if (this.opencollectiveSlug) {
         try {
           const data = await getTransactions(
@@ -195,6 +246,7 @@ class TransferLogic {
             this.loaderFetchLimit
           );
           if (data.length > 0) {
+            console.log(">>> logic: data from opencollective", data);
             data.map((transfer: any) => {
               transfer.to = this.accountAddress;
               transfers.push(transfer);
@@ -246,19 +298,15 @@ class TransferLogic {
   setAccount(account: string | null) {
     this.store.setAccount(account);
   }
-  setOpencollectiveSlug(opencollectiveSlug: string | null) {
-    this.store.setOpencollectiveSlug(opencollectiveSlug);
-  }
-  setGivethProjectId(givethProjectId: number | null) {
-    this.store.setGivethProjectId(givethProjectId);
+  setCommunitySettings(communitySettings: CommunitySettings | null) {
+    this.store.setCommunitySettings(communitySettings);
   }
 }
 
 export const useTransfers = (
   config: Config,
   accountAddress?: string,
-  opencollectiveSlug?: string,
-  givethProjectId?: number,
+  communitySettings?: CommunitySettings,
   onNewTransactions?: ([]) => void
 ): [UseBoundStore<StoreApi<TransferStore>>, TransferLogic] => {
   const transferStore = useTransferStore;
@@ -268,8 +316,7 @@ export const useTransfers = (
       new TransferLogic(
         config,
         accountAddress,
-        opencollectiveSlug,
-        givethProjectId,
+        communitySettings,
         () => transferStore.getState(),
         onNewTransactions
       ),
@@ -277,8 +324,7 @@ export const useTransfers = (
       config,
       transferStore,
       accountAddress,
-      opencollectiveSlug,
-      givethProjectId,
+      communitySettings,
       onNewTransactions,
     ]
   );
