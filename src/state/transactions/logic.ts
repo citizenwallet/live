@@ -110,7 +110,7 @@ class TransferLogic {
 
       if (this.stripe?.products) {
         this.listenerIntervalStripe = setInterval(async () => {
-          const productIds = this.stripe?.products.map((p) => p.id);
+          const productIds = this.stripe?.products.map((p: any) => p.id);
           const apiCall = `/api/stripe?productIds=${productIds.join(
             ","
           )}&limit=${
@@ -217,7 +217,7 @@ class TransferLogic {
 
       if (this.stripe?.products) {
         try {
-          const productIds = this.stripe?.products.map((p) => p.id);
+          const productIds = this.stripe?.products.map((p: any) => p.id);
           const apiCall = `/api/stripe?productIds=${productIds.join(
             ","
           )}&limit=${this.loaderFetchLimit}&fromDate=${date.toISOString()}`;

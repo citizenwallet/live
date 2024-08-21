@@ -27,9 +27,11 @@ export default function TransactionRow({
       name: string;
       imgsrc: string;
     };
-    data: TransferData & {
-      via?: string;
-    };
+    data:
+      | null
+      | (TransferData & {
+          via?: string;
+        });
   };
   communitySlug: string;
   decimals: number;
