@@ -31,7 +31,7 @@ export default async function Page({
 
   return (
     <div
-      className="w-full h-full"
+      className="w-full overflow-x-hidden"
       style={{
         backgroundColor: config.community?.theme?.secondary || "#333",
         color: getTextColor(config.community?.theme?.secondary || "#333"),
