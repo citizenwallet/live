@@ -52,7 +52,7 @@ class TransferLogic {
     this.token = config.token;
     this.communitySlug = config.community.alias;
     this.accountAddress = accountAddress;
-    this.givethProjectId = communitySettings?.givethProjectId;
+    this.givethProjectId = communitySettings?.giveth?.projectId;
     this.opencollectiveSlug = communitySettings?.opencollectiveSlug;
     this.stripe = communitySettings?.stripe;
     this.onNewTransactions = onNewTransactions;

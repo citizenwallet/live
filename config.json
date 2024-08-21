@@ -1,32 +1,69 @@
 {
   "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E": {
+    "donatePage": {
+      "title": "Contribute to the Commons Hub"
+    },
     "opencollectiveSlug": "commonshub-brussels",
-    "givethProjectId": 3799,
+    "giveth": {
+      "projectId": 3799,
+      "url": "https://giveth.io/donate/commons-hub-brussels"
+    },
     "stripe": {
       "products": [
         {
-          "name": "Commons Hub Visitor Day Pass",
+          "name": "Visitor Day Pass",
           "description": "Visiting Brussels? Or commitment issues? Fear not, come and try the Commons Hub experience for a day.",
           "amount": 25,
-          "id": "prod_QaSGmp0yf9eWEE"
+          "currency": "EUR",
+          "recurring": "day",
+          "priceDescription": "€25/day",
+          "id": "prod_QaSGmp0yf9eWEE",
+          "url": "https://buy.stripe.com/6oE7tZbxzf36g6c148",
+          "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
         },
         {
-          "name": "Commons Hub Visitor Week Pass",
+          "name": "Visitor Week Pass",
           "description": "Visiting Brussels? Or commitment issues? Fear not, come and try the Commons Hub experience for a week.",
           "amount": 100,
-          "id": "prod_QaSZ2hp9nfbXkM"
+          "currency": "EUR",
+          "recurring": "week",
+          "priceDescription": "€100/week",
+          "id": "prod_QaSZ2hp9nfbXkM",
+          "url": "https://buy.stripe.com/00gdSn3134os07eaEL",
+          "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
         },
         {
-          "name": "Commons Hub Coworker",
-          "description": "Join the community and cowork at the Commons Hub. Enjoy the fast internet, nice view with the trees, easy access from Central Station, free tea / coffee and your own locker.",
-          "amount": 1000,
-          "id": "prod_QaSFANyjA8xLv0"
-        },
-        {
-          "name": "Commons Hub Membership",
+          "name": "Membership",
           "description": "Get your membership card and join the Commons Hub Community. You will be part of the members directory, get exclusive access and discounts on all our events and you can enjoy the space with a pay-as-you-go.",
           "amount": 10,
-          "id": "prod_QaSChjphKYLoVs"
+          "currency": "EUR",
+          "priceDescription": "€10/month (+ 3h shift/year)",
+          "recurring": "month",
+          "id": "prod_QaSChjphKYLoVs",
+          "url": "https://buy.stripe.com/00g9C7dFH8EI07eaEJ",
+          "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
+        },
+        {
+          "name": "Shifter",
+          "description": "Join the community and cowork at the Commons Hub. Enjoy the fast internet, nice view with the trees, easy access from Central Station, free tea / coffee and your own locker.",
+          "amount": 100,
+          "currency": "EUR",
+          "recurring": "month",
+          "priceDescription": "€100/month (+ VAT, + 3h shift/week)",
+          "id": "prod_QhgNmjxgOXIoFa",
+          "url": "https://buy.stripe.com/7sI01xdFH1cgf288wG",
+          "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
+        },
+        {
+          "name": "Coworker",
+          "description": "Join the community and cowork at the Commons Hub. Enjoy the fast internet, nice view with the trees, easy access from Central Station, free tea / coffee and your own locker.",
+          "amount": 250,
+          "currency": "EUR",
+          "recurring": "month",
+          "priceDescription": "€250/month (+ VAT, + 3h shift/month)",
+          "id": "prod_QaSFANyjA8xLv0",
+          "url": "https://buy.stripe.com/bIY29F8lnf368DK6ou",
+          "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
         }
       ]
     },
@@ -63,9 +100,27 @@
       }
     ]
   },
+  "0x84FdEfF8a5bdC8Cd22f8FBd3A4308166F419a773": {
+    "donatePage": {
+      "title": "Contribute to local artists"
+    }
+  },
+  "0xb03C13759C30d899d2452e9565cEac2aC537611A": {
+    "donatePage": {
+      "title": "Contribute to Crypto Kastaar",
+      "amounts": "6,20,5"
+    }
+  },
   "0x32330e05494177CF452F4093290306c4598ddA98": {
+    "donatePage": {
+      "title": "Contribute to the Regen Village",
+      "amounts": "5,10,20,50,100,custom"
+    },
     "opencollectiveSlug": "regen-village",
-    "givethProjectId": 1871,
+    "giveth": {
+      "projectId": 1871,
+      "url": "https://giveth.io/donate/regen-like-us-eth-cc-edition"
+    },
     "milestones": [
       {
         "index": 1,

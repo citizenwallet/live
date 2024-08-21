@@ -8,6 +8,40 @@ import CreditCardIcon from "@/public/creditcard.svg";
 import OrSeparator from "@/public/or-separator.svg";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
+import accountsConfig from "../../config.json";
+import { Milestone } from "@/components/ProgressBar";
+
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  priceDescription: string;
+  url?: string;
+  amount?: number;
+  currency?: string;
+  recurring?: string;
+  image?: string;
+};
+
+type AccountSettings = {
+  [key: string]: Settings;
+};
+
+type Settings = {
+  donatePage?: {
+    title?: string;
+    amounts?: string;
+  };
+  opencollectiveSlug?: string;
+  giveth?: {
+    projectId: number;
+    url?: string;
+  };
+  stripe?: {
+    products: Product[];
+  };
+  milestones?: Milestone[];
+};
 
 const DonateButton = ({
   title,
@@ -42,12 +76,10 @@ export default function DonateContainer({
   accountAddress,
   config,
   success,
-  collectiveSlug,
 }: {
   accountAddress: string;
   config: any;
   success?: boolean;
-  collectiveSlug: string;
 }) {
   const communitySlug = config?.community.alias;
   const { width, height } = useWindowSize();
@@ -60,42 +92,12 @@ export default function DonateContainer({
       : communitySlug
   );
   const redirectUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/${communitySlug}/${accountAddress}/donate`;
-  const givethPlugin = getPlugin(config, "giveth");
   const topupPlugin = getPlugin(config, "Top Up");
-  let title = "";
-  switch (accountAddress) {
-    case "0x32330e05494177CF452F4093290306c4598ddA98":
-      title = "Contribute to the Regen Village";
-      break;
-    case "0x84FdEfF8a5bdC8Cd22f8FBd3A4308166F419a773":
-      title = "Contribute to local artists";
-      break;
-    case "0xb03C13759C30d899d2452e9565cEac2aC537611A":
-      title = "Contribute to Crypto Kastaar";
-      break;
-    case "0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E":
-      title = "Contribute to the Commons Hub";
-      break;
-    default:
-      title = "Top up";
-      break;
-  }
-  const showGivethPlugin =
-    givethPlugin &&
-    accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98";
-
-  let amounts = "1, 2, 5, 10, 20, 50, custom";
-  switch (accountAddress) {
-    case "0x32330e05494177CF452F4093290306c4598ddA98":
-      amounts = "5,10,20,50,100,custom";
-      break;
-    case "0xb03C13759C30d899d2452e9565cEac2aC537611A":
-      amounts = "6,20,5";
-      break;
-    default:
-      amounts = "1, 2, 5, 10, 20, 50, custom";
-      break;
-  }
+  const accountSettings: AccountSettings = accountsConfig;
+  const settings: Settings = accountSettings[accountAddress] || {};
+  const title = settings?.donatePage?.title || "Top Up";
+  const amounts =
+    settings?.donatePage?.amounts || "1, 2, 5, 10, 20, 50, custom";
 
   return (
     <div className="w-full h-screen">
@@ -118,17 +120,36 @@ export default function DonateContainer({
           )}
           {!success && (
             <div className="mx-auto w-full max-w-xs p-4">
-              {showGivethPlugin && (
+              {settings.stripe?.products &&
+                settings.stripe.products.map((product: Product) => (
+                  <DonateButton
+                    key={product.id}
+                    title={product.name}
+                    description={product.priceDescription}
+                    href={product.url || ""}
+                    icon={product.image}
+                  />
+                ))}
+              {settings.stripe?.products && (
+                <div className="flex justify-center w-full text-center mx-auto">
+                  <OrSeparator className="" />
+                </div>
+              )}
+              {settings.giveth && (
                 <div>
                   <DonateButton
                     title="Donate crypto"
                     description="via Giveth"
-                    href={givethPlugin.url}
-                    icon={givethPlugin.icon}
+                    href={settings.giveth.url || ""}
+                    icon={
+                      "https://wallet.regenvillage.brussels/uploads/giveth.svg"
+                    }
                   />
-                  <div className="flex justify-center w-full text-center mx-auto">
-                    <OrSeparator className="" />
-                  </div>
+                  {!settings.stripe?.products && (
+                    <div className="flex justify-center w-full text-center mx-auto">
+                      <OrSeparator className="" />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -141,7 +162,7 @@ export default function DonateContainer({
 
               {topupPlugin && (
                 <div>
-                  {!showGivethPlugin && (
+                  {!settings.giveth && (
                     <div className="flex justify-center w-full text-center mx-auto">
                       <OrSeparator className="" />
                     </div>
@@ -160,11 +181,11 @@ export default function DonateContainer({
                   />
                 </div>
               )}
-              {collectiveSlug && (
+              {settings.opencollectiveSlug && (
                 <DonateButton
                   title="Donate euros"
                   description="via Open Collective"
-                  href={`https://opencollective.com/${collectiveSlug}/donate`}
+                  href={`https://opencollective.com/${settings.opencollectiveSlug}/donate`}
                   icon={<OpenCollectiveIcon width={22} height={22} />}
                 />
               )}

@@ -14,7 +14,10 @@ type StripeSettings = {
 
 export type CommunitySettings = {
   opencollectiveSlug?: string;
-  givethProjectId?: number;
+  giveth?: {
+    projectId?: number;
+    url?: string;
+  };
   stripe?: StripeSettings;
 };
 

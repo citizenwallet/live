@@ -24,7 +24,10 @@ const dingSound = "/cashing.mp3";
 
 type Settings = {
   opencollectiveSlug?: string;
-  givethProjectId?: number;
+  giveth?: {
+    projectId?: number;
+    url?: string;
+  };
   milestones: Milestone[];
 };
 
