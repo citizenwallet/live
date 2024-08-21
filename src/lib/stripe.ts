@@ -62,7 +62,7 @@ export async function getTransactions(
         token_id: parseInt(tx.id),
         value: Math.round(amount * 10 ** 4), // stripe uses cents, stable coins 10**6
         created_at: new Date(tx.created * 1000),
-        from: tx.metadata?.from || tx.billing_details?.name,
+        from: tx.metadata?.from || tx.billing_details?.name || "",
         to:
           tx.metadata?.to ||
           tx.metadata?.to ||
@@ -70,7 +70,7 @@ export async function getTransactions(
           "Stripe",
         networkId: "stripe",
         fromProfile: {
-          name: tx.billing_details?.name,
+          name: tx.billing_details?.name || "",
           imgsrc: "",
         },
         data: undefined,
@@ -78,7 +78,7 @@ export async function getTransactions(
       transfer.data = {
         description: tx.description || "",
         amount: tx.amount,
-        fees: tx.application_fee_amount,
+        fees: tx.application_fee_amount || undefined,
         currency: tx.currency,
         via:
           tx.metadata?.to && tx.metadata?.to.match(/opencollective.com/)
@@ -87,7 +87,9 @@ export async function getTransactions(
       };
 
       if (tx.payment_intent) {
-        const details = await getDetailsFromPaymentIntent(tx.payment_intent);
+        const details = await getDetailsFromPaymentIntent(
+          tx.payment_intent.toString()
+        );
         // if (tx.payment_intent === "pi_3Pm23RFAhaWeDyow04qEjdFH") {
         //   console.log(">>> details", JSON.stringify(details, null, "  "));
         // }
@@ -100,7 +102,7 @@ export async function getTransactions(
           details.lineItems.length > 0
         ) {
           const firstItem = details.lineItems[0];
-          transfer.data.product_id = firstItem?.price?.product;
+          transfer.data.product_id = firstItem?.price?.product.toString();
           transfer.data.price_id = firstItem?.price?.id;
           transfer.data.description = firstItem?.description || "";
           transfer.data.quantity = firstItem?.quantity || undefined;
@@ -109,7 +111,7 @@ export async function getTransactions(
       }
 
       if (product_ids.length > 0) {
-        if (product_ids.includes(transfer.data?.product_id)) {
+        if (product_ids.includes(transfer.data?.product_id || "")) {
           transfers.push(transfer);
         }
       } else {
