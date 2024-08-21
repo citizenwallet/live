@@ -3,7 +3,7 @@ import { displayAddress, getAvatarUrl } from "@/lib/lib";
 import Link from "next/link";
 import HumanNumber from "./HumanNumber";
 import { getUrlFromIPFS } from "@/lib/ipfs";
-import { Config, Profile, Transfer } from "@citizenwallet/sdk";
+import { Config, Profile, Transfer, TransferData } from "@citizenwallet/sdk";
 import { formatUnits } from "ethers";
 import { useEffect, useState } from "react";
 import { ProfilesStore } from "@/state/profiles/state";
@@ -26,6 +26,9 @@ export default function TransactionRow({
     fromProfile?: {
       name: string;
       imgsrc: string;
+    };
+    data: TransferData & {
+      via?: string;
     };
   };
   communitySlug: string;
@@ -188,6 +191,13 @@ export default function TransactionRow({
                   </>
                 )}
               </div>
+              {tx.data?.via && (
+                <div className="flex flex-nowrap mr-2">
+                  <label className="block mr-1 float-left">via:</label>{" "}
+                  {tx.data.via}
+                </div>
+              )}
+
               <div className="flex flex-nowrap">
                 {showRecipient && (
                   <>

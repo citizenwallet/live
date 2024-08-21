@@ -75,8 +75,7 @@ function MonitorPage({
   const [store, actions] = useTransfers(
     communityConfig,
     accountAddress,
-    settings?.opencollectiveSlug,
-    settings?.givethProjectId,
+    settings,
     handleNewTransfers
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
@@ -96,6 +95,9 @@ function MonitorPage({
   }
 
   function handleStartListening() {
+    if (accountAddress) {
+      actions.setAccount(accountAddress);
+    }
     unsubscribeRef.current = actions.listen();
     profilesActions.listenProfiles();
   }
@@ -124,11 +126,8 @@ function MonitorPage({
   );
 
   useSafeEffect(() => {
-    if (settings?.opencollectiveSlug) {
-      actions.setOpencollectiveSlug(settings?.opencollectiveSlug);
-    }
-    if (settings?.givethProjectId) {
-      actions.setGivethProjectId(settings?.givethProjectId);
+    if (settings) {
+      actions.setCommunitySettings(settings);
     }
     actions.loadFrom(fromDate);
     handleStartListening();
@@ -140,9 +139,14 @@ function MonitorPage({
 
   const transfers = store((state) => {
     if (state.account) {
-      return state.transfers.filter(
-        (t) => t.to === state.account || t.from === state.account
-      );
+      return state.transfers
+        .filter((t) => t.to === state.account || t.from === state.account)
+        .map((t) => {
+          if (t.from === state.account) {
+            t.value = -Math.abs(t.value);
+          }
+          return t;
+        });
     } else {
       return state.transfers;
     }

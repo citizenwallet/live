@@ -68,8 +68,7 @@ function FundraiserPage({
   const [store, actions] = useTransfers(
     communityConfig,
     accountAddress,
-    settings?.opencollectiveSlug,
-    settings?.givethProjectId,
+    settings,
     handleNewTransactions
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
@@ -102,11 +101,8 @@ function FundraiserPage({
   useSafeEffect(() => {
     actions.setAccount(accountAddress);
 
-    if (settings?.opencollectiveSlug) {
-      actions.setOpencollectiveSlug(settings?.opencollectiveSlug);
-    }
-    if (settings?.givethProjectId) {
-      actions.setGivethProjectId(settings?.givethProjectId);
+    if (settings) {
+      actions.setCommunitySettings(settings);
     }
     actions.loadFrom(new Date("2024-01-01T00:00:00Z"));
     return () => {
