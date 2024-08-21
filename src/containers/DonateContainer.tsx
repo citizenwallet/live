@@ -100,9 +100,9 @@ export default function DonateContainer({
     settings?.donatePage?.amounts || "1, 2, 5, 10, 20, 50, custom";
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full min-h-screen">
       {success && <Confetti width={width} height={height} />}
-      <div className="max-w-xl mx-auto flex justify-center flex-col">
+      <div className="max-w-xl mx-auto flex justify-center flex-col h-full">
         {accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" && (
           <RegenVillageLogo className="my-8 mx-auto" />
         )}
@@ -119,7 +119,7 @@ export default function DonateContainer({
             </div>
           )}
           {!success && (
-            <div className="mx-auto w-full max-w-xs p-4">
+            <div className="mx-auto w-full max-w-xs p-4 h-full">
               {settings.stripe?.products &&
                 settings.stripe.products.map((product: Product) => (
                   <DonateButton

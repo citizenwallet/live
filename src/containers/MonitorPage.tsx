@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "@ethersproject/units";
 import AudioPlayer from "react-audio-player";
 import TransactionRow from "@/components/TransactionRow";
-import AnimatedNumber from "@/components/AnimatedNumber";
+import StatsBar from "@/components/StatsBar";
 import { displayAddress } from "@/lib/lib";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
@@ -175,14 +175,15 @@ function MonitorPage({
 
   const date = store((state) => state.fromDate);
   const loading = store((state) => state.loading);
-  const totalAmountTransferred = formatUnits(
-    BigInt(totalAmount),
-    communityConfig.token.decimals
+  const totalAmountTransferred = parseFloat(
+    formatUnits(BigInt(totalAmount), communityConfig.token.decimals)
   );
+
+  console.log(">>> rendering transfers", transfers);
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex flex-col flex-1 w-full mx-auto px-3">
+      <div className="h-screen w-screen overflow-hidden flex flex-col flex-1 mx-auto px-3">
         <AudioPlayer
           src={dingSound}
           // @ts-ignore
@@ -259,37 +260,11 @@ function MonitorPage({
           </nav>
         )}
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
-            <div>
-              <div className="text-sm font-medium text-gray-500">
-                Number of Transactions
-              </div>
-              <div className="font-bold">
-                <AnimatedNumber value={totalTransfers} />
-              </div>
-            </div>
-          </div>
-          <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
-            <div>
-              <div className="text-sm font-medium text-gray-500">
-                Total Amount Transferred
-              </div>
-              <div className="font-bold flex items-baseline">
-                <div className="text-right mr-1">
-                  <AnimatedNumber
-                    value={parseFloat(totalAmountTransferred)}
-                    decimals={parseInt(totalAmountTransferred) >= 10000 ? 0 : 2}
-                  />
-                </div>
-                {}{" "}
-                <span className="font-normal text-sm">
-                  {communityConfig.token.symbol}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StatsBar
+          stats={{ totalTransfers, totalAmountTransferred }}
+          currency={communityConfig.token.symbol}
+        />
+
         {loading && (
           <div className="flex justify-center items-center flex-col p-4">
             <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
@@ -298,57 +273,57 @@ function MonitorPage({
             </div>
           </div>
         )}
-      </div>
-      <div className="w-full pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
-        {accountAddress && (
-          <div className="w-1/3 h-[50vh] xl-h-1/3 mx-auto xl:w-full xl:h-full">
-            <DonateQRCode
-              communitySlug={communitySlug}
-              accountAddress={accountAddress}
-              donateUrl={`${
-                process.env.NEXT_PUBLIC_WEBAPP_URL || ""
-              }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
-            />
-          </div>
-        )}
+        <div className="w-full pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
+          {accountAddress && (
+            <div className="w-1/3 h-[420px] xl-h-1/3 mx-auto xl:w-full xl:h-full">
+              <DonateQRCode
+                communitySlug={communitySlug}
+                accountAddress={accountAddress}
+                donateUrl={`${
+                  process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+                }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
+              />
+            </div>
+          )}
 
-        {transfers.length > 0 && (
-          <div className="w-full h-full">
-            <AutoSizer>
-              {({ height, width }) => (
-                <List
-                  width={width}
-                  height={height}
-                  rowHeight={96}
-                  className="bg-white rounded-lg"
-                  rowRenderer={({
-                    index,
-                    key,
-                    style,
-                  }: {
-                    index: number;
-                    key: string;
-                    style: any;
-                  }) => (
-                    <div key={key} style={style} className="flex flex-row">
-                      <TransactionRow
-                        tx={transfers[index]}
-                        showRecipient={accountAddress ? false : true}
-                        config={communityConfig}
-                        communitySlug={communitySlug}
-                        decimals={communityConfig.token.decimals}
-                        profiles={profilesStore}
-                        onProfileFetch={handleProfileFetch}
-                      />
-                    </div>
-                  )}
-                  rowCount={transfers.length}
-                  overscanRowCount={3}
-                />
-              )}
-            </AutoSizer>
-          </div>
-        )}
+          {transfers.length > 0 && (
+            <div className="w-full h-full transactionsList">
+              <AutoSizer>
+                {({ height, width }) => (
+                  <List
+                    width={width}
+                    height={height}
+                    rowHeight={96}
+                    className="bg-white rounded-lg"
+                    rowRenderer={({
+                      index,
+                      key,
+                      style,
+                    }: {
+                      index: number;
+                      key: string;
+                      style: any;
+                    }) => (
+                      <div key={key} style={style} className="flex flex-row">
+                        <TransactionRow
+                          tx={transfers[index]}
+                          showRecipient={accountAddress ? false : true}
+                          config={communityConfig}
+                          communitySlug={communitySlug}
+                          decimals={communityConfig.token.decimals}
+                          profiles={profilesStore}
+                          onProfileFetch={handleProfileFetch}
+                        />
+                      </div>
+                    )}
+                    rowCount={transfers.length}
+                    overscanRowCount={3}
+                  />
+                )}
+              </AutoSizer>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
