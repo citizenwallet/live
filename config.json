@@ -33,6 +33,17 @@
           "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
         },
         {
+          "name": "10 Day Go Pass",
+          "description": "",
+          "amount": 220,
+          "currency": "EUR",
+          "recurring": "week",
+          "priceDescription": "€220",
+          "id": "prod_QjYVJfPTXGjAzS",
+          "url": "https://buy.stripe.com/14k9C7bxz8EI5ry8wI",
+          "image": "https://d1wqzb5bdbcre6.cloudfront.net/77d006d168999bc861ed41ca272c4d8c3d3c8e378afe10d8b96104512ed72076/68747470733a2f2f66696c65732e7374726970652e636f6d2f6c696e6b732f4d44423859574e6a64463878546d3477526d464751576868563256456557393366475a7358327870646d5666516e64745a303155533364795258525864474e6e4f57464a4d5645304d484e55303075716f6b70354f56"
+        },
+        {
           "name": "Membership",
           "description": "Get your membership card and join the Commons Hub Community. You will be part of the members directory, get exclusive access and discounts on all our events and you can enjoy the space with a pay-as-you-go.",
           "amount": 10,
