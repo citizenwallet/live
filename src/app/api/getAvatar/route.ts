@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     ? `https://api.multiavatar.com/${accountAddress}.png`
     : imgsrc;
 
-  if (!imgsrc.match(/https?:\/\//)) {
+  if (!imgsrc_url.match(/https?:\/\//)) {
     return Response.json(
       { error: "imgsrc must be a valid URL or an Ethereum address" },
       { status: 400 }
