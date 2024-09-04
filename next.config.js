@@ -2,26 +2,27 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      { hostname: "giveth.mypinata.cloud" },
-      { hostname: "ipfs.io" },
-      { hostname: "localhost" },
-      { hostname: "pbs.twimg.com" },
-      { hostname: "images.lumacdn.com" },
-      { hostname: "images.opencollective.com" },
+      { hostname: 'giveth.mypinata.cloud' },
+      { hostname: 'ipfs.io' },
+      { hostname: 'localhost' },
+      { hostname: 'pbs.twimg.com' },
+      { hostname: 'images.lumacdn.com' },
+      { hostname: 'images.opencollective.com' },
+      { hostname: 'avatar.vercel.sh' },
       {
-        hostname: "api.multiavatar.com",
+        hostname: 'api.multiavatar.com',
       },
-      { hostname: "ipfs.internal.citizenwallet.xyz" },
+      { hostname: 'ipfs.internal.citizenwallet.xyz' },
     ],
   },
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
-    config.externals.push("pino-pretty", "lokijs", "encoding");
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
     config.module.rules.push({
       test: /\.svg$/,
       use: [
         {
-          loader: "@svgr/webpack",
+          loader: '@svgr/webpack',
           options: {
             svgo: false,
             titleProp: true,

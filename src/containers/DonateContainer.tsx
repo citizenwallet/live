@@ -1,6 +1,6 @@
 "use client";
 
-import { generateReceiveLink } from "@citizenwallet/sdk";
+import { generateReceiveLink, Profile } from "@citizenwallet/sdk";
 import { getPlugin } from "@/lib/citizenwallet";
 import RegenVillageLogo from "@/public/regenvillage.svg";
 import OpenCollectiveIcon from "@/public/opencollective.svg";
@@ -10,6 +10,8 @@ import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import accountsConfig from "../../config.json";
 import { Milestone } from "@/components/ProgressBar";
+import { getUrlFromIPFS } from "@/lib/ipfs";
+import Image from "next/image";
 
 type Product = {
   id: string;
@@ -55,7 +57,7 @@ const DonateButton = ({
   icon?: string | React.ReactNode;
 }) => (
   <a
-    className="flex flex-row items-center bg-white rounded-xl w-full max-w-xs h-16 my-4"
+    className="flex flex-row items-center bg-gray-200 hover:bg-gray-300 rounded-xl w-full max-w-xs h-16 my-4"
     href={href}
   >
     <div className="w-14 flex items-center justify-center">
@@ -73,10 +75,12 @@ const DonateButton = ({
 );
 
 export default function DonateContainer({
+  profile,
   accountAddress,
   config,
   success,
 }: {
+  profile?: Profile;
   accountAddress: string;
   config: any;
   success?: boolean;
@@ -99,10 +103,17 @@ export default function DonateContainer({
   const amounts =
     settings?.donatePage?.amounts || "1, 2, 5, 10, 20, 50, custom";
 
+
+  const avatarImg = getUrlFromIPFS(profile?.image || "") || `https://api.multiavatar.com/${profile?.username}.png`;
   return (
     <div className="w-full min-h-screen">
       {success && <Confetti width={width} height={height} />}
       <div className="max-w-xl mx-auto flex justify-center flex-col h-full">
+      { profile?.username && <div className="flex flex-col items-center pt-6">
+        <Image src={avatarImg} width={100} height={100} className="rounded-full" alt={profile?.username} />
+        <h1 className="text-2xl font-bold mt-4">{profile?.name}</h1>
+        <h1 className="text-lg mb-4">@{profile?.username}</h1>
+        </div>}
         {accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" && (
           <RegenVillageLogo className="my-8 mx-auto" />
         )}

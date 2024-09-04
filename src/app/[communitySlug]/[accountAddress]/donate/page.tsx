@@ -1,8 +1,7 @@
 "use server";
 
-import { generateReceiveLink } from "@citizenwallet/sdk";
 import DonateContainer from "@/containers/DonateContainer";
-import { ConfigService } from "@citizenwallet/sdk";
+import CitizenWalletCommunity from "@/lib/citizenwallet";
 import { Suspense } from "react";
 import { getTextColor } from "@/lib/colors";
 interface props {
@@ -19,11 +18,14 @@ export default async function Page({
   params: { communitySlug, accountAddress },
   searchParams: { success },
 }: props) {
-  const configService = new ConfigService();
-  const configs = await configService.get(true);
-  const config = configs.find(
-    (config: any) => config.community.alias === communitySlug
-  );
+  const cw = new CitizenWalletCommunity(communitySlug);
+  const config = await cw.loadConfig();
+  let profile;
+  if (accountAddress.length !== 42 || !accountAddress.startsWith('0x')) {
+    profile = await cw.getProfileFromUsername(accountAddress);
+  } else {
+    profile = await cw.getProfile(accountAddress);
+  }
 
   if (!config) {
     return <div>Community not found</div>;
@@ -32,16 +34,14 @@ export default async function Page({
   return (
     <div
       className="w-full overflow-x-hidden"
-      style={{
-        backgroundColor: config.community?.theme?.secondary || "#333",
-        color: getTextColor(config.community?.theme?.secondary || "#333"),
-      }}
+     
     >
       <Suspense fallback={<div>Loading...</div>}>
         <DonateContainer
+          profile={profile}
           success={Boolean(success)}
           config={config}
-          accountAddress={accountAddress}
+          accountAddress={profile?.account || accountAddress}
         />
       </Suspense>
     </div>
