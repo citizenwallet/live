@@ -7,7 +7,7 @@ import AudioPlayer from "react-audio-player";
 import TransactionRow from "@/components/TransactionRow";
 import StatsBar from "@/components/StatsBar";
 import { displayAddress } from "@/lib/lib";
-import { Config, useSafeEffect } from "@citizenwallet/sdk";
+import { Config, useSafeEffect, Profile } from "@citizenwallet/sdk";
 import { useTransfers } from "@/state/transactions/logic";
 import Image from "next/image";
 import { SpeakerLoudIcon, SpeakerOffIcon } from "@radix-ui/react-icons";
@@ -39,12 +39,14 @@ function MonitorPage({
   accountAddress,
   collectiveSlug,
   from,
+  profile,
   showHeader,
 }: {
   communityConfig: Config;
   accountAddress: string;
   collectiveSlug?: string;
   from?: string;
+  profile?: Profile;
   showHeader?: boolean;
 }) {
   showHeader = showHeader === undefined ? true : showHeader;
