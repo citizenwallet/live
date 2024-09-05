@@ -3,13 +3,13 @@ import {
   ConfigToken,
   IndexerService,
   Transfer,
-} from "@citizenwallet/sdk";
-import { CommunitySettings, TransferStore, useTransferStore } from "./state";
-import { useMemo } from "react";
-import { StoreApi, UseBoundStore } from "zustand";
-import { delay } from "@/lib/delay";
-import { getTransactions } from "@/lib/opencollective";
-import { getTransactions as getStripeTransactions } from "@/lib/stripe";
+} from '@citizenwallet/sdk';
+import { CommunitySettings, TransferStore, useTransferStore } from './state';
+import { useMemo } from 'react';
+import { StoreApi, UseBoundStore } from 'zustand';
+import { delay } from '@/lib/delay';
+import { getTransactions } from '@/lib/opencollective';
+import { getTransactions as getStripeTransactions } from '@/lib/stripe';
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
     name: string;
@@ -38,14 +38,14 @@ class TransferLogic {
   stripe: any;
   givethProjectId: number | undefined;
   opencollectiveSlug: string | undefined;
-  onNewTransactions?: ([]) => void;
+  onNewTransactions?: (transfers: Transfer[]) => void;
 
   constructor(
     config: Config,
     accountAddress: string | undefined,
     communitySettings: CommunitySettings | undefined,
     store: () => TransferStore,
-    onNewTransactions?: ([]) => void
+    onNewTransactions?: (transfers: Transfer[]) => void
   ) {
     this.store = store();
     this.storeGetter = store;
@@ -103,7 +103,7 @@ class TransferLogic {
 
           this.processNewTransfers(transfers);
         } catch (e) {
-          console.error("Error fetching transactions", e);
+          console.error('Error fetching transactions', e);
           return;
         }
       }, 1500);
@@ -112,19 +112,19 @@ class TransferLogic {
         this.listenerIntervalStripe = setInterval(async () => {
           const productIds = this.stripe?.products.map((p: any) => p.id);
           const apiCall = `/api/stripe?productIds=${productIds.join(
-            ","
+            ','
           )}&limit=${
             this.loaderFetchLimit
           }&fromDate=${this.listenMaxDate.toISOString()}`;
           const res = await fetch(apiCall);
           const data = await res.json();
-          console.log(">>> logic: data from stripe", data);
+          console.log('>>> logic: data from stripe', data);
           if (data.length > 0) {
             this.processNewTransfers(
               data.map((transfer: any) => {
                 transfer.to = this.accountAddress;
                 transfer.fromProfile.imgsrc =
-                  "https://ipfs.internal.citizenwallet.xyz/QmeTM1Xcssr2g6okS8SnQk9JLaCJcgNJuqH8oeLaMqMzjk";
+                  'https://ipfs.internal.citizenwallet.xyz/QmeTM1Xcssr2g6okS8SnQk9JLaCJcgNJuqH8oeLaMqMzjk';
                 return transfer;
               })
             );
@@ -134,12 +134,12 @@ class TransferLogic {
       if (this.opencollectiveSlug) {
         this.listenerIntervalOpenCollective = setInterval(async () => {
           const data = await getTransactions(
-            this.opencollectiveSlug || "",
+            this.opencollectiveSlug || '',
             this.listenMaxDate,
             undefined,
             this.loaderFetchLimit
           );
-          console.log(">>> logic: data from opencollective", data);
+          console.log('>>> logic: data from opencollective', data);
           if (data.length > 0) {
             this.processNewTransfers(
               data.map((transfer: any) => {
@@ -159,12 +159,12 @@ class TransferLogic {
               }&fromDate=${this.listenMaxDate.toISOString()}`
             );
             const res = await data.json();
-            console.log(">>> response from /api/giveth", res);
+            console.log('>>> response from /api/giveth', res);
             if (res.transfers.length > 0) {
               this.processNewTransfers(res.transfers);
             }
           } catch (e) {
-            console.error("Error fetching transactions from giveth", e);
+            console.error('Error fetching transactions from giveth', e);
             return;
           }
         }, 7000);
@@ -219,22 +219,22 @@ class TransferLogic {
         try {
           const productIds = this.stripe?.products.map((p: any) => p.id);
           const apiCall = `/api/stripe?productIds=${productIds.join(
-            ","
+            ','
           )}&limit=${this.loaderFetchLimit}&fromDate=${date.toISOString()}`;
           const res = await fetch(apiCall);
           const data = await res.json();
 
           if (data.length > 0) {
-            console.log(">>> logic: data from stripe", data);
+            console.log('>>> logic: data from stripe', data);
             data.map((transfer: any) => {
               transfer.to = this.accountAddress;
               transfer.fromProfile.imgsrc =
-                "https://ipfs.internal.citizenwallet.xyz/QmeTM1Xcssr2g6okS8SnQk9JLaCJcgNJuqH8oeLaMqMzjk";
+                'https://ipfs.internal.citizenwallet.xyz/QmeTM1Xcssr2g6okS8SnQk9JLaCJcgNJuqH8oeLaMqMzjk';
               transfers.push(transfer);
             });
           }
         } catch (e) {
-          console.error("Unable to fetch transactions from stripe", e);
+          console.error('Unable to fetch transactions from stripe', e);
         }
       }
       if (this.opencollectiveSlug) {
@@ -246,14 +246,14 @@ class TransferLogic {
             this.loaderFetchLimit
           );
           if (data.length > 0) {
-            console.log(">>> logic: data from opencollective", data);
+            console.log('>>> logic: data from opencollective', data);
             data.map((transfer: any) => {
               transfer.to = this.accountAddress;
               transfers.push(transfer);
             });
           }
         } catch (e) {
-          console.error("Unable to fetch transactions from open collective", e);
+          console.error('Unable to fetch transactions from open collective', e);
         }
       }
       if (this.givethProjectId) {
@@ -276,7 +276,7 @@ class TransferLogic {
 
       // new items, add them to the store
       this.store.putTransfers(transfers);
-      console.log(">>> transfers", transfers);
+      console.log('>>> transfers', transfers);
 
       const isLastPage = transfers.length < this.loaderFetchLimit;
       if (isLastPage) {
@@ -291,7 +291,7 @@ class TransferLogic {
 
       return this.loadFrom(date, nextOffset);
     } catch (e) {
-      console.error("loadFrom error", e);
+      console.error('loadFrom error', e);
       this.store.stopLoadingFromDate();
     }
   }
@@ -307,7 +307,7 @@ export const useTransfers = (
   config: Config,
   accountAddress?: string,
   communitySettings?: CommunitySettings,
-  onNewTransactions?: ([]) => void
+  onNewTransactions?: (transfers: Transfer[]) => void
 ): [UseBoundStore<StoreApi<TransferStore>>, TransferLogic] => {
   const transferStore = useTransferStore;
 
