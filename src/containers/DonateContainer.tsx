@@ -110,8 +110,8 @@ export default function DonateContainer({
       {success && <Confetti width={width} height={height} />}
       <div className="max-w-xl mx-auto flex justify-center flex-col h-full">
       { profile?.username && <div className="flex flex-col items-center pt-6">
-        <Image src={avatarImg} width={100} height={100} className="rounded-full" alt={profile?.username} />
-        <h1 className="text-2xl font-bold mt-4">{profile?.name}</h1>
+        <Image src={avatarImg} width={96} height={96} className="rounded-full my-1 h-24 w-24" alt={profile?.username} />
+        <h1 className="text-xl sm:text-2xl font-bold mt-4">{profile?.name}</h1>
         <h1 className="text-lg mb-4">@{profile?.username}</h1>
         </div>}
         {accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" && (

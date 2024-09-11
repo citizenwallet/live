@@ -238,7 +238,7 @@ const TimePicker = ({date}: {date: Date}) => (
                   <div className="flex flex-row items-center justify-center">
                   <Image
                   src={getUrlFromIPFS(profile.image_small) || defaultAvatar}
-                  alt="Token Icon"
+                  alt="Profile avatar"
                   className="rounded-full my-1 h-16 absolute"
                   height={64}
                   width={64}
