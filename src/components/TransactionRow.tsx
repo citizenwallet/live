@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import { ProfilesStore } from "@/state/profiles/state";
 import moment from "moment";
 import { StoreApi, UseBoundStore } from "zustand";
-import { on } from "events";
 
 
 type ExtendedTransfer = Transfer & {
@@ -17,12 +16,12 @@ type ExtendedTransfer = Transfer & {
     name: string;
     imgsrc: string;
   };
-  data: {
-    description: string;
-    value: number;
-    currency: string;
-    valueUsd: number;
-    via: string;
+  data: null | undefined | {
+    description?: string;
+    value?: number;
+    currency?: string;
+    valueUsd?: number;
+    via?: string;
   };
 };
 

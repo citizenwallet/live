@@ -214,6 +214,9 @@ const TimePicker = ({date}: {date: Date}) => (
     )}
   </div>
 )
+
+  const defaultAvatar = `https://api.multiavatar.com/${accountAddress}.png`;
+
   console.log(">>> rendering transfers", transfers);
   return (
     <>
@@ -234,7 +237,7 @@ const TimePicker = ({date}: {date: Date}) => (
                   </div>
                   <div className="flex flex-row items-center justify-center">
                   <Image
-                  src={getUrlFromIPFS(profile.image_small)}
+                  src={getUrlFromIPFS(profile.image_small) || defaultAvatar}
                   alt="Token Icon"
                   className="rounded-full my-1 h-16 absolute"
                   height={64}
