@@ -10,6 +10,22 @@ import { ProfilesStore } from "@/state/profiles/state";
 import moment from "moment";
 import { StoreApi, UseBoundStore } from "zustand";
 import { on } from "events";
+
+
+type ExtendedTransfer = Transfer & {
+  fromProfile?: {
+    name: string;
+    imgsrc: string;
+  };
+  data: {
+    description: string;
+    value: number;
+    currency: string;
+    valueUsd: number;
+    via: string;
+  };
+};
+
 export default function TransactionRow({
   config,
   tx,
@@ -22,17 +38,7 @@ export default function TransactionRow({
   onProfileClick,
 }: {
   config: Config;
-  tx: Transfer & {
-    fromProfile?: {
-      name: string;
-      imgsrc: string;
-    };
-    data:
-      | null
-      | (TransferData & {
-          via?: string;
-        });
-  };
+  tx: ExtendedTransfer;
   communitySlug: string;
   decimals: number;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
@@ -85,7 +91,7 @@ export default function TransactionRow({
   return (
     <div className="mr-3 w-full flex flex-col h-24 content-center">
       <div
-        className={`relative flex flex-1 items-start p-2 border-b ${backgroundColor} transition-colors`}
+        className={`relative flex flex-1 items-start p-0 sm:p-2 border-b ${backgroundColor} transition-colors`}
       >
         <div className="relative mr-2">
           {onProfileClick && (
@@ -96,7 +102,7 @@ export default function TransactionRow({
                 alt="from avatar"
                 width={60}
                 height={60}
-                className="rounded-full object-cover mr-4 max-h-[60px] max-w-[60px]"
+                className="rounded-full object-cover mr-1 sm:mr-4 max-h-[48px] max-w-[48px] sm:max-h-[60px] sm:max-w-[60px]"
                 onError={handleFromImageError}
               />
             </a>
@@ -108,7 +114,7 @@ export default function TransactionRow({
               alt="from avatar"
               width={60}
               height={60}
-              className="rounded-full object-cover mr-4 max-h-[60px] max-w-[60px]"
+              className="rounded-full object-cover mr-1 sm:mr-4 max-h-[48px] max-w-[48px] sm:max-h-[60px] sm:max-w-[60px]"
               onError={handleFromImageError}
             />
           )}
@@ -155,12 +161,12 @@ export default function TransactionRow({
         </div>
         <div className="flex flex-col justify-between w-full">
           {txDescription && (
-            <div className="text-xl text-[#14023F] font-bold">
+            <div className="text-lg sm:text-xl text-[#14023F] font-bold">
               {txDescription}
             </div>
           )}
           <div className="flex flex-row align-left w-full">
-            <div className="flex flex-row flex-wrap text-sm  text-gray-500 font-bold">
+            <div className="flex flex-row flex-wrap text-xs sm:text-sm text-gray-500 font-bold">
               <div className="flex flex-nowrap mr-2">
                 <label className="block mr-1 float-left">from:</label>{" "}
                 {onProfileClick && (
@@ -243,7 +249,7 @@ export default function TransactionRow({
               value={formatUnits(BigInt(tx.value), decimals)}
               precision={2}
             />{" "}
-            <span className="text-sm font-normal">{token.symbol}</span>
+            <span className="text-sm font-normal">{tx.data?.currency || token.symbol}</span>
           </div>
           <div className="text-xs text-gray-500 text-nowrap text-right">
             {datetime === "relative"

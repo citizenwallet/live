@@ -18,6 +18,7 @@ import DonateQRCode from "@/components/DonateQRCode";
 const dingSound = "/cashing.mp3";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
+import { getUrlFromIPFS } from "@/lib/ipfs";
 
 function formatDateToISO(date: Date) {
   // Extract the year, month, and day from the date
@@ -181,6 +182,38 @@ function MonitorPage({
     formatUnits(BigInt(totalAmount), communityConfig.token.decimals)
   );
 
+const TimePicker = ({date}: {date: Date}) => (
+  <div className="flex items-center">
+    <div className="text-sm font-medium text-gray-500 p-2">from</div>
+    <input
+      className="h-6"
+      type="datetime-local"
+      value={formatDateToISO(date)}
+      min="2020-01-01T00:00"
+      max={formatDateToISO(new Date())}
+      onChange={(e) => handleFetchFrom(new Date(e.target.value))}
+      disabled={loading}
+    />
+    {!soundOn && (
+      <a
+        onClick={handleToggleSound}
+        title="Sound on"
+        className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+      >
+        <SpeakerOffIcon />
+      </a>
+    )}
+    {soundOn && (
+      <a
+        onClick={handleToggleSound}
+        title="Sound off"
+        className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+      >
+        <SpeakerLoudIcon />
+      </a>
+    )}
+  </div>
+)
   console.log(">>> rendering transfers", transfers);
   return (
     <>
@@ -192,10 +225,42 @@ function MonitorPage({
           ref={(element) => (window.audio = element)}
         />
         {showHeader && (
-          <nav
-            aria-label="breadcrumb"
-            className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
-          >
+          <>
+            { profile && (
+              <div className="w-full flex items-center justify-center flex-col mt-0">
+                <div className="mb-4">
+                <TimePicker date={date} />
+
+                  </div>
+                  <div className="flex flex-row items-center justify-center">
+                  <Image
+                  src={getUrlFromIPFS(profile.image_small)}
+                  alt="Token Icon"
+                  className="rounded-full my-1 h-16 absolute"
+                  height={64}
+                  width={64}
+                />
+                  <DonateQRCode
+                communitySlug={communitySlug}
+                accountAddress={accountAddress}
+                donateUrl={`${
+                  process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+                }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
+              />
+
+                  </div>
+
+                <div className="text-sm font-medium text-gray-500">
+                  {profile.name}
+                </div>
+                <div className="text-sm font-medium text-gray-500">@{profile.username}</div>
+                </div>
+            )}
+            { !profile && (
+              <nav
+              aria-label="breadcrumb"
+              className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
+            >
             <ol className="list-reset flex items-center ">
               <li>
                 <a
@@ -229,37 +294,11 @@ function MonitorPage({
                 </li>
               )}
             </ol>
-            <div className="flex items-center">
-              <div className="text-sm font-medium text-gray-500 p-2">from</div>
-              <input
-                className="h-6"
-                type="datetime-local"
-                value={formatDateToISO(date)}
-                min="2020-01-01T00:00"
-                max={formatDateToISO(new Date())}
-                onChange={(e) => handleFetchFrom(new Date(e.target.value))}
-                disabled={loading}
-              />
-              {!soundOn && (
-                <a
-                  onClick={handleToggleSound}
-                  title="Sound on"
-                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-                >
-                  <SpeakerOffIcon />
-                </a>
-              )}
-              {soundOn && (
-                <a
-                  onClick={handleToggleSound}
-                  title="Sound off"
-                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-                >
-                  <SpeakerLoudIcon />
-                </a>
-              )}
-            </div>
-          </nav>
+            <TimePicker date={date} />
+        </nav>
+                  )}
+</>
+
         )}
 
         <StatsBar
@@ -275,8 +314,8 @@ function MonitorPage({
             </div>
           </div>
         )}
-        <div className="w-full pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
-          {accountAddress && (
+        <div className="w-full pl-0 md:pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
+          {accountAddress && !profile && (
             <div className="w-1/3 h-[420px] xl-h-1/3 mx-auto xl:w-full xl:h-full">
               <DonateQRCode
                 communitySlug={communitySlug}
