@@ -10,7 +10,7 @@ type PropsType = {
 
 export default function StatsBar({ stats, currency }: PropsType) {
   return (
-    <div className="grid grid-cols-2 gap-4 mb-4">
+    <div className="grid grid-cols-2 gap-4 mb-4 mt-4 sm:mt-0">
       <div className="bg-white shadow rounded-lg p-4 flex items-center justify-between">
         <div>
           <div className="text-sm font-medium text-gray-500">
