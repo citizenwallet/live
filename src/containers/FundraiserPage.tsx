@@ -22,6 +22,20 @@ import { Transfer } from "@citizenwallet/sdk";
 import ExpenseTracker from "@/components/ExpenseTracker";
 const dingSound = "/cashing.mp3";
 
+type ExtendedTransfer = Transfer & {
+  fromProfile?: {
+    name: string;
+    imgsrc: string;
+  };
+  data: {
+    description: string;
+    value: number;
+    currency: string;
+    valueUsd: number;
+    via: string;
+  };
+};
+
 type Settings = {
   opencollectiveSlug?: string;
   giveth?: {
@@ -366,7 +380,7 @@ function FundraiserPage({
                       }) => (
                         <div key={key} style={style} className="flex flex-row">
                           <TransactionRow
-                            tx={transfers[index]}
+                            tx={transfers[index] as ExtendedTransfer}
                             config={communityConfig}
                             communitySlug={communitySlug}
                             decimals={communityConfig.token.decimals}
