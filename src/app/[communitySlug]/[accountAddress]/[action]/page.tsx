@@ -8,6 +8,7 @@ interface props {
   params: {
     communitySlug: string;
     accountAddress: string;
+    action: string;
   };
   searchParams: {
     success: string;
@@ -15,7 +16,7 @@ interface props {
 }
 
 export default async function Page({
-  params: { communitySlug, accountAddress },
+  params: { communitySlug, accountAddress, action },
   searchParams: { success },
 }: props) {
   const cw = new CitizenWalletCommunity(communitySlug);
@@ -41,6 +42,7 @@ export default async function Page({
           profile={profile}
           success={Boolean(success)}
           config={config}
+          action={action}
           accountAddress={profile?.account || accountAddress}
         />
       </Suspense>

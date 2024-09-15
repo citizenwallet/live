@@ -68,7 +68,7 @@ const DonateButton = ({
       )}
     </div>
     <div className="w-full">
-      <div className="text-black text-base">{title}</div>
+      <div className="text-black text-base first-letter:uppercase">{title}</div>
       <div className="text-[#2FA087] text-xs">{description}</div>
     </div>
   </a>
@@ -79,11 +79,13 @@ export default function DonateContainer({
   accountAddress,
   config,
   success,
+  action = "donate",
 }: {
   profile?: Profile;
   accountAddress: string;
   config: any;
   success?: boolean;
+  action: string;
 }) {
   const communitySlug = config?.community.alias;
   const { width, height } = useWindowSize();
@@ -101,7 +103,7 @@ export default function DonateContainer({
   const settings: Settings = accountSettings[accountAddress] || {};
   const title = settings?.donatePage?.title || "Top Up";
   const amounts =
-    settings?.donatePage?.amounts || "1, 2, 5, 10, 20, 50, custom";
+    settings?.donatePage?.amounts || "2, 5, 10, 20, 50, custom";
 
 
   const avatarImg = getUrlFromIPFS(profile?.image || "") || `https://api.multiavatar.com/${profile?.username}.png`;
@@ -149,7 +151,7 @@ export default function DonateContainer({
               {settings.giveth && (
                 <div>
                   <DonateButton
-                    title="Donate crypto"
+                    title={`${action} with crypto`}
                     description="via Giveth"
                     href={settings.giveth.url || ""}
                     icon={
@@ -165,7 +167,7 @@ export default function DonateContainer({
               )}
 
               <DonateButton
-                title="Donate EURb"
+                title={`${action} with Brussels PAY`}
                 description="via Citizen Wallet"
                 href={cwDonateLink}
                 icon="/eurb.svg"
@@ -179,12 +181,12 @@ export default function DonateContainer({
                     </div>
                   )}
                   <DonateButton
-                    title="Donate with credit card"
+                    title={`${action} with credit card`}
                     description="via Stripe"
                     href={`${
                       topupPlugin.url
                     }?account=${accountAddress}&title=${encodeURIComponent(
-                      title
+                      `${action} with credit card`
                     )}&amounts=${amounts}&redirectUrl=${encodeURIComponent(
                       redirectUrl
                     )}`}
@@ -194,7 +196,7 @@ export default function DonateContainer({
               )}
               {settings.opencollectiveSlug && (
                 <DonateButton
-                  title="Donate euros"
+                  title={`${action} with euros`}
                   description="via Open Collective"
                   href={`https://opencollective.com/${settings.opencollectiveSlug}/donate`}
                   icon={<OpenCollectiveIcon width={22} height={22} />}
