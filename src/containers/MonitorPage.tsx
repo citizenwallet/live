@@ -1,34 +1,34 @@
-"use client";
+'use client';
 
-import config from "../../config.json";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { formatUnits } from "@ethersproject/units";
-import AudioPlayer from "react-audio-player";
-import TransactionRow from "@/components/TransactionRow";
-import StatsBar from "@/components/StatsBar";
-import { displayAddress } from "@/lib/lib";
-import { Config, useSafeEffect, Profile } from "@citizenwallet/sdk";
-import { useTransfers } from "@/state/transactions/logic";
-import Image from "next/image";
-import { SpeakerLoudIcon, SpeakerOffIcon } from "@radix-ui/react-icons";
-import { LoaderCircleIcon } from "lucide-react";
-import { List, AutoSizer } from "react-virtualized";
-import { useProfiles } from "@/state/profiles/logic";
-import DonateQRCode from "@/components/DonateQRCode";
-const dingSound = "/cashing.mp3";
-import Confetti from "react-confetti";
-import useWindowSize from "react-use/lib/useWindowSize";
-import { getUrlFromIPFS } from "@/lib/ipfs";
+import config from '../../config.json';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { formatUnits } from '@ethersproject/units';
+import AudioPlayer from 'react-audio-player';
+import TransactionRow from '@/components/TransactionRow';
+import StatsBar from '@/components/StatsBar';
+import { displayAddress } from '@/lib/lib';
+import { Config, useSafeEffect, Profile } from '@citizenwallet/sdk';
+import { useTransfers } from '@/state/transactions/logic';
+import Image from 'next/image';
+import { SpeakerLoudIcon, SpeakerOffIcon } from '@radix-ui/react-icons';
+import { LoaderCircleIcon } from 'lucide-react';
+import { List, AutoSizer } from 'react-virtualized';
+import { useProfiles } from '@/state/profiles/logic';
+import DonateQRCode from '@/components/DonateQRCode';
+const dingSound = '/cashing.mp3';
+import Confetti from 'react-confetti';
+import useWindowSize from 'react-use/lib/useWindowSize';
+import { getUrlFromIPFS } from '@/lib/ipfs';
 
 function formatDateToISO(date: Date) {
   // Extract the year, month, and day from the date
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(date.getDate()).padStart(2, '0');
 
   // Extract the hours and minutes from the date
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
 
   // Combine the parts into the desired format
   const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
@@ -166,6 +166,17 @@ function MonitorPage({
     }
   });
 
+  const uniqueUsers = store((state) => {
+    const filter = (t: any) =>
+      !state.account || t.to === state.account || t.from === state.account;
+    const users = new Set();
+    state.transfers.filter(filter).forEach((t) => {
+      users.add(t.from);
+      users.add(t.to);
+    });
+    return users.size;
+  });
+
   const totalAmount = store((state) => {
     if (state.account) {
       return state.transfers
@@ -182,42 +193,41 @@ function MonitorPage({
     formatUnits(BigInt(totalAmount), communityConfig.token.decimals)
   );
 
-const TimePicker = ({date}: {date: Date}) => (
-  <div className="flex items-center">
-    <div className="text-sm font-medium text-gray-500 p-2">from</div>
-    <input
-      className="h-6"
-      type="datetime-local"
-      value={formatDateToISO(date)}
-      min="2020-01-01T00:00"
-      max={formatDateToISO(new Date())}
-      onChange={(e) => handleFetchFrom(new Date(e.target.value))}
-      disabled={loading}
-    />
-    {!soundOn && (
-      <a
-        onClick={handleToggleSound}
-        title="Sound on"
-        className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-      >
-        <SpeakerOffIcon />
-      </a>
-    )}
-    {soundOn && (
-      <a
-        onClick={handleToggleSound}
-        title="Sound off"
-        className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-      >
-        <SpeakerLoudIcon />
-      </a>
-    )}
-  </div>
-)
+  const TimePicker = ({ date }: { date: Date }) => (
+    <div className="flex items-center">
+      <div className="text-sm font-medium text-gray-500 p-2">from</div>
+      <input
+        className="h-6"
+        type="datetime-local"
+        value={formatDateToISO(date)}
+        min="2020-01-01T00:00"
+        max={formatDateToISO(new Date())}
+        onChange={(e) => handleFetchFrom(new Date(e.target.value))}
+        disabled={loading}
+      />
+      {!soundOn && (
+        <a
+          onClick={handleToggleSound}
+          title="Sound on"
+          className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+        >
+          <SpeakerOffIcon />
+        </a>
+      )}
+      {soundOn && (
+        <a
+          onClick={handleToggleSound}
+          title="Sound off"
+          className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+        >
+          <SpeakerLoudIcon />
+        </a>
+      )}
+    </div>
+  );
 
   const defaultAvatar = `https://api.multiavatar.com/${accountAddress}.png`;
 
-  console.log(">>> rendering transfers", transfers);
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
@@ -229,94 +239,92 @@ const TimePicker = ({date}: {date: Date}) => (
         />
         {showHeader && (
           <>
-            { profile && (
+            {profile && (
               <div className="w-full flex items-center justify-center flex-col mt-0">
                 <div className="mb-4">
-                <TimePicker date={date} />
-
-                  </div>
-                  <div className="flex flex-row items-center justify-center">
+                  <TimePicker date={date} />
+                </div>
+                <div className="flex flex-row items-center justify-center">
                   <Image
-                  src={getUrlFromIPFS(profile.image_small) || defaultAvatar}
-                  alt="Profile avatar"
-                  className="rounded-full my-1 h-16 absolute"
-                  height={64}
-                  width={64}
-                />
+                    src={getUrlFromIPFS(profile.image_small) || defaultAvatar}
+                    alt="Profile avatar"
+                    className="rounded-full my-1 h-16 absolute"
+                    height={64}
+                    width={64}
+                  />
                   <DonateQRCode
-                communitySlug={communitySlug}
-                accountAddress={accountAddress}
-                donateUrl={`${
-                  process.env.NEXT_PUBLIC_WEBAPP_URL || ""
-                }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
-              />
-
-                  </div>
+                    communitySlug={communitySlug}
+                    accountAddress={accountAddress}
+                    donateUrl={`${
+                      process.env.NEXT_PUBLIC_WEBAPP_URL || ''
+                    }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
+                  />
+                </div>
 
                 <div className="text-sm font-medium text-gray-500">
                   {profile.name}
                 </div>
-                <div className="text-sm font-medium text-gray-500">@{profile.username}</div>
+                <div className="text-sm font-medium text-gray-500">
+                  @{profile.username}
                 </div>
+              </div>
             )}
-            { !profile && (
+            {!profile && (
               <nav
-              aria-label="breadcrumb"
-              className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
-            >
-            <ol className="list-reset flex items-center ">
-              <li>
-                <a
-                  onClick={() => actions.setAccount(null)}
-                  href="#"
-                  className="text-blue-600 hover:text-blue-800 min-w-6 block"
-                >
-                  <Image
-                    src={communityConfig.community.logo}
-                    alt="Token Icon"
-                    className="rounded-full mr-1 h-16"
-                    height={64}
-                    width={64}
-                  />
-                </a>
-              </li>
-              <li className="px-2">
-                <a
-                  onClick={() => actions.setAccount(null)}
-                  href="#"
-                  className="text-blue-600 hover:text-blue-800"
-                >
-                  {communityConfig.token.symbol}
-                </a>
-              </li>
-              {accountAddress && (
-                <li className="px-2">
-                  <span className="text-gray-500">
-                    {displayAddress(accountAddress, "medium")}
-                  </span>
-                </li>
-              )}
-            </ol>
-            <TimePicker date={date} />
-        </nav>
+                aria-label="breadcrumb"
+                className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
+              >
+                <ol className="list-reset flex items-center ">
+                  <li>
+                    <a
+                      onClick={() => actions.setAccount(null)}
+                      href="#"
+                      className="text-blue-600 hover:text-blue-800 block"
+                    >
+                      <div className="flex items-center justify-center w-9 h-9 sm:w-16 sm:h-16">
+                        {loading && (
+                          <LoaderCircleIcon className="animate-spin w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
+                        )}
+                        {!loading && (
+                          <Image
+                            src={communityConfig.community.logo}
+                            alt="Token Icon"
+                            className="rounded-full"
+                            height={64}
+                            width={64}
+                          />
+                        )}
+                      </div>
+                    </a>
+                  </li>
+                  <li className="px-1">
+                    <a
+                      onClick={() => actions.setAccount(null)}
+                      href="#"
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      {communityConfig.token.symbol}
+                    </a>
+                  </li>
+                  {accountAddress && (
+                    <li className="px-2">
+                      <span className="text-gray-500">
+                        {displayAddress(accountAddress, 'medium')}
+                      </span>
+                    </li>
                   )}
-</>
-
+                </ol>
+                <TimePicker date={date} />
+              </nav>
+            )}
+          </>
         )}
 
         <StatsBar
-          stats={{ totalTransfers, totalAmountTransferred }}
+          stats={{ totalTransfers, totalAmountTransferred, uniqueUsers }}
           currency={communityConfig.token.symbol}
         />
 
-        {loading && (
-          <div className="flex justify-center items-center flex-col p-4">
-            <LoaderCircleIcon className="animate-spin w-8 h-8 text-blue-500" />
-            <div className="text-sm font-medium text-gray-500">
-              Downloading transactions...
-            </div>
-          </div>
-        )}
         <div className="w-full pl-0 md:pl-3 pr-1 h-full flex flex-col xl:flex-row items-start">
           {accountAddress && !profile && (
             <div className="w-1/3 h-[420px] xl-h-1/3 mx-auto xl:w-full xl:h-full">
@@ -324,7 +332,7 @@ const TimePicker = ({date}: {date: Date}) => (
                 communitySlug={communitySlug}
                 accountAddress={accountAddress}
                 donateUrl={`${
-                  process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+                  process.env.NEXT_PUBLIC_WEBAPP_URL || ''
                 }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
               />
             </div>

@@ -1,28 +1,30 @@
-import Image from "next/image";
-import { displayAddress, getAvatarUrl } from "@/lib/lib";
-import Link from "next/link";
-import HumanNumber from "./HumanNumber";
-import { getUrlFromIPFS } from "@/lib/ipfs";
-import { Config, Profile, Transfer, TransferData } from "@citizenwallet/sdk";
-import { formatUnits } from "ethers";
-import { useEffect, useState } from "react";
-import { ProfilesStore } from "@/state/profiles/state";
-import moment from "moment";
-import { StoreApi, UseBoundStore } from "zustand";
-
+import Image from 'next/image';
+import { displayAddress, getAvatarUrl } from '@/lib/lib';
+import Link from 'next/link';
+import HumanNumber from './HumanNumber';
+import { getUrlFromIPFS } from '@/lib/ipfs';
+import { Config, Profile, Transfer, TransferData } from '@citizenwallet/sdk';
+import { formatUnits } from 'ethers';
+import { useEffect, useState } from 'react';
+import { ProfilesStore } from '@/state/profiles/state';
+import moment from 'moment';
+import { StoreApi, UseBoundStore } from 'zustand';
 
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
     name: string;
     imgsrc: string;
   };
-  data: null | undefined | {
-    description?: string;
-    value?: number;
-    currency?: string;
-    valueUsd?: number;
-    via?: string;
-  };
+  data:
+    | null
+    | undefined
+    | {
+        description?: string;
+        value?: number;
+        currency?: string;
+        valueUsd?: number;
+        via?: string;
+      };
 };
 
 export default function TransactionRow({
@@ -71,27 +73,27 @@ export default function TransactionRow({
   };
 
   const backgroundColor =
-    tx.status === "success" ? "highlight-animation bg-white" : "bg-white";
+    tx.status === 'success' ? 'highlight-animation bg-white' : 'bg-white';
 
   const fromProfileImage =
-    tx.from === "0x0000000000000000000000000000000000000000"
+    tx.from === '0x0000000000000000000000000000000000000000'
       ? config.community.logo
       : tx.fromProfile?.imgsrc
       ? tx.fromProfile.imgsrc
       : fromProfile?.image_medium && !fromImageError
-      ? getUrlFromIPFS(fromProfile?.image_medium) || ""
+      ? getUrlFromIPFS(fromProfile?.image_medium) || ''
       : getAvatarUrl(tx.from);
 
   const txDescription =
-    tx.from === "0x0000000000000000000000000000000000000000"
-      ? "Minting"
-      : tx.data?.description || "No description";
+    tx.from === '0x0000000000000000000000000000000000000000'
+      ? 'Minting'
+      : tx.data?.description || 'No description';
 
   return (
-    <div className="mr-3 w-full flex flex-col h-24 content-center">
-      <div
-        className={`relative flex flex-1 items-start p-0 sm:p-2 border-b ${backgroundColor} transition-colors`}
-      >
+    <div
+      className={`mr-3 py-2 w-full flex flex-col h-24 content-center align-center border-b ${backgroundColor} transition-colors`}
+    >
+      <div className={`relative flex items-start h-20 p-0 sm:p-2`}>
         <div className="relative mr-2">
           {onProfileClick && (
             <a href={`#${tx.from}`} onClick={() => onProfileClick(tx.from)}>
@@ -120,7 +122,7 @@ export default function TransactionRow({
           {showRecipient && (
             <div
               className="w-[30px] h-[30px] rounded-full bg-white"
-              style={{ position: "absolute", bottom: -5, right: 0 }}
+              style={{ position: 'absolute', bottom: -5, right: 0 }}
             >
               {onProfileClick && (
                 <a href={`#${tx.to}`} onClick={() => onProfileClick(tx.to)}>
@@ -128,7 +130,7 @@ export default function TransactionRow({
                     unoptimized
                     src={
                       toProfile?.image_medium && !toImageError
-                        ? getUrlFromIPFS(toProfile.image_medium) || ""
+                        ? getUrlFromIPFS(toProfile.image_medium) || ''
                         : getAvatarUrl(tx.to)
                     }
                     width={30}
@@ -145,7 +147,7 @@ export default function TransactionRow({
                   unoptimized
                   src={
                     toProfile?.image_medium && !toImageError
-                      ? getUrlFromIPFS(toProfile.image_medium) || ""
+                      ? getUrlFromIPFS(toProfile.image_medium) || ''
                       : getAvatarUrl(tx.to)
                   }
                   width={30}
@@ -167,13 +169,13 @@ export default function TransactionRow({
           <div className="flex flex-row align-left w-full">
             <div className="flex flex-row flex-wrap text-xs sm:text-sm text-gray-500 font-bold">
               <div className="flex flex-nowrap mr-2">
-                <label className="block mr-1 float-left">from:</label>{" "}
+                <label className="block mr-1 float-left">from:</label>{' '}
                 {onProfileClick && (
                   <a
                     href={`#${tx.from}`}
                     onClick={() => onProfileClick(tx.from)}
                   >
-                    {tx.fromProfile?.name ? tx.fromProfile?.name : ""}
+                    {tx.fromProfile?.name ? tx.fromProfile?.name : ''}
                     {!tx.fromProfile?.name && fromProfile?.name ? (
                       <div>
                         <span className="font-bold">{fromProfile.name}</span>
@@ -186,7 +188,7 @@ export default function TransactionRow({
                 )}
                 {!onProfileClick && (
                   <>
-                    {tx.fromProfile?.name ? tx.fromProfile?.name : ""}
+                    {tx.fromProfile?.name ? tx.fromProfile?.name : ''}
                     {!tx.fromProfile?.name && fromProfile?.name ? (
                       <div>
                         <span className="font-bold">{fromProfile.name}</span>
@@ -200,7 +202,7 @@ export default function TransactionRow({
               </div>
               {tx.data?.via && (
                 <div className="flex flex-nowrap mr-2">
-                  <label className="block mr-1 float-left">via:</label>{" "}
+                  <label className="block mr-1 float-left">via:</label>{' '}
                   {tx.data.via}
                 </div>
               )}
@@ -208,32 +210,32 @@ export default function TransactionRow({
               <div className="flex flex-nowrap">
                 {showRecipient && (
                   <>
-                    <label className="block mr-1 float-left">to:</label>{" "}
+                    <label className="block mr-1 float-left">to:</label>{' '}
                     {onProfileClick && (
                       <a
                         href={`#${tx.to}`}
                         onClick={() => onProfileClick(tx.to)}
                       >
                         {toProfile?.name ? (
-                          <div>
+                          <div className="whitespace-nowrap sm:whitespace-normal overflow-hidden text-ellipsis max-w-[120px] sm:max-w-full">
                             <span className="font-bold">{toProfile.name}</span>
                             <span>&nbsp;(@{toProfile.username})</span>
                           </div>
                         ) : (
                           displayAddress(tx.to)
-                        )}{" "}
+                        )}{' '}
                       </a>
                     )}
                     {!onProfileClick && (
                       <>
                         {toProfile?.name ? (
-                          <div>
+                          <div className="whitespace-nowrap sm:whitespace-normal overflow-hidden text-ellipsis max-w-[120px] sm:max-w-full">
                             <span className="font-bold">{toProfile.name}</span>
                             <span>&nbsp;(@{toProfile.username})</span>
                           </div>
                         ) : (
                           displayAddress(tx.to)
-                        )}{" "}
+                        )}{' '}
                       </>
                     )}
                   </>
@@ -247,11 +249,13 @@ export default function TransactionRow({
             <HumanNumber
               value={formatUnits(BigInt(tx.value), decimals)}
               precision={2}
-            />{" "}
-            <span className="text-sm font-normal">{tx.data?.currency || token.symbol}</span>
+            />{' '}
+            <span className="text-sm font-normal">
+              {tx.data?.currency || token.symbol}
+            </span>
           </div>
           <div className="text-xs text-gray-500 text-nowrap text-right">
-            {datetime === "relative"
+            {datetime === 'relative'
               ? moment(tx.created_at).fromNow()
               : new Date(tx.created_at).toLocaleString()}
           </div>
