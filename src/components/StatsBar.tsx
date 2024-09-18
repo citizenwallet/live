@@ -11,7 +11,7 @@ type PropsType = {
 
 export default function StatsBar({ stats, currency }: PropsType) {
   return (
-    <div className="flex flex-row justify-between mx-0 sm:mx-2 my-2">
+    <div className="flex flex-row justify-between mx-0 sm:mx-2 my-4">
       {stats.uniqueUsers && (
         <div className="bg-white shadow rounded-lg p-3 sm:p-4 flex items-center justify-between w-1/4 mx-1 sm:mx-2">
           <div>

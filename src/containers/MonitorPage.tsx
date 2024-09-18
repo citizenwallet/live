@@ -174,7 +174,7 @@ function MonitorPage({
       users.add(t.from);
       users.add(t.to);
     });
-    return users.size;
+    return users.size - (state.account ? 1 : 0);
   });
 
   const totalAmount = store((state) => {
@@ -272,7 +272,7 @@ function MonitorPage({
             {!profile && (
               <nav
                 aria-label="breadcrumb"
-                className="flex leading-none text-indigo-600 mb-4 justify-between w-full my-2 h-16"
+                className="flex leading-none text-indigo-600 mb-2 justify-between w-full my-2 h-16"
               >
                 <ol className="list-reset flex items-center ">
                   <li>
