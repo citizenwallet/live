@@ -18,7 +18,7 @@ export default function StatsBar({ stats, currency }: PropsType) {
             <div className="font-bold">
               <AnimatedNumber value={stats.uniqueUsers} />
             </div>
-            <div className="text-sm font-medium text-gray-500">users</div>
+            <div className="text-sm font-medium text-gray-500">accounts</div>
           </div>
         </div>
       )}
