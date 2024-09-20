@@ -362,6 +362,7 @@ function MonitorPage({
                           showRecipient={accountAddress ? false : true}
                           config={communityConfig}
                           communitySlug={communitySlug}
+                          datetime="relative"
                           decimals={communityConfig.token.decimals}
                           profiles={profilesStore}
                           onProfileFetch={handleProfileFetch}

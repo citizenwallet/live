@@ -1,17 +1,19 @@
-import { GraphQLClient, gql } from "graphql-request";
-import AbortController from "abort-controller";
-import { Transfer } from "@citizenwallet/sdk";
+import { GraphQLClient, gql } from 'graphql-request';
+import AbortController from 'abort-controller';
+import { Transfer } from '@citizenwallet/sdk';
 
 type ExtendedTransfer = Transfer & {
+  currency: string;
   fromProfile?: {
     name: string;
     imgsrc: string;
   };
   data: {
     description: string;
-    value?: number;
-    currency: string;
-    valueUsd?: number;
+    originalValue?: number;
+    originalCurrency?: string;
+    valueUSD?: number;
+    valueEUR?: number;
     via: string;
   };
 };
@@ -51,16 +53,16 @@ export const getTransactions = async (
   dateTo?: Date,
   limit?: number
 ) => {
-  if (!collectiveSlug) throw new Error("Missing collectiveSlug");
+  if (!collectiveSlug) throw new Error('Missing collectiveSlug');
 
-  const slugParts = collectiveSlug.split("/");
+  const slugParts = collectiveSlug.split('/');
   const slug = slugParts[slugParts.length - 1];
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
   }, 3000);
   const graphQLClient = new GraphQLClient(
-    process.env.NEXT_PUBLIC_OC_GRAPHQL_API || "",
+    process.env.NEXT_PUBLIC_OC_GRAPHQL_API || '',
     {
       // @ts-ignore
       signal: controller.signal,
@@ -72,7 +74,7 @@ export const getTransactions = async (
       dateFrom,
       limit,
     });
-    console.log(">>> result since", dateFrom, res);
+    console.log('>>> result since', dateFrom, res);
     if (!res.allTransactions) return [];
     const transactions = res.allTransactions || [];
     const transfers: ExtendedTransfer[] = [];
@@ -83,7 +85,7 @@ export const getTransactions = async (
         to: `https://opencollective.com/${slug}`,
         nonce: 0,
         token_id: 0,
-        status: "success",
+        status: 'success',
         created_at: new Date(transaction.createdAt),
         from: `https://opencollective.com/${transaction.fromCollective.slug}`,
         fromProfile: {
@@ -91,18 +93,17 @@ export const getTransactions = async (
           imgsrc: transaction.fromCollective.imageUrl,
         },
         value: (transaction.amount / 100) * 10 ** 6,
+        currency: transaction.hostCurrency,
         data: {
           description: transaction.description,
-          currency: transaction.hostCurrency,
-          value: transaction.amount,
-          via: "Open Collective",
+          via: 'Open Collective',
         },
       });
     });
-    console.log(">>> transfers", transfers);
+    console.log('>>> transfers', transfers);
     return transfers;
   } catch (e) {
-    console.error(">>> error", e);
+    console.error('>>> error', e);
     return [];
   }
 };

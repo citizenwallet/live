@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import config from "../../config.json";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { formatUnits } from "@ethersproject/units";
-import AudioPlayer from "react-audio-player";
-import TransactionRow from "@/components/TransactionRow";
-import ContributorRow from "@/components/ContributorRow";
-import AnimatedNumber from "@/components/AnimatedNumber";
-import Loading from "@/components/Loading";
-import ProgressBar, { Milestone } from "@/components/ProgressBar";
-import { Config, useSafeEffect } from "@citizenwallet/sdk";
-import { useTransfers } from "@/state/transactions/logic";
-import { PlayIcon } from "@radix-ui/react-icons";
-import { LoaderCircleIcon } from "lucide-react";
-import { List, AutoSizer } from "react-virtualized";
-import { useProfiles } from "@/state/profiles/logic";
-import DonateQRCode from "@/components/DonateQRCode";
-import useWindowSize from "react-use/lib/useWindowSize";
-import Confetti from "react-confetti";
-import { Transfer } from "@citizenwallet/sdk";
-import ExpenseTracker from "@/components/ExpenseTracker";
-const dingSound = "/cashing.mp3";
+import config from '../../config.json';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { formatUnits } from '@ethersproject/units';
+import AudioPlayer from 'react-audio-player';
+import TransactionRow from '@/components/TransactionRow';
+import ContributorRow from '@/components/ContributorRow';
+import AnimatedNumber from '@/components/AnimatedNumber';
+import Loading from '@/components/Loading';
+import ProgressBar, { Milestone } from '@/components/ProgressBar';
+import { Config, useSafeEffect } from '@citizenwallet/sdk';
+import { useTransfers } from '@/state/transactions/logic';
+import { PlayIcon } from '@radix-ui/react-icons';
+import { LoaderCircleIcon } from 'lucide-react';
+import { List, AutoSizer } from 'react-virtualized';
+import { useProfiles } from '@/state/profiles/logic';
+import DonateQRCode from '@/components/DonateQRCode';
+import useWindowSize from 'react-use/lib/useWindowSize';
+import Confetti from 'react-confetti';
+import { Transfer } from '@citizenwallet/sdk';
+import ExpenseTracker from '@/components/ExpenseTracker';
+const dingSound = '/cashing.mp3';
 
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
@@ -29,9 +29,9 @@ type ExtendedTransfer = Transfer & {
   };
   data: {
     description: string;
-    value: number;
     currency: string;
-    valueUsd: number;
+    valueUSD: number;
+    valueEUR: number;
     via: string;
   };
 };
@@ -71,7 +71,7 @@ function FundraiserPage({
   const unsubscribeRef = useRef<() => void | undefined>();
 
   const handleNewTransactions = useCallback((transactions: Transfer[]) => {
-    console.log(">>> handleNewTransactions", transactions);
+    console.log('>>> handleNewTransactions', transactions);
     if (transactions.length > 0) {
       // @ts-ignore
       window.playSound();
@@ -121,7 +121,7 @@ function FundraiserPage({
     if (settings) {
       actions.setCommunitySettings(settings);
     }
-    actions.loadFrom(new Date("2024-01-01T00:00:00Z"));
+    actions.loadFrom(new Date('2024-01-01T00:00:00Z'));
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
@@ -274,7 +274,7 @@ function FundraiserPage({
                         }
                       />
                     </div>
-                    {}{" "}
+                    {}{' '}
                     <span className="font-normal text-3xl">
                       {communityConfig.token.symbol}
                     </span>
@@ -349,7 +349,7 @@ function FundraiserPage({
             communitySlug={communitySlug}
             accountAddress={accountAddress}
             donateUrl={`${
-              process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+              process.env.NEXT_PUBLIC_WEBAPP_URL || ''
             }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">

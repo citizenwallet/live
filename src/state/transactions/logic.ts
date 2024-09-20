@@ -19,7 +19,8 @@ type ExtendedTransfer = Transfer & {
     description: string;
     value: number;
     currency: string;
-    valueUsd: number;
+    valueUSD: number;
+    valueEUR: number;
     via: string;
   };
 };

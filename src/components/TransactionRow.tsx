@@ -1,28 +1,29 @@
 import Image from 'next/image';
 import { displayAddress, getAvatarUrl } from '@/lib/lib';
-import Link from 'next/link';
 import HumanNumber from './HumanNumber';
 import { getUrlFromIPFS } from '@/lib/ipfs';
 import { Config, Profile, Transfer, TransferData } from '@citizenwallet/sdk';
 import { formatUnits } from 'ethers';
 import { useEffect, useState } from 'react';
 import { ProfilesStore } from '@/state/profiles/state';
-import moment from 'moment';
 import { StoreApi, UseBoundStore } from 'zustand';
+import DisplayDate from './DisplayDate';
 
 type ExtendedTransfer = Transfer & {
   fromProfile?: {
     name: string;
     imgsrc: string;
   };
+  currency: string;
   data:
     | null
     | undefined
     | {
         description?: string;
-        value?: number;
-        currency?: string;
-        valueUsd?: number;
+        originalValue?: number;
+        originalCurrency?: string;
+        valueEUR?: number;
+        valueUSD?: number;
         via?: string;
       };
 };
@@ -251,13 +252,15 @@ export default function TransactionRow({
               precision={2}
             />{' '}
             <span className="text-sm font-normal">
-              {tx.data?.currency || token.symbol}
+              {tx.currency || token.symbol}
             </span>
           </div>
           <div className="text-xs text-gray-500 text-nowrap text-right">
-            {datetime === 'relative'
-              ? moment(tx.created_at).fromNow()
-              : new Date(tx.created_at).toLocaleString()}
+            <DisplayDate
+              datetime={tx.created_at}
+              relative={datetime === 'relative'}
+              refresh={true}
+            />
           </div>
         </div>
         {/* <div className="absolute bottom-1 right-1 text-xs text-gray-500">
