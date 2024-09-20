@@ -1,17 +1,18 @@
-import { NextRequest } from "next/server";
-import { GraphQLClient, gql } from "graphql-request";
-import AbortController from "abort-controller";
+import { NextRequest } from 'next/server';
+import { GraphQLClient, gql } from 'graphql-request';
+import AbortController from 'abort-controller';
 
-const USD_EUR_FXRATE = parseFloat(process.env.USD_EUR_FXRATE || "0.92");
+const USD_EUR_FXRATE = parseFloat(process.env.USD_EUR_FXRATE || '0.92');
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-export type TransferStatus = "sending" | "pending" | "success" | "fail";
+export type TransferStatus = 'sending' | 'pending' | 'success' | 'fail';
 export interface TransferData {
   description: string;
-  value: number;
-  currency: string;
-  valueUsd: number;
+  originalValue?: number;
+  originalCurrency?: string;
+  valueUSD?: number;
+  valueEUR?: number;
   via: string;
 }
 export interface Transfer {
@@ -27,6 +28,7 @@ export interface Transfer {
   to: string;
   nonce?: number;
   value: number;
+  currency: string;
   data: TransferData | null;
   status: TransferStatus;
   networkId: number;
@@ -96,7 +98,7 @@ const getGivethData = async (
     controller.abort();
   }, 3000);
   const graphQLClient = new GraphQLClient(
-    process.env.GIVETH_GRAPHQL_API || "",
+    process.env.GIVETH_GRAPHQL_API || '',
     {
       // @ts-ignore
       signal: controller.signal,
@@ -106,11 +108,11 @@ const getGivethData = async (
     projectId,
     take,
     skip,
-    orderBy: { field: "CreationDate", direction: "DESC" },
-    status: "verified",
+    orderBy: { field: 'CreationDate', direction: 'DESC' },
+    status: 'verified',
   });
 
-  console.log(">>> filter", fromDate, fromDateTime);
+  console.log('>>> filter', fromDate, fromDateTime);
 
   let filterCondition = (donation: any) => true;
   if (sinceLastId && sinceLastId > 0) {
@@ -125,11 +127,12 @@ const getGivethData = async (
 
   donations.map((donation: any) => {
     transfers.push({
-      status: "success",
+      status: 'success',
       hash: donation.transactionId,
       tx_hash: donation.transactionId,
       token_id: parseInt(donation.id),
       value: Math.round(donation.valueUsd * USD_EUR_FXRATE * 10 ** 6),
+      currency: 'EUR',
       created_at: new Date(donation.createdAt),
       from: donation.user.walletAddress,
       to: projectAddress,
@@ -140,10 +143,11 @@ const getGivethData = async (
       },
       data: {
         description: `Donation of ${donation.amount} ${donation.currency} via Giveth`,
-        value: donation.amount,
-        currency: donation.currency,
-        valueUsd: donation.valueUsd,
-        via: "giveth",
+        originalCurrency: donation.currency,
+        originalValue: donation.amount,
+        valueUSD: donation.valueUsd,
+        valueEUR: Math.round(donation.valueUsd * USD_EUR_FXRATE * 10 ** 6),
+        via: 'giveth',
       },
     });
   });
@@ -158,20 +162,20 @@ const getGivethData = async (
 };
 
 export async function GET(request: NextRequest) {
-  const projectId = request.nextUrl.searchParams.get("projectId");
-  const projectAddress = request.nextUrl.searchParams.get("projectAddress");
-  const take = parseInt(request.nextUrl.searchParams.get("take") || "10");
-  const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0");
-  const fromDate = request.nextUrl.searchParams.get("fromDate") || "";
+  const projectId = request.nextUrl.searchParams.get('projectId');
+  const projectAddress = request.nextUrl.searchParams.get('projectAddress');
+  const take = parseInt(request.nextUrl.searchParams.get('take') || '10');
+  const skip = parseInt(request.nextUrl.searchParams.get('skip') || '0');
+  const fromDate = request.nextUrl.searchParams.get('fromDate') || '';
   const sinceLastId = parseInt(
-    request.nextUrl.searchParams.get("sinceLastId") || "0"
+    request.nextUrl.searchParams.get('sinceLastId') || '0'
   );
   if (!projectId) {
-    return Response.json({ error: "projectId is required" }, { status: 400 });
+    return Response.json({ error: 'projectId is required' }, { status: 400 });
   }
   const data = await getGivethData(
     parseInt(projectId),
-    projectAddress || "",
+    projectAddress || '',
     take,
     skip,
     fromDate,

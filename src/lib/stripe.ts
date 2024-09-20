@@ -1,16 +1,17 @@
 // Import the Stripe library
-import Stripe from "stripe";
+import Stripe from 'stripe';
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET || "");
+const stripe = new Stripe(process.env.STRIPE_SECRET || '');
 
-export type TransferStatus = "sending" | "pending" | "success" | "fail";
+export type TransferStatus = 'sending' | 'pending' | 'success' | 'fail';
 export interface TransferData {
   description: string;
-  amount: number;
   fees?: number;
-  currency: string;
-  valueUsd?: number;
+  originalCurrency?: string;
+  originalValue?: number;
+  valueUSD?: number;
+  valueEUR?: number;
   quantity?: number;
   price_id?: string;
   product_id?: string;
@@ -30,6 +31,7 @@ export interface Transfer {
   to: string;
   nonce?: number;
   value: number;
+  currency: string;
   data: TransferData | undefined;
   status: TransferStatus;
   networkId: number | string;
@@ -56,34 +58,35 @@ export async function getTransactions(
       const amount = tx.amount - (tx.application_fee_amount || 0);
 
       const transfer: Transfer = {
-        status: "success",
+        status: 'success',
         hash: tx.id,
         tx_hash: tx.id,
         token_id: parseInt(tx.id),
         value: Math.round(amount * 10 ** 4), // stripe uses cents, stable coins 10**6
+        currency: tx.currency.toUpperCase(),
         created_at: new Date(tx.created * 1000),
-        from: tx.metadata?.from || tx.billing_details?.name || "",
+        from: tx.metadata?.from || tx.billing_details?.name || '',
         to:
           tx.metadata?.to ||
           tx.metadata?.to ||
           process.env.STRIPE_ACCOUNT_NAME ||
-          "Stripe",
-        networkId: "stripe",
+          'Stripe',
+        networkId: 'stripe',
         fromProfile: {
-          name: tx.billing_details?.name || "",
-          imgsrc: "",
+          name: tx.billing_details?.name || '',
+          imgsrc: '',
         },
         data: undefined,
       };
       transfer.data = {
-        description: tx.description || "",
-        amount: tx.amount,
+        description: tx.description || '',
         fees: tx.application_fee_amount || undefined,
-        currency: tx.currency,
+        originalCurrency: tx.currency,
+        originalValue: tx.amount,
         via:
           tx.metadata?.to && tx.metadata?.to.match(/opencollective.com/)
-            ? "opencollective"
-            : "stripe",
+            ? 'opencollective'
+            : 'stripe',
       };
 
       if (tx.payment_intent) {
@@ -94,7 +97,7 @@ export async function getTransactions(
         //   console.log(">>> details", JSON.stringify(details, null, "  "));
         // }
         if (details?.metadata?.description) {
-          transfer.data.description = details.metadata?.description || "";
+          transfer.data.description = details.metadata?.description || '';
           transfer.to = details.metadata?.accountAddress;
         } else if (
           details &&
@@ -104,14 +107,14 @@ export async function getTransactions(
           const firstItem = details.lineItems[0];
           transfer.data.product_id = firstItem?.price?.product.toString();
           transfer.data.price_id = firstItem?.price?.id;
-          transfer.data.description = firstItem?.description || "";
+          transfer.data.description = firstItem?.description || '';
           transfer.data.quantity = firstItem?.quantity || undefined;
           transfer.data.unit_price = firstItem?.amount_total || undefined;
         }
       }
 
       if (product_ids.length > 0) {
-        if (product_ids.includes(transfer.data?.product_id || "")) {
+        if (product_ids.includes(transfer.data?.product_id || '')) {
           transfers.push(transfer);
         }
       } else {
@@ -121,7 +124,7 @@ export async function getTransactions(
 
     return transfers;
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error('Error fetching transactions:', error);
     throw error;
   }
 }
@@ -144,7 +147,7 @@ async function getInvoiceDetails(invoiceId: string) {
   try {
     // Retrieve the invoice
     const invoice = await stripe.invoices.retrieve(invoiceId, {
-      expand: ["lines.data.price.product"], // Expand to include product details
+      expand: ['lines.data.price.product'], // Expand to include product details
     });
 
     // Log the invoice details
@@ -167,7 +170,7 @@ async function getInvoiceDetails(invoiceId: string) {
     // const firstItem = invoice.lines.data[0];
     return invoice;
   } catch (error) {
-    console.error("Error retrieving invoice details:", error);
+    console.error('Error retrieving invoice details:', error);
     throw error;
   }
 }
