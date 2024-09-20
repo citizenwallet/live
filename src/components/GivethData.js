@@ -1,7 +1,7 @@
-import { GraphQLClient, gql } from "graphql-request";
-import AbortController from "abort-controller";
-import useSWR from "swr";
-import HumanNumber from "./HumanNumber";
+import { GraphQLClient, gql } from 'graphql-request';
+import AbortController from 'abort-controller';
+import useSWR from 'swr';
+import HumanNumber from './HumanNumber';
 
 const query = gql`
   fragment DonationCoreFields on Donation {
@@ -54,9 +54,9 @@ const query = gql`
 `;
 
 const getGivethData = async (collectiveSlug, take, skip) => {
-  if (!collectiveSlug) throw new Error("Missing collectiveSlug");
+  if (!collectiveSlug) throw new Error('Missing collectiveSlug');
 
-  const slugParts = collectiveSlug.split("/");
+  const slugParts = collectiveSlug.split('/');
   const slug = slugParts[slugParts.length - 1];
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
@@ -71,11 +71,11 @@ const getGivethData = async (collectiveSlug, take, skip) => {
       projectId: 1871,
       take: take || 100,
       skip: skip || 0,
-      orderBy: { field: "CreationDate", direction: "DESC" },
-      status: "verified",
+      orderBy: { field: 'CreationDate', direction: 'DESC' },
+      status: 'verified',
     },
     {
-      "cache-control": "no-cache",
+      'cache-control': 'no-cache',
     }
   );
   const result = data.donationsByProjectId;
@@ -118,7 +118,7 @@ const Donations = ({ projectId, take, skip, showStatus }) => {
               </a>
             </div>
             <div className="text-right flex flex-row">
-              {donation.currency}
+              EUR
               <HumanNumber value={donation.amount} />
               {donation.valueUsd !== donation.amount &&
                 `($${donation.valueUsd})`}
