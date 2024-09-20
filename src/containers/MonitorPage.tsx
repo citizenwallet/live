@@ -19,6 +19,7 @@ const dingSound = '/cashing.mp3';
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { getUrlFromIPFS } from '@/lib/ipfs';
+import { ExtendedTransfer } from '../../types';
 
 function formatDateToISO(date: Date) {
   // Extract the year, month, and day from the date
@@ -358,7 +359,7 @@ function MonitorPage({
                     }) => (
                       <div key={key} style={style} className="flex flex-row">
                         <TransactionRow
-                          tx={transfers[index]}
+                          tx={transfers[index] as ExtendedTransfer}
                           showRecipient={accountAddress ? false : true}
                           config={communityConfig}
                           communitySlug={communitySlug}

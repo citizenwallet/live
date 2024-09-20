@@ -1,22 +1,6 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import AbortController from 'abort-controller';
-import { Transfer } from '@citizenwallet/sdk';
-
-type ExtendedTransfer = Transfer & {
-  currency: string;
-  fromProfile?: {
-    name: string;
-    imgsrc: string;
-  };
-  data: {
-    description: string;
-    originalValue?: number;
-    originalCurrency?: string;
-    valueUSD?: number;
-    valueEUR?: number;
-    via: string;
-  };
-};
+import { ExtendedTransfer } from '../../types';
 
 const transactionsQuery = gql`
   query getTransactions(
