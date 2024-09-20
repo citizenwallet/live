@@ -9,21 +9,6 @@ import { useMemo } from 'react';
 import { StoreApi, UseBoundStore } from 'zustand';
 import { delay } from '@/lib/delay';
 import { getTransactions } from '@/lib/opencollective';
-import { getTransactions as getStripeTransactions } from '@/lib/stripe';
-type ExtendedTransfer = Transfer & {
-  fromProfile?: {
-    name: string;
-    imgsrc: string;
-  };
-  data: {
-    description: string;
-    value: number;
-    currency: string;
-    valueUSD: number;
-    valueEUR: number;
-    via: string;
-  };
-};
 
 const getRandomNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;

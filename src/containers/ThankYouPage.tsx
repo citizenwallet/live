@@ -1,23 +1,24 @@
-"use client";
+'use client';
 
-import config from "../../config.json";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { formatUnits } from "@ethersproject/units";
-import AudioPlayer from "react-audio-player";
-import TransactionRow from "@/components/TransactionRow";
-import ContributorRow from "@/components/ContributorRow";
-import Loading from "@/components/Loading";
-import { Config, useSafeEffect } from "@citizenwallet/sdk";
-import { useTransfers } from "@/state/transactions/logic";
-import { PlayIcon } from "@radix-ui/react-icons";
-import { LoaderCircleIcon } from "lucide-react";
-import { List, AutoSizer } from "react-virtualized";
-import { useProfiles } from "@/state/profiles/logic";
-import DonateQRCode from "@/components/DonateQRCode";
-import useWindowSize from "react-use/lib/useWindowSize";
-import Confetti from "react-confetti";
-import { Transfer } from "@citizenwallet/sdk";
-const dingSound = "/cashing.mp3";
+import config from '../../config.json';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { formatUnits } from '@ethersproject/units';
+import AudioPlayer from 'react-audio-player';
+import TransactionRow from '@/components/TransactionRow';
+import ContributorRow from '@/components/ContributorRow';
+import Loading from '@/components/Loading';
+import { Config, useSafeEffect } from '@citizenwallet/sdk';
+import { useTransfers } from '@/state/transactions/logic';
+import { PlayIcon } from '@radix-ui/react-icons';
+import { LoaderCircleIcon } from 'lucide-react';
+import { List, AutoSizer } from 'react-virtualized';
+import { useProfiles } from '@/state/profiles/logic';
+import DonateQRCode from '@/components/DonateQRCode';
+import useWindowSize from 'react-use/lib/useWindowSize';
+import Confetti from 'react-confetti';
+import { Transfer } from '@citizenwallet/sdk';
+const dingSound = '/cashing.mp3';
+import { ExtendedTransfer } from '../../types';
 
 function ThankYouPage({
   communityConfig,
@@ -41,7 +42,7 @@ function ThankYouPage({
   const unsubscribeRef = useRef<() => void | undefined>();
 
   const handleNewTransactions = useCallback((transactions: Transfer[]) => {
-    console.log(">>> handleNewTransactions", transactions);
+    console.log('>>> handleNewTransactions', transactions);
     if (transactions.length > 0) {
       // @ts-ignore
       window.playSound();
@@ -90,7 +91,7 @@ function ThankYouPage({
     if (settings) {
       actions.setCommunitySettings(settings);
     }
-    actions.loadFrom(new Date("2024-07-01T00:00:00Z"));
+    actions.loadFrom(new Date('2024-07-01T00:00:00Z'));
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
@@ -246,7 +247,7 @@ function ThankYouPage({
             communitySlug={communitySlug}
             accountAddress={accountAddress}
             donateUrl={`${
-              process.env.NEXT_PUBLIC_WEBAPP_URL || ""
+              process.env.NEXT_PUBLIC_WEBAPP_URL || ''
             }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
@@ -274,7 +275,7 @@ function ThankYouPage({
                       }) => (
                         <div key={key} style={style} className="flex flex-row">
                           <TransactionRow
-                            tx={transfers[index]}
+                            tx={transfers[index] as ExtendedTransfer}
                             config={communityConfig}
                             communitySlug={communitySlug}
                             decimals={communityConfig.token.decimals}

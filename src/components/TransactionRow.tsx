@@ -8,25 +8,7 @@ import { useEffect, useState } from 'react';
 import { ProfilesStore } from '@/state/profiles/state';
 import { StoreApi, UseBoundStore } from 'zustand';
 import DisplayDate from './DisplayDate';
-
-type ExtendedTransfer = Transfer & {
-  fromProfile?: {
-    name: string;
-    imgsrc: string;
-  };
-  currency: string;
-  data:
-    | null
-    | undefined
-    | {
-        description?: string;
-        originalValue?: number;
-        originalCurrency?: string;
-        valueEUR?: number;
-        valueUSD?: number;
-        via?: string;
-      };
-};
+import { ExtendedTransfer } from '../../types';
 
 export default function TransactionRow({
   config,

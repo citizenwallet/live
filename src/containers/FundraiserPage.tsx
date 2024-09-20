@@ -21,20 +21,7 @@ import Confetti from 'react-confetti';
 import { Transfer } from '@citizenwallet/sdk';
 import ExpenseTracker from '@/components/ExpenseTracker';
 const dingSound = '/cashing.mp3';
-
-type ExtendedTransfer = Transfer & {
-  fromProfile?: {
-    name: string;
-    imgsrc: string;
-  };
-  data: {
-    description: string;
-    currency: string;
-    valueUSD: number;
-    valueEUR: number;
-    via: string;
-  };
-};
+import { ExtendedTransfer } from '../../types';
 
 type Settings = {
   opencollectiveSlug?: string;
