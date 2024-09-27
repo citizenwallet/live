@@ -1,7 +1,7 @@
-import { ConfigService } from "@citizenwallet/sdk";
-import { Box, Container, Link, Text } from "@radix-ui/themes";
-import Loading from "../components/Loading";
-import Image from "next/image";
+import { ConfigService } from '@citizenwallet/sdk';
+import { Box, Container, Link, Text } from '@radix-ui/themes';
+import Loading from '../components/Loading';
+import Image from 'next/image';
 async function HomePage(request) {
   const configService = new ConfigService();
   const configs = await configService.get();
@@ -20,6 +20,11 @@ async function HomePage(request) {
             <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
               <Link href="/fundraiser/wallet.pay.brussels/0xE5c30d9f83C2FfFf6995d27F340F2BdBB997747E?collectiveSlug=commonshub-brussels&from=2024-07-14&title=Fund%20the%20Commons%20Hub&goal=250000">
                 Commons Hub Brussels Fundraiser
+              </Link>
+            </li>
+            <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
+              <Link href="/wallet.pay.brussels/fridge">
+                Commons Hub Brussels Fridge
               </Link>
             </li>
             <li className="border-gray-200 rounded-lg my-2 p-2 border-2">
@@ -67,7 +72,7 @@ async function HomePage(request) {
                         width={24}
                         height={24}
                         className="mr-2"
-                      />{" "}
+                      />{' '}
                       {community.name}
                     </div>
                   </Link>
