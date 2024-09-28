@@ -67,7 +67,7 @@ class TransferLogic {
     }
 
     // new items, add them to the store
-    this.store.putTransfers(transfers);
+    this.store.putTransfers(transfers.filter((t) => t.status === 'success'));
   }
 
   listen() {
