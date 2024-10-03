@@ -58,7 +58,6 @@ class TransferLogic {
     if (transfers.length > 0) {
       // new items, move the max date to the latest one
       this.listenMaxDate = new Date();
-      this.onNewTransactions?.(transfers);
     }
 
     if (transfers.length === 0) {
@@ -66,8 +65,11 @@ class TransferLogic {
       return;
     }
 
-    // new items, add them to the store
-    this.store.putTransfers(transfers.filter((t) => t.status === 'success'));
+    // Update or add new transfers to the store
+    const { added } = this.store.updateOrAddTransfers(transfers);
+    if (added > 0) {
+      this.onNewTransactions?.(transfers);
+    }
   }
 
   listen() {
@@ -171,7 +173,7 @@ class TransferLogic {
 
   triggerNewTransaction(tx: Transfer) {
     this.onNewTransactions?.([tx]);
-    this.store.putTransfers([tx]);
+    this.store.updateOrAddTransfers([tx]);
   }
 
   clearTransfers() {
@@ -261,7 +263,7 @@ class TransferLogic {
       }
 
       // new items, add them to the store
-      this.store.putTransfers(transfers.filter((t) => t.status === 'success'));
+      this.store.updateOrAddTransfers(transfers);
       console.log('>>> transfers', transfers);
 
       const isLastPage = transfers.length < this.loaderFetchLimit;

@@ -1,5 +1,5 @@
-import { Transfer, TransferStatus } from "@citizenwallet/sdk";
-import { create } from "zustand";
+import { Transfer } from '@citizenwallet/sdk';
+import { create } from 'zustand';
 
 type StripeSettings = {
   products: [
@@ -21,7 +21,7 @@ export type CommunitySettings = {
   stripe?: StripeSettings;
 };
 
-export type TransferStore = {
+export interface TransferStore {
   transfers: Transfer[];
   totalTransfers: number;
   totalAmount: number;
@@ -30,14 +30,18 @@ export type TransferStore = {
   account: string | null;
   communitySettings: CommunitySettings | null;
   addTransfers: (transfers: Transfer[]) => void;
-  putTransfers: (transfers: Transfer[]) => void;
+  updateOrAddTransfers: (transfers: Transfer[]) => {
+    updated: number;
+    added: number;
+    transfers: Transfer[];
+  };
   clearTransfers: () => void;
   setDate: (date: Date) => void;
   startLoadingFromDate: (date: Date) => void;
   setAccount: (account: string | null) => void;
   setCommunitySettings: (communitySettings: CommunitySettings | null) => void;
   stopLoadingFromDate: () => void;
-};
+}
 
 const getInitialState = () => ({
   transfers: [],
@@ -59,37 +63,51 @@ export const useTransferStore = create<TransferStore>((set) => ({
         transfers: newTransfers,
       };
     }),
-  putTransfers: (transfers: Transfer[]) =>
-    set((state) => {
-      const existingTransfers = [...state.transfers];
-
-      // add or update the transfers based on their hash
-      for (const transfer of transfers) {
-        const index = existingTransfers.findIndex(
-          (t) => t.hash === transfer.hash
+  updateOrAddTransfers: (transfers: Transfer[]) => {
+    let updated = 0;
+    let added = 0;
+    let updatedTransfers: Transfer[] = [];
+    set((state: TransferStore) => {
+      updatedTransfers = [...state.transfers];
+      transfers.forEach((newTransfer) => {
+        const existingIndex = updatedTransfers.findIndex(
+          (t) =>
+            t.tx_hash === newTransfer.tx_hash &&
+            t.from === newTransfer.from &&
+            t.to === newTransfer.to
         );
-        if (index === -1) {
-          existingTransfers.unshift(transfer);
-        } else {
-          existingTransfers[index] = transfer;
-        }
-      }
 
-      existingTransfers.sort((a, b) => {
+        if (existingIndex !== -1) {
+          updated++;
+          // Update existing transfer
+          updatedTransfers[existingIndex] = {
+            ...updatedTransfers[existingIndex],
+            ...newTransfer,
+          };
+        } else {
+          added++;
+          // Add new transfer
+          updatedTransfers.push(newTransfer);
+        }
+      });
+
+      updatedTransfers.sort((a, b) => {
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
 
       return {
-        transfers: existingTransfers,
-        totalTransfers: existingTransfers.length,
-        totalAmount: existingTransfers.reduce(
+        transfers: updatedTransfers,
+        totalTransfers: updatedTransfers.length,
+        totalAmount: updatedTransfers.reduce(
           (acc, transfer) => acc + transfer.value,
           0
         ),
       };
-    }),
+    });
+    return { transfers: updatedTransfers, updated, added };
+  },
   clearTransfers: () => set(getInitialState()),
   setDate: (date: Date) => set({ fromDate: date }),
   startLoadingFromDate: (date: Date) =>

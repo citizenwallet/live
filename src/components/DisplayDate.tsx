@@ -1,6 +1,17 @@
 import moment from 'moment';
 import { useState, useEffect } from 'react';
 
+function formatDate(date: Date, isRelative: boolean) {
+  if (isRelative) {
+    return moment(date).fromNow();
+  } else {
+    const localeData = moment.localeData();
+    const dateFormat = localeData.longDateFormat('L');
+    const timeFormat = localeData.longDateFormat('LTS');
+    return moment(date).format(`${dateFormat} ${timeFormat}`);
+  }
+}
+
 export default function DisplayDate({
   datetime,
   relative,
@@ -10,11 +21,10 @@ export default function DisplayDate({
   relative: boolean;
   refresh: boolean;
 }) {
-  const [datestr, setDate] = useState(
-    relative ? moment(datetime).fromNow() : datetime.toLocaleString()
-  );
+  const [datestr, setDate] = useState(() => formatDate(datetime, relative));
 
   useEffect(() => {
+    setDate(formatDate(datetime, relative));
     if (refresh) {
       const intervalId = setInterval(() => {
         setDate(moment(datetime).fromNow());
