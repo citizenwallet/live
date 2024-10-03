@@ -71,10 +71,7 @@ export const useTransferStore = create<TransferStore>((set) => ({
       updatedTransfers = [...state.transfers];
       transfers.forEach((newTransfer) => {
         const existingIndex = updatedTransfers.findIndex(
-          (t) =>
-            t.tx_hash === newTransfer.tx_hash &&
-            t.from === newTransfer.from &&
-            t.to === newTransfer.to
+          (t) => t.tx_hash === newTransfer.tx_hash && t.to === newTransfer.to // TODO: Add from address check (but we have two tx for minting then sending from @topup to @fridge)
         );
 
         if (existingIndex !== -1) {
