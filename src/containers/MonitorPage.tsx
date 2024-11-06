@@ -258,7 +258,7 @@ function MonitorPage({
                     accountAddress={accountAddress}
                     donateUrl={`${
                       process.env.NEXT_PUBLIC_WEBAPP_URL || ''
-                    }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
+                    }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}&sendto=${accountAddress}@${communitySlug}`}
                   />
                 </div>
 
