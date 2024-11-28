@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { generateReceiveLink, Profile } from "@citizenwallet/sdk";
-import { getPlugin } from "@/lib/citizenwallet";
-import RegenVillageLogo from "@/public/regenvillage.svg";
-import OpenCollectiveIcon from "@/public/opencollective.svg";
-import CreditCardIcon from "@/public/creditcard.svg";
-import OrSeparator from "@/public/or-separator.svg";
-import Confetti from "react-confetti";
-import useWindowSize from "react-use/lib/useWindowSize";
-import accountsConfig from "../../config.json";
-import { Milestone } from "@/components/ProgressBar";
-import { getUrlFromIPFS } from "@/lib/ipfs";
-import Image from "next/image";
+import { generateReceiveLink, Profile } from '@citizenwallet/sdk';
+import { getPlugin } from '@/lib/citizenwallet';
+import RegenVillageLogo from '@/public/regenvillage.svg';
+import OpenCollectiveIcon from '@/public/opencollective.svg';
+import CreditCardIcon from '@/public/creditcard.svg';
+import OrSeparator from '@/public/or-separator.svg';
+import Confetti from 'react-confetti';
+import useWindowSize from 'react-use/lib/useWindowSize';
+import accountsConfig from '../../config.json';
+import { Milestone } from '@/components/ProgressBar';
+import { getUrlFromIPFS } from '@/lib/ipfs';
+import Image from 'next/image';
 
 type Product = {
   id: string;
@@ -61,7 +61,7 @@ const DonateButton = ({
     href={href}
   >
     <div className="w-14 flex items-center justify-center">
-      {icon && typeof icon === "string" ? (
+      {icon && typeof icon === 'string' ? (
         <img src={icon} alt={`${title} icon`} className="w-8 h-8 m-2" />
       ) : (
         icon
@@ -79,7 +79,7 @@ export default function DonateContainer({
   accountAddress,
   config,
   success,
-  action = "donate",
+  action = 'donate',
 }: {
   profile?: Profile;
   accountAddress: string;
@@ -91,32 +91,42 @@ export default function DonateContainer({
   const { width, height } = useWindowSize();
   if (!config) return null;
   const cwDonateLink = generateReceiveLink(
-    "https://app.citizenwallet.xyz",
+    'https://app.citizenwallet.xyz',
     accountAddress,
-    communitySlug === "regenvillage.wallet.pay.brussels"
-      ? "wallet.pay.brussels"
+    communitySlug === 'regenvillage.wallet.pay.brussels'
+      ? 'wallet.pay.brussels'
       : communitySlug
   );
   const redirectUrl = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/${communitySlug}/${accountAddress}/donate`;
-  const topupPlugin = getPlugin(config, "Top Up");
+  const topupPlugin = getPlugin(config, 'Top Up');
   const accountSettings: AccountSettings = accountsConfig;
   const settings: Settings = accountSettings[accountAddress] || {};
-  const title = settings?.donatePage?.title || "Top Up";
-  const amounts =
-    settings?.donatePage?.amounts || "2, 5, 10, 20, 50, custom";
+  const title = settings?.donatePage?.title || 'Top Up';
+  const amounts = settings?.donatePage?.amounts || '2, 5, 10, 20, 50, custom';
 
-
-  const avatarImg = getUrlFromIPFS(profile?.image || "") || `https://api.multiavatar.com/${profile?.username}.png`;
+  const avatarImg =
+    getUrlFromIPFS(profile?.image || '') ||
+    `https://api.multiavatar.com/${profile?.username}.png`;
   return (
     <div className="w-full min-h-screen">
       {success && <Confetti width={width} height={height} />}
       <div className="max-w-xl mx-auto flex justify-center flex-col h-full">
-      { profile?.username && <div className="flex flex-col items-center pt-6">
-        <Image src={avatarImg} width={96} height={96} className="rounded-full my-1 h-24 w-24" alt={profile?.username} />
-        <h1 className="text-xl sm:text-2xl font-bold mt-4">{profile?.name}</h1>
-        <h1 className="text-lg mb-4">@{profile?.username}</h1>
-        </div>}
-        {accountAddress === "0x32330e05494177CF452F4093290306c4598ddA98" && (
+        {profile?.username && (
+          <div className="flex flex-col items-center pt-6">
+            <Image
+              src={avatarImg}
+              width={96}
+              height={96}
+              className="rounded-full my-1 h-24 w-24"
+              alt={profile?.username}
+            />
+            <h1 className="text-xl sm:text-2xl font-bold mt-4">
+              {profile?.name}
+            </h1>
+            <h1 className="text-lg mb-4">@{profile?.username}</h1>
+          </div>
+        )}
+        {accountAddress === '0x32330e05494177CF452F4093290306c4598ddA98' && (
           <RegenVillageLogo className="my-8 mx-auto" />
         )}
 
@@ -139,7 +149,7 @@ export default function DonateContainer({
                     key={product.id}
                     title={product.name}
                     description={product.priceDescription}
-                    href={product.url || ""}
+                    href={product.url || ''}
                     icon={product.image}
                   />
                 ))}
@@ -153,9 +163,9 @@ export default function DonateContainer({
                   <DonateButton
                     title={`${action} with crypto`}
                     description="via Giveth"
-                    href={settings.giveth.url || ""}
+                    href={settings.giveth.url || ''}
                     icon={
-                      "https://wallet.regenvillage.brussels/uploads/giveth.svg"
+                      'https://wallet.regenvillage.brussels/uploads/giveth.svg'
                     }
                   />
                   {!settings.stripe?.products && (
@@ -168,7 +178,7 @@ export default function DonateContainer({
 
               <DonateButton
                 title={`${action} with Brussels PAY`}
-                description="via Citizen Wallet"
+                description="using Citizen Wallet"
                 href={cwDonateLink}
                 icon="/eurb.svg"
               />
@@ -181,8 +191,8 @@ export default function DonateContainer({
                     </div>
                   )}
                   <DonateButton
-                    title={`${action} with credit card`}
-                    description="via Stripe"
+                    title={`${action} with euros`}
+                    description="using credit card / bancontact"
                     href={`${
                       topupPlugin.url
                     }?account=${accountAddress}&title=${encodeURIComponent(
