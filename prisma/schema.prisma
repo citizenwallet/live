@@ -1,0 +1,107 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Transaction Transaction[]
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?      @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  Contribution  Contribution[]
+  password      String?
+  resetToken    String?
+  discordId     String?
+  discordAvatar String?
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Contribution {
+  id               String   @id @default(cuid()) // Unique identifier for the contribution
+  contributorId    String // ID of the contributor (e.g., user or participant)
+  projectId        String? // ID of the project or entity receiving the contribution
+  amount           Float    @default(0.0) // Contribution amount (e.g., money, hours, effort)
+  contributionType String // Type of contribution (e.g., monetary, volunteer hours, code, feedback)
+  description      String? // Optional description of the contribution
+  metadata         Json? // JSON for storing additional contribution details
+  createdAt        DateTime @default(now()) // Timestamp when the contribution was logged
+  updatedAt        DateTime @updatedAt // Timestamp when the contribution was last updated
+  source           String?
+  creatorId        String? // ID of the contributor (e.g., user or participant)
+  contributor      User     @relation(fields: [contributorId], references: [id], onDelete: Cascade) // Link to the contributor/User
+  refId            String? // Internal refID to check if doublon
+  refType          String? // Internal refID to check if doublon
+
+  @@index([contributorId]) // Index to efficiently query contributions by contributor
+  @@map("contributions")
+}
+
+model Transaction {
+  id              String   @id @default(cuid()) // Unique identifier for each transaction
+  accountId       String // The ID of the account related to this transaction
+  amount          Float // Transaction amount
+  currency        String // ISO 4217 currency code (e.g., USD, EUR, GBP)
+  transactionType String // Type of transaction (e.g., debit, credit, or specific categories)
+  transactionDate DateTime // Date of the transaction
+  bookingDate     DateTime // Date when the transaction was booked into the account (may differ from `transactionDate`)
+  description     String? // Transaction description or merchant name (e.g., "Coffee Shop A")
+  merchantDetails Json? // JSON to capture additional information like merchant ID, merchant name, etc.
+  category        String? // Optional: Category for the transaction (e.g., "Food and Drinks", "Utilities")
+  status          String // Status of the transaction (e.g., posted, pending, cancelled)
+  reference       String? // Additional reference for the transaction (e.g., invoice number)
+  metadata        Json? // Additional metadata about the transaction, if needed
+  balanceAfter    Float? // Account balance after the transaction, if available
+  createdAt       DateTime @default(now()) // Timestamp for when the transaction was created in the system
+  updatedAt       DateTime @updatedAt // Timestamp for when the transaction was last updated
+  account         Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
