@@ -1,7 +1,7 @@
 'use client';
 
 import config from '../../config.json';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { formatUnits } from '@ethersproject/units';
 import AudioPlayer from 'react-audio-player';
 import TransactionRow from '@/components/TransactionRow';
@@ -20,8 +20,15 @@ import useWindowSize from 'react-use/lib/useWindowSize';
 import Confetti from 'react-confetti';
 import { Transfer } from '@citizenwallet/sdk';
 import ExpenseTracker from '@/components/ExpenseTracker';
+
 const dingSound = '/cashing.mp3';
 import { ExtendedTransfer } from '../../types';
+import useSWR from 'swr';
+import { EventsList } from '@/components/events-list';
+import { PolaroidSlideshow } from '@/components/polaroid-slideshow';
+import { LatestContributions } from '@/components/latest-contributions';
+import ContributionTimeline from '@/components/contributions-timeline';
+import { fetcher } from '@/lib/fetcher';
 
 type Settings = {
   opencollectiveSlug?: string;
@@ -33,12 +40,12 @@ type Settings = {
 };
 
 function FundraiserPage({
-  communityConfig,
-  accountAddress,
-  title,
-  goal,
-  collectiveSlug,
-}: {
+                          communityConfig,
+                          accountAddress,
+                          title,
+                          goal,
+                          collectiveSlug,
+                        }: {
   communityConfig: Config;
   accountAddress: string;
   title: string;
@@ -57,6 +64,14 @@ function FundraiserPage({
 
   const unsubscribeRef = useRef<() => void | undefined>();
 
+  const { data: resContributions, isLoading: contributionsIsLoading } = useSWR(`/api/events`, fetcher, {
+    refreshInterval: 10000,
+  });
+
+  const { data: resEvents, isLoading: eventsIsLoading } = useSWR(`/api/contributions`, fetcher, {
+    refreshInterval: 10000,
+  });
+
   const handleNewTransactions = useCallback((transactions: Transfer[]) => {
     console.log('>>> handleNewTransactions', transactions);
     if (transactions.length > 0) {
@@ -73,7 +88,7 @@ function FundraiserPage({
     communityConfig,
     accountAddress,
     settings,
-    handleNewTransactions
+    handleNewTransactions,
   );
   const [profilesStore, profilesActions] = useProfiles(communityConfig);
 
@@ -95,7 +110,7 @@ function FundraiserPage({
     (account: string) => {
       profilesActions.fetchProfile(account);
     },
-    [profilesActions]
+    [profilesActions],
   );
 
   const handleProfileClick = (accountAddress: string) => {
@@ -138,7 +153,7 @@ function FundraiserPage({
   const transfers = store((state) => {
     if (state.account) {
       return state.transfers.filter(
-        (t) => t.to === state.account || t.from === state.account
+        (t) => t.to === state.account || t.from === state.account,
       );
     } else {
       return state.transfers;
@@ -172,7 +187,7 @@ function FundraiserPage({
     };
     // Step 2: Convert the object into an array of key-value pairs
     const leaderboard: LeaderboardEntry[] = Object.entries(
-      totalContributedBySender
+      totalContributedBySender,
     ).map(([from, total]) => ({ from, total }));
 
     // Step 3: Sort the array by the total amounts in descending order
@@ -197,7 +212,7 @@ function FundraiserPage({
   const loading = store((state) => state.loading);
   const totalAmountTransferred = formatUnits(
     BigInt(totalAmount),
-    communityConfig.token.decimals
+    communityConfig.token.decimals,
   );
   const progress =
     goal && Math.round((parseFloat(totalAmountTransferred) / goal) * 1000) / 10;
@@ -205,190 +220,198 @@ function FundraiserPage({
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex flex-row justify-center p-8 bg-[#F8F7F3] w-full h-full overflow-hidden">
-        <AudioPlayer
-          src={dingSound}
-          // @ts-ignore
-          ref={(element) => (window.audio = element)}
-        />
-        <div className="flex flex-col w-2/3">
-          <div className="w-full flex flex-row mt-4 mb-12">
-            <h1 className="text-7xl font-bold">{title}</h1>
-            <div className="flex items-center mr-2 w-8">
-              {loading && (
-                <LoaderCircleIcon className="animate-spin flex items-center w-6 h-6 text-blue-500" />
-              )}
-              {!loading && !listen && (
-                <a
-                  onClick={handleStartListening}
-                  title="Start listening"
-                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-                >
-                  <PlayIcon />
-                </a>
-              )}
-              {!loading && listen && (
-                <a
-                  onClick={handleStopListening}
-                  title="Stop listening"
-                  className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
-                >
-                  <Loading />
-                </a>
-              )}
+        <div className="flex flex-row justify-center p-8 bg-[#F8F7F3] w-full h-full">
+          <AudioPlayer
+            src={dingSound}
+            // @ts-ignore
+            ref={(element) => (window.audio = element)}
+          />
+          <div className="flex flex-col w-2/3">
+            <div className="w-full flex flex-row mt-4 mb-12">
+              <h1 className="text-7xl font-bold">{title}</h1>
+              <div className="flex items-center mr-2 w-8">
+                {loading && (
+                  <LoaderCircleIcon className="animate-spin flex items-center w-6 h-6 text-blue-500" />
+                )}
+                {!loading && !listen && (
+                  <a
+                    onClick={handleStartListening}
+                    title="Start listening"
+                    className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+                  >
+                    <PlayIcon />
+                  </a>
+                )}
+                {!loading && listen && (
+                  <a
+                    onClick={handleStopListening}
+                    title="Stop listening"
+                    className="cursor-pointer flex items-center ml-2 w-6 text-center justify-center"
+                  >
+                    <Loading />
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-          {goal && (
-            <ProgressBar
-              percent={progress}
-              goal={goal}
-              tokenSymbol={communityConfig.token.symbol}
-              milestones={settings?.milestones}
-            />
-          )}
+            {/*{goal && (*/}
+            {/*  <ProgressBar*/}
+            {/*    percent={progress}*/}
+            {/*    goal={goal}*/}
+            {/*    tokenSymbol={communityConfig.token.symbol}*/}
+            {/*    milestones={settings?.milestones}*/}
+            {/*  />*/}
+            {/*)}*/}
 
-          <div className="w-full flex flex-row h-full">
-            <div className="w-1/2 flex flex-col">
-              <div className="w-full flex flex-row justify-between items-center mb-4">
-                <div className="w-full p-1 flex items-center flex-col text-left">
-                  <div className="w-full text-left font-bold flex items-baseline">
-                    <div className=" mr-1">
-                      <AnimatedNumber
-                        className="text-7xl font-bold text-right"
-                        value={parseFloat(totalAmountTransferred)}
-                        decimals={
-                          parseInt(totalAmountTransferred) >= 10000 ? 0 : 2
-                        }
-                      />
-                    </div>
-                    {}{' '}
-                    <span className="font-normal text-3xl">
+            <ContributionTimeline items={resContributions} />
+
+            <div className="w-full flex flex-row h-full">
+              <div className="w-1/2 flex flex-col">
+                <div className="w-full flex flex-row justify-between items-center mb-4">
+                  <div className="w-full p-1 flex items-center flex-col text-left">
+                    <div className="w-full text-left font-bold flex items-baseline">
+                      <div className=" mr-1">
+                        <AnimatedNumber
+                          className="text-7xl font-bold text-right"
+                          value={parseFloat(totalAmountTransferred)}
+                          decimals={
+                            parseInt(totalAmountTransferred) >= 10000 ? 0 : 2
+                          }
+                        />
+                      </div>
+                      {}{' '}
+                      <span className="font-normal text-3xl">
                       {communityConfig.token.symbol}
                     </span>
+                    </div>
+                    <div className="w-full text-3xl text-left font-medium text-gray-500">
+                      total raised
+                    </div>
                   </div>
-                  <div className="w-full text-3xl text-left font-medium text-gray-500">
-                    total raised
+
+                  <div className=" w-full p-1 flex items-center text-right justify-end">
+                    <div>
+                      <div className="font-bold">
+                        <AnimatedNumber
+                          className="text-7xl"
+                          value={stats.totalContributors}
+                        />
+                      </div>
+                      <div className="text-3xl font-medium text-gray-500 text-right">
+                        contributors
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className=" w-full p-1 flex items-center text-right justify-end">
-                  <div>
-                    <div className="font-bold">
-                      <AnimatedNumber
-                        className="text-7xl"
-                        value={stats.totalContributors}
-                      />
-                    </div>
-                    <div className="text-3xl font-medium text-gray-500 text-right">
-                      contributors
+                {collectiveSlug && (
+                  <div className="bg-white rounded-3xl ">
+                    <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
+                      Expense tracker
+                    </h3>
+                    <p className="text-center text-sm mb-4 text-gray-600">
+                      opencollective.com/{collectiveSlug}
+                    </p>
+                    <ExpenseTracker
+                      collectiveSlug={collectiveSlug}
+                      limit={10}
+                      showStatus={false}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="w-1/2 ml-5">
+                <div className="mb-4 w-full">
+                  <div
+                    className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden w-full">
+                    <div className="w-full h-full">
+                      <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
+                        Top contributors
+                      </h3>
+                      <div className="flex flex-wrap flex-row overflow-hidden mt-4 mb-0 h-full w-full">
+                        {stats.leaderboard.slice(0, 30).map((entry, index) => (
+                          <ContributorRow
+                            key={entry.from}
+                            communitySlug={communitySlug}
+                            contributorAddress={entry.from}
+                            profiles={profilesStore}
+                            fromProfiles={fromProfiles}
+                            showAmount={false}
+                            amount={entry.total}
+                            token={communityConfig.token}
+                            decimals={communityConfig.token.decimals}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {collectiveSlug && (
-                <div className="bg-white rounded-3xl ">
-                  <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
-                    Expense tracker
-                  </h3>
-                  <p className="text-center text-sm mb-4 text-gray-600">
-                    opencollective.com/{collectiveSlug}
-                  </p>
-                  <ExpenseTracker
-                    collectiveSlug={collectiveSlug}
-                    limit={10}
-                    showStatus={false}
-                  />
+          <div className="flex flex-col ml-5 w-[480px]">
+            {/*<DonateQRCode*/}
+            {/*  communitySlug={communitySlug}*/}
+            {/*  accountAddress={accountAddress}*/}
+            {/*  donateUrl={`${*/}
+            {/*    process.env.NEXT_PUBLIC_WEBAPP_URL || ''*/}
+            {/*  }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}*/}
+            {/*/>*/}
+
+            <EventsList items={resEvents?.data} loading={eventsIsLoading} />
+
+            {/*<LatestContributions />*/}
+
+            <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
+              <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
+                Latest financial contributions
+              </h3>
+              <p className="text-center text-sm mb-4 text-gray-600">
+                credit card or crypto donations
+              </p>
+
+              {transfers.length > 0 && (
+                <div className="w-full h-full">
+                  <AutoSizer>
+                    {({ height, width }) => (
+                      <List
+                        width={width}
+                        height={height - 60}
+                        rowHeight={96}
+                        className=" rounded-lg"
+                        rowRenderer={({
+                                        index,
+                                        key,
+                                        style,
+                                      }: {
+                          index: number;
+                          key: string;
+                          style: any;
+                        }) => (
+                          <div key={key} style={style} className="flex flex-row">
+                            <TransactionRow
+                              tx={transfers[index] as ExtendedTransfer}
+                              config={communityConfig}
+                              communitySlug={communitySlug}
+                              decimals={communityConfig.token.decimals}
+                              profiles={profilesStore}
+                              showRecipient={false}
+                              datetime="relative"
+                              onProfileFetch={handleProfileFetch}
+                              onProfileClick={handleProfileClick}
+                            />
+                          </div>
+                        )}
+                        rowCount={transfers.length}
+                        overscanRowCount={3}
+                      />
+                    )}
+                  </AutoSizer>
                 </div>
               )}
             </div>
-            <div className="w-1/2 ml-5">
-              <div className="mb-4 w-full">
-                <div className="bg-white shadow rounded-3xl p-4 flex items-center justify-between h-full overflow-hidden w-full">
-                  <div className="w-full h-full">
-                    <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 mb-4 text-center">
-                      Top contributors
-                    </h3>
-                    <div className="flex flex-wrap flex-row overflow-hidden mt-4 mb-0 h-full w-full">
-                      {stats.leaderboard.slice(0, 30).map((entry, index) => (
-                        <ContributorRow
-                          key={entry.from}
-                          communitySlug={communitySlug}
-                          contributorAddress={entry.from}
-                          profiles={profilesStore}
-                          fromProfiles={fromProfiles}
-                          showAmount={false}
-                          amount={entry.total}
-                          token={communityConfig.token}
-                          decimals={communityConfig.token.decimals}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-
-        <div className="flex flex-col ml-5 w-[480px]">
-          <DonateQRCode
-            communitySlug={communitySlug}
-            accountAddress={accountAddress}
-            donateUrl={`${
-              process.env.NEXT_PUBLIC_WEBAPP_URL || ''
-            }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
-          />
-          <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
-            <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
-              Latest financial contributions
-            </h3>
-            <p className="text-center text-sm mb-4 text-gray-600">
-              credit card or crypto donations
-            </p>
-
-            {transfers.length > 0 && (
-              <div className="w-full h-full">
-                <AutoSizer>
-                  {({ height, width }) => (
-                    <List
-                      width={width}
-                      height={height - 60}
-                      rowHeight={96}
-                      className=" rounded-lg"
-                      rowRenderer={({
-                        index,
-                        key,
-                        style,
-                      }: {
-                        index: number;
-                        key: string;
-                        style: any;
-                      }) => (
-                        <div key={key} style={style} className="flex flex-row">
-                          <TransactionRow
-                            tx={transfers[index] as ExtendedTransfer}
-                            config={communityConfig}
-                            communitySlug={communitySlug}
-                            decimals={communityConfig.token.decimals}
-                            profiles={profilesStore}
-                            showRecipient={false}
-                            datetime="relative"
-                            onProfileFetch={handleProfileFetch}
-                            onProfileClick={handleProfileClick}
-                          />
-                        </div>
-                      )}
-                      rowCount={transfers.length}
-                      overscanRowCount={3}
-                    />
-                  )}
-                </AutoSizer>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
     </>
   );
 }

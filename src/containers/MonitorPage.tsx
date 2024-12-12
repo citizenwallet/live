@@ -20,6 +20,7 @@ import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { getUrlFromIPFS } from '@/lib/ipfs';
 import { ExtendedTransfer } from '../../types';
+import Avatars from '@/components/Avatars';
 
 function formatDateToISO(date: Date) {
   // Extract the year, month, and day from the date
@@ -224,6 +225,7 @@ function MonitorPage({
           <SpeakerLoudIcon />
         </a>
       )}
+      <Avatars items={[]}></Avatars>
     </div>
   );
 
