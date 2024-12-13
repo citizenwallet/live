@@ -10,7 +10,7 @@ type Props = {
   loading: boolean;
 }
 
-export function LatestContributions() {
+export function AvatarContributions() {
 
   const { data, isLoading } = useSWR('/api/contributions', async (url) => {
     const response = await fetch(url);
@@ -18,23 +18,19 @@ export function LatestContributions() {
   });
 
   return (
-    <Card className="col-span-2 pb-6 mt-3">
+    <Card className="col-span-2 pb-6 mt-3 min-w-full">
       <CardHeader>
         <CardTitle className={'text-[#8F8A9D] text-center'}>Contributors</CardTitle>
       </CardHeader>
-      <CardContent className={'max-h-96 overflow-y-scroll'}>
+      <CardContent className={'max-h-screen overflow-y-scroll'}>
         {isLoading && <Loading />}
-        {data?.data ? <div className="space-y-8">
+        {data?.data ? <div className="flex flex-wrap gap-2">
           {sortBy(data.data, 'count').reverse().map((item: any, key) => (
-            <div key={key} className="space-y-2 flex items-start">
-              <div className="flex-none w-12 h-12 relative">
-                {item.avatar ? <img src={`https://cdn.discordapp.com/avatars/${item.id}/${item.avatar}.png`} alt={item.username} className="rounded-full" /> : <div className="rounded-full bg-gray-200 w-full h-full" />}
-              </div>
-              <div className="flex-grow pl-3">
-                <h3 className="text-lg font-semibold">{item.username}</h3>
-                <div className="text-sm">
-                  <p>{item.count} mentions</p>
-                </div>
+            <div key={key} className="">
+              <div className="flex-none relative">
+                <img src={item.image || 'https://www.londondentalsmiles.co.uk/wp-content/uploads/2017/06/person-dummy.jpg'} alt={item.username}
+                       className="rounded-full" />
+                <div className={'text-center font-extrabold text-2xl mt-1 hidden'}>{item.count} 🎉</div>
               </div>
             </div>
           ))}

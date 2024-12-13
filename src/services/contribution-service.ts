@@ -10,14 +10,17 @@ export type Contribution = {
 }
 
 export class ContributionService {
-  constructor() {
-  }
+  constructor() {}
 
   async getTimeline() {
-    const flux1 = await this.getContributionsFromDiscordChannel('1280924924625682484', true);
-    const flux2 = await this.getContributionsFromDiscordChannel('1297965144579637248', true);
+    const stream1 = await this.getContributionsFromDiscordChannel('1280924924625682484', true);
+    const stream2 = await this.getContributionsFromDiscordChannel('1297965144579637248', true);
+    const stream = [...stream1, ...stream2];
+    const timeline = {};
 
-    return [...flux1, ...flux2];
+    for (const contribution of stream) {
+
+    }
   }
 
   async getContributions() {
@@ -25,7 +28,10 @@ export class ContributionService {
     const flux1 = await this.getContributionsFromDiscordChannel('1280924924625682484');
     const flux2 = await this.getContributionsFromDiscordChannel('1297965144579637248');
 
-    let contributions = [...flux1];
+    console.log(flux1);
+
+    let contributions = [...flux1, ...flux2];
+
 
     for (const contribution of flux2) {
       const existingContribution = contributions.find((c) => c.username === contribution.username);
@@ -114,10 +120,7 @@ export class ContributionService {
         lastMessageId = data[data.length - 1].id;
       }
 
-      const mentions = [];
-
       if (timelineMode) {
-
         const timeline: Contribution[] = [];
         messages.map((message: any) => {
           message.mentions.map((mention: any) => {
@@ -125,39 +128,38 @@ export class ContributionService {
               id: mention.id,
               username: mention.username,
               avatar: mention.avatar,
-              image: 'https://cdn.discordapp.com/avatars/' + mention.id + '/' + mention.avatar + '.png',
+              image: mention.avatar ? "https://cdn.discordapp.com/avatars/" + mention.id + "/" + mention.avatar + ".png" : 'https://ui-avatars.com/api/?size=128',
               count: 1,
               date: message.timestamp,
             });
           });
         });
-
-        return timeline;
       }
+
+      const mentions = [];
 
       for (const message of messages) {
         if (message.mentions) {
-          mentions.push({
-            ...message.mentions,
-          });
+          mentions.push(...message.mentions);
         }
       }
 
       const userMentions: any = {};
 
       for (const mention of mentions) {
-        if (typeof userMentions[mention.username] !== 'undefined') {
+        if (typeof userMentions[mention.username] !== "undefined") {
           userMentions[mention.username].count++;
         } else {
           userMentions[mention.username] = {
             id: mention.id,
             username: mention.username,
             avatar: mention.avatar,
-            image: 'https://cdn.discordapp.com/avatars/' + mention.id + '/' + mention.avatar + '.png',
-            count: 1,
+            image: mention.avatar ? "https://cdn.discordapp.com/avatars/" + mention.id + "/" + mention.avatar + ".png" : 'https://ui-avatars.com/api/?size=128',
+            count: 1
           };
         }
       }
+
       return Object.values(userMentions);
     } catch (error: any) {
       return [];
