@@ -28,15 +28,12 @@ export class ContributionService {
     const flux1 = await this.getContributionsFromDiscordChannel('1280924924625682484');
     const flux2 = await this.getContributionsFromDiscordChannel('1297965144579637248');
 
-    console.log(flux1);
-
-    let contributions = [...flux1, ...flux2];
-
+    let contributions = [...flux1];
 
     for (const contribution of flux2) {
-      const existingContribution = contributions.find((c) => c.username === contribution.username);
-      if (existingContribution) {
-        existingContribution.count += contribution.count;
+      const existingContribution = contributions.findIndex((c) => c.username === contribution.username);
+      if (existingContribution !== -1) {
+        contributions[existingContribution].count = contributions[existingContribution].count + contribution.count;
       } else {
         contributions.push(contribution);
       }
@@ -128,7 +125,7 @@ export class ContributionService {
               id: mention.id,
               username: mention.username,
               avatar: mention.avatar,
-              image: mention.avatar ? "https://cdn.discordapp.com/avatars/" + mention.id + "/" + mention.avatar + ".png" : 'https://ui-avatars.com/api/?size=128',
+              image: mention.avatar ? "https://cdn.discordapp.com/avatars/" + mention.id + "/" + mention.avatar + ".png" : `https://ui-avatars.com/api/?name=${mention.username}&size=128`,
               count: 1,
               date: message.timestamp,
             });
@@ -154,7 +151,7 @@ export class ContributionService {
             id: mention.id,
             username: mention.username,
             avatar: mention.avatar,
-            image: mention.avatar ? "https://cdn.discordapp.com/avatars/" + mention.id + "/" + mention.avatar + ".png" : 'https://ui-avatars.com/api/?size=128',
+            image: mention.avatar ? "https://cdn.discordapp.com/avatars/" + mention.id + "/" + mention.avatar + ".png" : `https://ui-avatars.com/api/?name=${mention.username}&size=128`,
             count: 1
           };
         }
