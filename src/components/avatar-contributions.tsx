@@ -34,7 +34,7 @@ export function AvatarContributions() {
               </div>
             </div>
           ))}
-        </div> : <p className="text-muted-foreground">No events found</p>}
+        </div> : <p className="text-muted-foreground"></p>}
       </CardContent>
     </Card>
   );
