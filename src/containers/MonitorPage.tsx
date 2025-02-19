@@ -228,6 +228,12 @@ function MonitorPage({
   );
 
   const defaultAvatar = `https://api.multiavatar.com/${accountAddress}.png`;
+  const donateUrl =
+    communitySlug === 'wallet.pay.brussels'
+      ? `https://checkout.pay.brussels/${profile?.username}`
+      : `${
+          process.env.NEXT_PUBLIC_WEBAPP_URL || ''
+        }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`;
 
   return (
     <>
@@ -256,9 +262,7 @@ function MonitorPage({
                   <DonateQRCode
                     communitySlug={communitySlug}
                     accountAddress={accountAddress}
-                    donateUrl={`${
-                      process.env.NEXT_PUBLIC_WEBAPP_URL || ''
-                    }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}&sendto=${accountAddress}@${communitySlug}`}
+                    donateUrl={donateUrl}
                   />
                 </div>
 
