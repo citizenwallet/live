@@ -36,7 +36,7 @@ export default async function Page({
         communityConfig={config}
         collectiveSlug={collectiveSlug}
         from={from}
-        showHeader={showHeader !== 'false'}
+        title={`${communitySlug} Dashboard`}
       />
       <Footer />
     </Suspense>
