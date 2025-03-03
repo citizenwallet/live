@@ -4,17 +4,23 @@ import { generateReceiveLink } from '@citizenwallet/sdk';
 type propsType = {
   communitySlug: string;
   donateUrl: string;
-  accountAddress: string;
+  accountAddress?: string;
 };
 
 const DonateBox = ({ communitySlug, accountAddress, donateUrl }: propsType) => {
   const url = donateUrl
     ? donateUrl
-    : generateReceiveLink(
+    : accountAddress
+    ? generateReceiveLink(
         'https://app.citizenwallet.xyz',
         accountAddress,
         communitySlug
-      );
+      )
+    : null;
+
+  if (!url) {
+    return null;
+  }
 
   return (
     <div className="text-center w-full">

@@ -29,7 +29,11 @@ type Settings = {
     projectId?: number;
     url?: string;
   };
-  milestones: Milestone[];
+  donatePage?: {
+    title?: string;
+    accountAddress?: string;
+  };
+  milestones?: Milestone[];
 };
 
 function DashboardPage({
@@ -49,7 +53,7 @@ function DashboardPage({
     : new Date(new Date().setHours(0, 0, 0, 0));
 
   const communitySlug = communityConfig.community.alias;
-  const settings: Settings = (config[communitySlug] as Settings) || {};
+  const settings: Settings = config[communitySlug as keyof typeof config] || {};
   const { width, height } = useWindowSize();
   const donateAccountAddress = settings?.donatePage?.accountAddress;
   const [listen, setListen] = useState(false);
