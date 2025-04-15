@@ -15,7 +15,9 @@ export default function TransactionRow({
   contributorAddress,
   amount,
   profiles,
+  fromProfiles,
   showAmount = true,
+  showUsernames = false,
   communitySlug,
 }: {
   token: ConfigToken;
@@ -23,7 +25,9 @@ export default function TransactionRow({
   amount: number;
   decimals: number;
   communitySlug: string;
+  fromProfiles?: any[];
   showAmount?: boolean;
+  showUsernames?: boolean;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
 }) {
   const [fromImageError, setFromImageError] = useState<boolean>(false);
@@ -36,41 +40,27 @@ export default function TransactionRow({
     setFromImageError(true);
   };
 
-  const extraProfiles: any = {
-    Superchain:
-      "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
-    "Tickets via lu.ma":
-      "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
-    Metagov:
-      "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
-    Gnosis:
-      "https://pbs.twimg.com/profile_images/1603829076346667022/6J-QZXPB_400x400.jpg",
-    "Kevin Owocki":
-      "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
-    Octant:
-      "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
-    "Blast.io":
-      "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
-    POV: "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
-  };
-
   if (!amount) return null;
-  console.log(">>> ContributorRow", { contributorAddress, fromProfile });
+  const profile: any =
+    (fromProfiles && fromProfiles[contributorAddress as any]) || fromProfile;
+  const avatar = profile?.imgsrc
+    ? profile.imgsrc
+    : profile?.image_medium && !fromImageError
+    ? getUrlFromIPFS(profile.image_medium) || ""
+    : getAvatarUrl(contributorAddress);
 
   return (
-    <div className="flex flex-wrap flex-row w-full overflow-hidden mt-4 mb-0 h-full ">
-      <div className="flex m-2">
-        <div className="align-center text-center mb-2">
-          <div className="flex w-[70px] h-[70px] items-center">
+    <div className="flex m-2">
+      <a
+        title={`Total contributed: ${parseFloat(
+          formatUnits(BigInt(amount), decimals)
+        ).toFixed(2)} ${token.symbol}`}
+      >
+        <div className="align-center text-center mb-2 w-[80px]">
+          <div className="mx-auto w-[70px] h-[70px]">
             <Image
               unoptimized
-              src={
-                extraProfiles[contributorAddress]
-                  ? extraProfiles[contributorAddress]
-                  : fromProfile?.image_medium && !fromImageError
-                  ? getUrlFromIPFS(fromProfile.image_medium) || ""
-                  : getAvatarUrl(contributorAddress)
-              }
+              src={avatar}
               alt="from avatar"
               width={70}
               height={70}
@@ -78,26 +68,28 @@ export default function TransactionRow({
               onError={handleFromImageError}
             />
           </div>
-          <div className="flex w-full align-center flex-row text-sm  text-gray-500">
-            {fromProfile?.name ? (
-              <div className="w-full">
-                <div className="text-center font-bold h-5 overflow-hidden">
-                  {fromProfile.name}
+          <div className="text-center text-sm text-gray-500 max-h-3 text-ellipsis">
+            {profile?.name ? (
+              <div className="w-full justify-center max-h-8">
+                <div className="text-center font-bold h-5 overflow-hidden ">
+                  {profile.name}
                 </div>
-                <div className="text-center">@{fromProfile.username}</div>
+                {showUsernames && (
+                  <div className="text-center">@{profile.username}</div>
+                )}
               </div>
             ) : (
               displayAddress(contributorAddress)
             )}
           </div>
         </div>
-        {showAmount && (
-          <div className="flex flex-col text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 text-right">
-            <HumanNumber value={formatUnits(BigInt(amount), decimals)} />{" "}
-            <span className="text-sm font-normal">{token.symbol}</span>
-          </div>
-        )}
-      </div>
+      </a>
+      {showAmount && (
+        <div className="flex flex-col text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 text-right">
+          <HumanNumber value={formatUnits(BigInt(amount), decimals)} />{" "}
+          <span className="text-sm font-normal">{token.symbol}</span>
+        </div>
+      )}
     </div>
   );
 }

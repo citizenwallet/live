@@ -1,7 +1,7 @@
 "use server";
 
 import MonitorPage from "@/containers/MonitorPage";
-import { ConfigService } from "@citizenwallet/sdk";
+import CitizenWalletCommunity from "@/lib/citizenwallet";
 import { Suspense } from "react";
 import Footer from "@/components/Footer";
 
@@ -10,10 +10,17 @@ interface props {
     communitySlug: string;
     accountAddress: string;
   };
+  searchParams: {
+    collectiveSlug?: string;
+    from?: string;
+    title?: string;
+    showHeader: string;
+  };
 }
 
 export default async function Page({
   params: { communitySlug, accountAddress },
+  searchParams: { collectiveSlug, from, title, showHeader = "true" },
 }: props) {
   console.log(
     ">>> communitySlug",
@@ -21,19 +28,30 @@ export default async function Page({
     "accountAddress",
     accountAddress
   );
-  const configService = new ConfigService();
-  const configs = await configService.get(true);
-  console.log(">>> configs", configs);
-  const config = configs.find(
-    (config) => config.community.alias === communitySlug
-  );
+  
+  const cw = new CitizenWalletCommunity(communitySlug);
+  const config = await cw.loadConfig();
+  let profile;
+  if (accountAddress.length !== 42 || !accountAddress.startsWith('0x')) {
+    profile = await cw.getProfileFromUsername(accountAddress);
+  } else {
+    profile = await cw.getProfile(accountAddress);
+  }
 
   if (!config) {
     return <div>Community not found</div>;
   }
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <MonitorPage communityConfig={config} accountAddress={accountAddress} />
+      {title && <h1 className="text-4xl font-bold my-4">{title}</h1>}
+      <MonitorPage
+        communityConfig={config}
+        accountAddress={profile?.account || accountAddress}
+        profile={profile}
+        collectiveSlug={collectiveSlug}
+        from={from}
+        showHeader={showHeader === "true"}
+      />
       <Footer />
     </Suspense>
   );

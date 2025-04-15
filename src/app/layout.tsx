@@ -35,7 +35,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Theme className="h-screen w-screen flex flex-col items-center overflow-hidden">
+        <Theme className="h-screen w-screen flex flex-col items-center">
           {children}
         </Theme>
       </body>

@@ -1,5 +1,6 @@
-import { createPublicClient, http } from "viem";
-import { ethers } from "ethers";
+import { createPublicClient, http } from 'viem';
+import { ethers, hexlify, toUtf8Bytes } from 'ethers';
+import { formatUsernameToBytes32 } from '@citizenwallet/sdk';
 import {
   celo,
   celoAlfajores,
@@ -9,21 +10,21 @@ import {
   gnosisChiado,
   base,
   baseSepolia,
-} from "viem/chains";
+} from 'viem/chains';
 
-import ProfileABI from "smartcontracts/build/contracts/profile/Profile.abi.json";
-import ERC20ABI from "smartcontracts/build/contracts/erc20/ERC20.abi.json";
+import ProfileABI from 'smartcontracts/build/contracts/profile/Profile.abi.json';
+import ERC20ABI from 'smartcontracts/build/contracts/erc20/ERC20.abi.json';
 
-const protocol = ["production", "preview"].includes(process.env.NODE_ENV)
-  ? "https"
-  : "http";
+const protocol = ['production', 'preview'].includes(process.env.NODE_ENV)
+  ? 'https'
+  : 'http';
 
 const CONFIG_URL =
-  process.env.NODE_ENV === "test"
+  process.env.NODE_ENV === 'test'
     ? `${protocol}://config.internal.citizenwallet.xyz/v3/communities.json`
-    : `${process.env.WEBAPP_URL}/api/getConfig`;
+    : `${process.env.NEXT_PUBLIC_WEBAPP_URL || ''}/api/getConfig`;
 
-export const IPFS_BASE_URL = "https://ipfs.internal.citizenwallet.xyz";
+export const IPFS_BASE_URL = 'https://ipfs.internal.citizenwallet.xyz';
 
 interface ChainMap {
   [key: number]: any;
@@ -54,7 +55,7 @@ export default class CitizenWalletCommunity {
   constructor(communitySlug: string) {
     this.communitySlug = communitySlug;
     this.configUrl = CONFIG_URL;
-    this.symbol = "";
+    this.symbol = '';
   }
 
   initClient = async () => {
@@ -73,7 +74,7 @@ export default class CitizenWalletCommunity {
   loadConfig = async () => {
     if (this.config) return this.config;
     const response = await fetch(this.configUrl, {
-      mode: "cors",
+      mode: 'cors',
     });
     if (!response.ok) {
       throw new Error(
@@ -94,29 +95,31 @@ export default class CitizenWalletCommunity {
     const contractAddress = this.config.profile.address;
 
     try {
+      console.log('>>> read profile contract');
       const ipfsHash = await this.client.readContract({
         address: contractAddress,
         abi: ProfileABI,
-        functionName: "get",
+        functionName: 'get',
         args: [account],
       });
       return await this.fetchJSON(ipfsHash);
     } catch (e) {
-      console.error("Error getting profile for", account, e);
+      console.error('Error getting profile for', account, e);
       return null;
     }
   };
 
   getProfileFromUsername = async (username: string) => {
+    console.log('getProfileFromUsername', username);
     await this.initClient();
     const contractAddress = this.config.profile.address;
 
-    const username32 = ethers.encodeBytes32String(username);
+    const username32 = formatUsernameToBytes32(username);
     try {
       const ipfsHash = await this.client.readContract({
         address: contractAddress,
         abi: ProfileABI,
-        functionName: "getFromUsername",
+        functionName: 'getFromUsername',
         args: [username32],
       });
       return await this.fetchJSON(ipfsHash);
@@ -135,7 +138,7 @@ export default class CitizenWalletCommunity {
     const balance = await this.client.readContract({
       address: contractAddress,
       abi: ERC20ABI,
-      functionName: "balanceOf",
+      functionName: 'balanceOf',
       args: [account],
     });
 
@@ -147,14 +150,14 @@ export default class CitizenWalletCommunity {
     const apiUrl = this.config.indexer.url;
     const apiCall = `${apiUrl}/logs/v2/transfers/${this.config.token.address}/${account}?limit=10`;
     const response = await fetch(apiCall, {
-      headers: { Authorization: "Bearer x" },
+      headers: { Authorization: 'Bearer x' },
     });
     try {
       const data = await response.json();
       return data.array;
     } catch (e) {
       console.error(
-        ">>> unable to getTransactions",
+        '>>> unable to getTransactions',
         apiCall,
         response.status,
         response.statusText,
@@ -165,7 +168,7 @@ export default class CitizenWalletCommunity {
   };
 
   fetchFromIPFS = async (ipfsHash: string) => {
-    const ipfsUrl = `${IPFS_BASE_URL}/${ipfsHash.replace("ipfs://", "")}`;
+    const ipfsUrl = `${IPFS_BASE_URL}/${ipfsHash.replace('ipfs://', '')}`;
     const response = await fetch(ipfsUrl);
     return await response.text();
   };
@@ -176,7 +179,7 @@ export default class CitizenWalletCommunity {
   };
 
   getImageSrc = (ipfsHash: string) => {
-    const ipfsUrl = `${IPFS_BASE_URL}/${ipfsHash.replace("ipfs://", "")}`;
+    const ipfsUrl = `${IPFS_BASE_URL}/${ipfsHash.replace('ipfs://', '')}`;
     return ipfsUrl;
   };
 }

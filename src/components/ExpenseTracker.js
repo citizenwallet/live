@@ -50,23 +50,37 @@ const getOpenCollectiveData = async (collectiveSlug, limit) => {
       signal: controller.signal,
     }
   );
-  const data = await graphQLClient.request(query, {
-    collectiveSlug: slug,
-    limit: limit || 5,
-  });
-  const result = {
-    currency: data.Collective.currency,
-    amount: `${data.Collective.stats.balance}`,
-    stats: data.Collective.stats,
-    backers: data.Collective.members,
-    expenses: data.Collective.expenses,
-  };
-  return result;
+  try {
+    const data = await graphQLClient.request(query, {
+      collectiveSlug: slug,
+      limit: limit || 5,
+    });
+    const result = {
+      currency: data.Collective.currency,
+      amount: `${data.Collective.stats.balance}`,
+      stats: data.Collective.stats,
+      backers: data.Collective.members,
+      expenses: data.Collective.expenses,
+    };
+    return result;
+  } catch (e) {
+    console.error(">>> error fetching collective data", e);
+    return false;
+  }
 };
 
 const CollectiveExpenses = ({ collectiveSlug, limit, showStatus }) => {
-  const { data, error } = useSWR(collectiveSlug, (collectiveSlug) =>
-    getOpenCollectiveData(collectiveSlug, limit)
+  const { data, error } = useSWR(
+    collectiveSlug,
+    (collectiveSlug) => getOpenCollectiveData(collectiveSlug, limit),
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 60000, // 1 minute
+      refreshInterval: 60000, // 1 minute
+      errorRetryCount: 3,
+      errorRetryInterval: 30000, // 30 seconds
+      keepPreviousData: true,
+    }
   );
 
   // console.log(">>> error received", error);

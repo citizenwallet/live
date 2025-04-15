@@ -29,31 +29,35 @@ type Settings = {
     projectId?: number;
     url?: string;
   };
-  milestones: Milestone[];
+  donatePage?: {
+    title?: string;
+    accountAddress?: string;
+  };
+  milestones?: Milestone[];
 };
 
-function FundraiserPage({
+function DashboardPage({
   communityConfig,
-  accountAddress,
-  title,
-  goal,
   collectiveSlug,
+  from,
+  title,
 }: {
   communityConfig: Config;
-  accountAddress: string;
-  title: string;
-  goal: number;
   collectiveSlug: string;
+  title: string;
+  from?: string;
 }) {
   // @ts-ignore
-  const settings: Settings = (config[accountAddress] as Settings) || {};
-
-  const { width, height } = useWindowSize();
-
-  const [listen, setListen] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const fromDate: Date = from
+    ? new Date(from)
+    : new Date(new Date().setHours(0, 0, 0, 0));
 
   const communitySlug = communityConfig.community.alias;
+  const settings: Settings = config[communitySlug as keyof typeof config] || {};
+  const { width, height } = useWindowSize();
+  const donateAccountAddress = settings?.donatePage?.accountAddress;
+  const [listen, setListen] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const unsubscribeRef = useRef<() => void | undefined>();
 
@@ -71,7 +75,7 @@ function FundraiserPage({
 
   const [store, actions] = useTransfers(
     communityConfig,
-    accountAddress,
+    undefined,
     settings,
     handleNewTransactions
   );
@@ -103,16 +107,14 @@ function FundraiserPage({
   };
 
   useSafeEffect(() => {
-    actions.setAccount(accountAddress);
-
     if (settings) {
       actions.setCommunitySettings(settings);
     }
-    actions.loadFrom(new Date('2024-01-01T00:00:00Z'));
+    actions.loadFrom(fromDate);
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
-  }, [actions, accountAddress]);
+  }, [actions]);
 
   useSafeEffect(() => {
     // automatically start listening
@@ -199,9 +201,15 @@ function FundraiserPage({
     BigInt(totalAmount),
     communityConfig.token.decimals
   );
-  const progress =
-    goal && Math.round((parseFloat(totalAmountTransferred) / goal) * 1000) / 10;
 
+  const donateUrl =
+    communitySlug === 'wallet.pay.brussels'
+      ? `https://checkout.pay.brussels/${donateAccountAddress}`
+      : `${
+          process.env.NEXT_PUBLIC_WEBAPP_URL || ''
+        }/${communitySlug}/${donateAccountAddress}/donate?collectiveSlug=${collectiveSlug}`;
+
+  console.log('>>> donateUrl', donateUrl);
   return (
     <>
       {showConfetti && <Confetti width={width} height={height} />}
@@ -238,15 +246,6 @@ function FundraiserPage({
               )}
             </div>
           </div>
-          {goal && (
-            <ProgressBar
-              percent={progress}
-              goal={goal}
-              tokenSymbol={communityConfig.token.symbol}
-              milestones={settings?.milestones}
-            />
-          )}
-
           <div className="w-full flex flex-row h-full">
             <div className="w-1/2 flex flex-col">
               <div className="w-full flex flex-row justify-between items-center mb-4">
@@ -334,10 +333,8 @@ function FundraiserPage({
         <div className="flex flex-col ml-5 w-[480px]">
           <DonateQRCode
             communitySlug={communitySlug}
-            accountAddress={accountAddress}
-            donateUrl={`${
-              process.env.NEXT_PUBLIC_WEBAPP_URL || ''
-            }/${communitySlug}/${accountAddress}/donate?collectiveSlug=${collectiveSlug}`}
+            accountAddress={donateAccountAddress}
+            donateUrl={donateUrl}
           />
           <div className="relative h-full bg-white rounded-3xl px-2 w-[480px] mx-auto mt-5">
             <h3 className="text-xl font-bold text-[#8F8A9D] mt-2 text-center">
@@ -393,4 +390,4 @@ function FundraiserPage({
   );
 }
 
-export default FundraiserPage;
+export default DashboardPage;
