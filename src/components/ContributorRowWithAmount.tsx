@@ -15,6 +15,7 @@ export default function TransactionRow({
   contributorAddress,
   amount,
   profiles,
+  fromProfiles,
   communitySlug,
 }: {
   token: ConfigToken;
@@ -23,6 +24,7 @@ export default function TransactionRow({
   decimals: number;
   communitySlug: string;
   profiles: UseBoundStore<StoreApi<ProfilesStore>>;
+  fromProfiles?: any[];
 }) {
   const [fromImageError, setFromImageError] = useState<boolean>(false);
 
@@ -39,6 +41,8 @@ export default function TransactionRow({
       "https://pbs.twimg.com/profile_images/1696769956245807105/xGnB-Cdl_400x400.png",
     "Tickets via lu.ma":
       "https://pbs.twimg.com/profile_images/1765103917749215233/qK72DSBL_400x400.jpg",
+    "Grants Funding Forum tickets":
+      "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/event-covers/h2/c185b44c-c323-484b-94ff-3ded0f6e586b",
     Metagov:
       "https://pbs.twimg.com/profile_images/1405958117444173831/JUsPuQdZ_400x400.png",
     Gnosis:
@@ -47,14 +51,23 @@ export default function TransactionRow({
       "https://pbs.twimg.com/profile_images/1769808533304844288/QXNWAaFS_400x400.jpg",
     Octant:
       "https://pbs.twimg.com/profile_images/1647279005513424898/E7aQiEty_400x400.png",
+    "Proof of Vibe":
+      "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
     "Blast.io":
       "https://pbs.twimg.com/profile_images/1805963937449381888/aNF8BIJo_400x400.jpg",
     POV: "https://pbs.twimg.com/profile_images/1544508987009269761/SU124WxA_400x400.jpg",
   };
 
   if (!amount) return null;
-  console.log(">>> ContributorRow", { contributorAddress, fromProfile });
-
+  const profile: any =
+    (fromProfiles && fromProfiles[contributorAddress as any]) || fromProfile;
+  const avatar = profile?.imgsrc
+    ? profile.imgsrc
+    : extraProfiles[contributorAddress]
+    ? extraProfiles[contributorAddress]
+    : profile?.image_medium && !fromImageError
+    ? getUrlFromIPFS(profile.image_medium) || ""
+    : getAvatarUrl(contributorAddress);
   return (
     <div className="flex flex-row w-full mt-4 mb-0 h-full ">
       <div className="flex m-2 w-full">
@@ -62,13 +75,7 @@ export default function TransactionRow({
           <div className="flex w-[70px] h-[70px] items-center">
             <Image
               unoptimized
-              src={
-                extraProfiles[contributorAddress]
-                  ? extraProfiles[contributorAddress]
-                  : fromProfile?.image_medium && !fromImageError
-                  ? getUrlFromIPFS(fromProfile.image_medium) || ""
-                  : getAvatarUrl(contributorAddress)
-              }
+              src={avatar}
               alt="from avatar"
               width={70}
               height={70}

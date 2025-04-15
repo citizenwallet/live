@@ -1,15 +1,15 @@
-"use server";
+'use server';
 
-import MonitorPage from "@/containers/MonitorPage";
-import { ConfigService } from "@citizenwallet/sdk";
-import { Suspense } from "react";
-import Footer from "@/components/Footer";
+import DashboardPage from '@/containers/DashboardPage';
+import { ConfigService } from '@citizenwallet/sdk';
+import { Suspense } from 'react';
+import Footer from '@/components/Footer';
 interface props {
   params: {
     communitySlug: string;
   };
   searchParams: {
-    accountAddress: string;
+    collectiveSlug: string;
     showHeader: string;
     from: string;
   };
@@ -17,7 +17,7 @@ interface props {
 
 export default async function Page({
   params: { communitySlug },
-  searchParams: { accountAddress, showHeader, from },
+  searchParams: { collectiveSlug, showHeader, from },
 }: props) {
   const configService = new ConfigService();
 
@@ -32,11 +32,11 @@ export default async function Page({
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <MonitorPage
+      <DashboardPage
         communityConfig={config}
-        accountAddress={accountAddress}
+        collectiveSlug={collectiveSlug}
         from={from}
-        showHeader={showHeader !== "false"}
+        title={`${communitySlug} Dashboard`}
       />
       <Footer />
     </Suspense>
